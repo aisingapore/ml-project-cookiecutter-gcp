@@ -1,0 +1,8 @@
+{
+    "project_name": "project_name",
+    "description": "A short description of the project.",
+    "author_name": "Your name (or your organisation/company/team).",
+    "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "conda_env_name": "{{ cookiecutter.repo_name.replace('_', '-') }}",
+    "open_source_license": ["MIT", "BSD-3-Clause", "No license file"]
+}
