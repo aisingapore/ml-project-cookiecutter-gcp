@@ -1,0 +1,17 @@
+data_prep:
+  raw_dirs_paths:
+    - "../{{cookiecutter.repo_name}}-data/raw/subdir1"
+  processed_data_path: "../{{cookiecutter.repo_name}}-data/processed/subdir"
+
+train:
+  mlflow_tracking_uri: "mlflow-nginx-server-svc.polyaxon-v1.svc.local"
+  mlflow_exp_name: "{{cookiecutter.repo_name}}"
+  mlflow_artifact_location: "gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server"
+  data_path: "../{{cookiecutter.repo_name}}-data/processed/subdir"
+  val_split: 0.2
+  bs: 32
+  seed: 4002
+  epochs: 3
+  optimiser: "adam"
+  metric: "accuracy"
+  pretrained_embedding: "https://tfhub.dev/google/nnlm-en-dim128-with-normalization/2"

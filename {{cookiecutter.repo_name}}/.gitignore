@@ -9,14 +9,27 @@ conf/**/*credentials*
 data/**
 logs/**
 models/**
+k8s/pvc/**
+k8s/secrets/**
 
 # Except their sub-folders
 !data/**/
 !logs/**/
 !models/**/
+!k8s/pvc/**/
+!k8s/secrets/**/
 
 # Keep all .gitkeep files
 !.gitkeep
+
+# Ignore .deb packages
+*.deb
+
+# Ignore local MLflow logs
+**/mlruns
+
+# Ignore outputs from OmegaConf/Hydra
+**/outputs/**
 
 ####################
 ### Common files ###

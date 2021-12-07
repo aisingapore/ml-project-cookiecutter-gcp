@@ -1,8 +1,8 @@
 {
-    "project_name": "project_name",
+    "project_name": "Name of project (not name of repository).",
     "description": "A short description of the project.",
+    "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
+    "gcp_project_id": "ID of your GCP project.",
     "author_name": "Your name (or your organisation/company/team).",
-    "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
-    "conda_env_name": "{{ cookiecutter.repo_name.replace('_', '-') }}",
     "open_source_license": ["MIT", "BSD-3-Clause", "No license file"]
 }

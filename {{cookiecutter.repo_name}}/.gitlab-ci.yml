@@ -1,0 +1,22 @@
+stages:
+  - build
+
+build-model-train-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - echo $CI_JOB_TOKEN
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/e2e-project-template-gcp-model-training-gpu.Dockerfile"
+      --destination "asia.gcr.io/{{cookiecutter.gcp_project_id}}/eptg-model-train:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /Trigger: build-model-train-image/'
+      when: always

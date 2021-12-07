@@ -1,0 +1,41 @@
+version: 1.1
+kind: component
+name: update-raw-data
+description: Test for pulling raw data from remote DVC cache on GCS.
+tags: [data_prep, dvc]
+inputs:
+  - name: WORKING_DIR
+    description: The working directory for the job to run in.
+    isOptional: true
+    type: str
+  - name: SA_CRED_PATH
+    description: Path to credential file for GCP service account.
+    isOptional: true
+    type: str
+    value: /var/secret/cloud.google.com/gcp-service-account.json
+    toEnv: GOOGLE_APPLICATION_CREDENTIALS
+run:
+  kind: job
+  connections: [fstore-pvc]
+  environment:
+    imagePullSecrets: ["gcp-imagepullsecrets"]
+  volumes:
+    - name: gcp-service-account
+      secret:
+        secretName: "gcp-sa-credentials"
+  container:
+    image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/data-prep:0.1.0
+    imagePullPolicy: IfNotPresent
+    workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
+    command: ["/bin/bash", "-c"]
+    args: ["dvc pull -v"]
+    resources:
+      requests:
+        memory: "4Gi"
+        cpu: "4"
+      limits:
+        memory: "8Gi"
+        cpu: "8"
+    volumeMounts:
+      - name: gcp-service-account
+        mountPath: /var/secret/cloud.google.com

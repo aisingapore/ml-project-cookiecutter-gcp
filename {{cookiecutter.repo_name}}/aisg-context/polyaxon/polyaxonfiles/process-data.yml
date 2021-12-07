@@ -1,0 +1,53 @@
+version: 1.1
+kind: component
+name: update-raw-data
+description: Test for pulling raw data from remote DVC cache on GCS.
+tags: [data_prep, processed]
+inputs:
+  - name: WORKING_DIR
+    description: The working directory for the job to run in.
+    isOptional: true
+    type: str
+  - name: SA_CRED_PATH
+    description: Path to credential file for GCP service account.
+    isOptional: true
+    type: str
+    value: /var/secret/cloud.google.com/gcp-service-account.json
+    toEnv: GOOGLE_APPLICATION_CREDENTIALS
+  - name: RAW_DATA_DIRS
+    description: List of subdirectories within the raw data folder.
+    type: str
+    isOptional: true
+    value: '["/polyaxon-v1-data/workspaces/project_data/dir1", "/polyaxon-v1-data/workspaces/project_data/dir2"]'
+  - name: PROCESSED_DATA_DIR
+    description: The directory where processed data will be written to.
+    isOptional: true
+    type: str
+run:
+  kind: job
+  connections: [fstore-pvc]
+  environment:
+    imagePullSecrets: ["gcp-imagepullsecrets"]
+  volumes:
+    - name: gcp-service-account
+      secret:
+        secretName: "gcp-sa-credentials"
+  container:
+    image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/data-prep:0.1.0
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/bash", "-c"]
+    args: [
+      "yq e '.data_prep.raw_dirs_paths = {{ RAW_DATA_DIRS }}' -i conf/base/pipelines.yml &&",
+      "python",
+      "src/clean_data.py"
+    ]
+    resources:
+      requests:
+        memory: "4Gi"
+        cpu: "4"
+      limits:
+        memory: "8Gi"
+        cpu: "8"
+    volumeMounts:
+      - name: gcp-service-account
+        mountPath: /var/secret/cloud.google.com

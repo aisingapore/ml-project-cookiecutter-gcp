@@ -16,7 +16,7 @@ Project Repo Tree
     │                                                      the creator's initials, and a short `-` delimited description, e.g.
     │                                                      `1.0-jqp-initial-data-exploration`.
     │
-    ├── {{cookiecutter.conda_env_name}}-conda-env.yml   <- The conda environment file for reproducing the project's 
+    ├── {{cookiecutter.repo_name}}-conda-env.yml   <- The conda environment file for reproducing the project's 
     │                                                      development environment.
     │
     └── src                                             <- Source code for use in this project.

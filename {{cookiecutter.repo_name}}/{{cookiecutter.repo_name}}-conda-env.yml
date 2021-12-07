@@ -1,0 +1,22 @@
+name: {{cookiecutter.repo_name}}
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.7.11
+  - pip=20.2.2
+  - pip:
+    - pandas==1.1.5
+    - mlflow==1.22.0
+    - pylint==2.6.0
+    - pytest-cov==2.10.1
+    - Flask==1.1.2
+    - seldon-core==1.6
+    - tensorflow==2.3.0
+    - tensorflow_hub==0.10.0
+    - pyyaml==5.4.1
+    - python-json-logger==2.0.2
+    - polyaxon==1.11.3
+    - google-cloud-storage==1.43.0
+    - hydra-core==1.1.1
+    - optuna==2.10.0
