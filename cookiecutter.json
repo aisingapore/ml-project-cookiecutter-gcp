@@ -4,5 +4,8 @@
     "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
     "gcp_project_id": "ID of your GCP project.",
     "author_name": "Your name (or your organisation/company/team).",
-    "open_source_license": ["MIT", "BSD-3-Clause", "No license file"]
+    "open_source_license": ["MIT", "BSD-3-Clause", "No license file"],
+    "_copy_without_render": [
+        "aisg-context/polyaxon/polyaxonfiles"
+    ]
 }
