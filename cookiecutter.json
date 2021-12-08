@@ -2,6 +2,8 @@
     "project_name": "Name of project (not name of repository).",
     "description": "A short description of the project.",
     "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
+    "src_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "src_package_name_short": "{{ cookiecutter.src_package_name }}",
     "gcp_project_id": "ID of your GCP project.",
     "author_name": "Your name (or your organisation/company/team).",
     "open_source_license": ["MIT", "BSD-3-Clause", "No license file"],

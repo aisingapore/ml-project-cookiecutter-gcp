@@ -15,8 +15,8 @@ build-model-train-image:
     - >-
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/docker/e2e-project-template-gcp-model-training-gpu.Dockerfile"
-      --destination "asia.gcr.io/{{cookiecutter.gcp_project_id}}/eptg-model-train:${CI_COMMIT_SHORT_SHA}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{ cookiecutter.repo_name }}-model-training-gpu.Dockerfile"
+      --destination "asia.gcr.io/{{ cookiecutter.gcp_project_id }}/model-train:${CI_COMMIT_SHORT_SHA}"
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ /Trigger: build-model-train-image/'
       when: always
