@@ -631,10 +631,8 @@ $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml -p {{cook
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}"
 ```
 
-If you were to inspect `aisg-context/polyaxon/polyaxonfiles/process-data.yml`, the second
-command that is executed is
-`"yq e '.data_prep.raw_dirs_paths = {{ RAW_DATA_DIRS }}' -i conf/base/pipelines.yml"`.
-What this command does is to overwrite the list of directories specified
+If you were to inspect `aisg-context/polyaxon/polyaxonfiles/process-data.yml`,
+the second command with `yq` overwrites the list of directories specified
 in the config file `conf/base/pipelines.yml` for the key
 `.data_prep.raw_dirs_paths`. You may specify a list of directory paths with
 which you can process and combine the results into one single directory.
