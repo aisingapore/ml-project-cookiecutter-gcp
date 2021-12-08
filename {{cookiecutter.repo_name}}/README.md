@@ -2,6 +2,7 @@
 
 Customised for {{ cookiecutter.project_name }}.
 
+{{ cookiecutter.description }}
 ## Table of Contents
 
 - [End-to-end Project Template (GCP)](#end-to-end-project-template-gcp)
