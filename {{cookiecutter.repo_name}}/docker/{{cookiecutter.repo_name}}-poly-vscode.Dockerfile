@@ -1,5 +1,12 @@
 FROM debian:11
 
+# DVC arguments
+ARG DVC_VERSION="2.8.3"
+ARG DVC_BINARY_NAME="dvc_2.8.3_amd64.deb"
+# VSCode Server arguments
+ARG CODE_SERVER_VERSION="3.12.0"
+ARG CODE_SERVER_BINARY_NAME="code-server_3.12.0_amd64.deb"
+
 RUN apt-get update \
     && apt-get install -y \
     curl \
@@ -51,17 +58,15 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     mkdir -p /etc/fixuid && \
     printf "user: coder\ngroup: coder\n" > /etc/fixuid/config.yml
 
-COPY code-server/code-server*.deb /tmp/
-COPY code-server/entrypoint.sh /usr/bin/entrypoint.sh
-RUN chown -R 2222:2222 /tmp/code-server*.deb && \
+COPY aisg-context/code-server/entrypoint.sh /usr/bin/entrypoint.sh
+
+RUN wget "https://github.com/cdr/code-server/releases/download/v$CODE_SERVER_VERSION/$CODE_SERVER_BINARY_NAME"
+
+RUN chown -R 2222:2222 $CODE_SERVER_BINARY_NAME && \
     chown -R 2222:2222 /usr/bin/entrypoint.sh && \
     chmod +x /usr/bin/entrypoint.sh
 
-RUN dpkg -i /tmp/code-server*$(dpkg --print-architecture).deb && rm /tmp/code-server*.deb
-
-# Install DVC
-ARG DVC_VERSION="2.8.3"
-ARG DVC_BINARY_NAME="dvc_2.8.3_amd64.deb"
+RUN dpkg -i $CODE_SERVER_BINARY_NAME && rm $CODE_SERVER_BINARY_NAME
 
 RUN wget "https://github.com/iterative/dvc/releases/download/$DVC_VERSION/$DVC_BINARY_NAME" && \
     apt install -y "./$DVC_BINARY_NAME" && \
