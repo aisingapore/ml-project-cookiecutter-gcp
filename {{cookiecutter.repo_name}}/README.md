@@ -1,8 +1,8 @@
 # End-to-end Project Template (GCP)
 
-Customised for {{ cookiecutter.project_name }}.
+Customised for {{cookiecutter.project_name}}.
 
-{{ cookiecutter.description }}
+{{cookiecutter.description}}
 
 ## Table of Contents
 
@@ -156,6 +156,12 @@ A simple command to authorise access:
 $ gcloud auth login
 ```
 
+To register `gcloud` for Docker so you can push to Google's Container Registry:
+
+```bash
+$ gcloud auth configure-docker
+```
+
 With your user account, you should have access to the following GCP
 products/services:
 
@@ -246,9 +252,10 @@ interface as such:
 ![Polyaxon v1 - Projects Dashboard](./assets/screenshots/polyaxon-v1-projects-dashboard.png)
 
 Before we can create any services or run jobs on the platform, we have
-to create a project within the platform:
+to configure the host for the CLI and create a project within the platform:
 
 ```bash
+$ polyaxon config set --host=http://localhost:8888
 $ polyaxon project create --name {{cookiecutter.repo_name}}-<YOUR_NAME>
 ```
 
