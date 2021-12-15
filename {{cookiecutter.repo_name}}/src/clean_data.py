@@ -5,7 +5,7 @@ import re
 import hydra
 import tensorflow as tf
 
-import {{ cookiecutter.src_package_name }} as {{ cookiecutter.src_package_name_short }}
+import {{cookiecutter.src_package_name}} as {{cookiecutter.src_package_name_short}}
 
 
 @hydra.main(config_path="../conf/base", config_name="pipelines.yml")
@@ -18,7 +18,7 @@ def main(args):
     logger_config_path = os.path.\
         join(hydra.utils.get_original_cwd(),
             "conf/base/logging.yml")
-    {{ cookiecutter.src_package_name_short }}.general_utils.setup_logging(logger_config_path)
+    {{cookiecutter.src_package_name_short}}.general_utils.setup_logging(logger_config_path)
 
     logger.info("Loading config file.")
 
@@ -40,7 +40,7 @@ def main(args):
             try:
                 logger.debug("Processing text file: {}".
                             format(filename))
-                curr_edit_text = {{ cookiecutter.src_package_name_short }}.\
+                curr_edit_text = {{cookiecutter.src_package_name_short}}.\
                     data_prep.process_text.process_file(filename)
 
                 out_filename = re.sub(
