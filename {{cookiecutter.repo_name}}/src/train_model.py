@@ -3,7 +3,8 @@ import logging
 import hydra
 import mlflow
 
-import {{ cookiecutter.src_package_name }} as {{ cookiecutter.src_package_name_short }}
+
+import {{cookiecutter.src_package_name}} as {{cookiecutter.src_package_name_short}}
 
 
 @hydra.main(config_path="../conf/base", config_name="pipelines.yml")
@@ -21,33 +22,43 @@ def main(args):
     logger_config_path = os.path.\
         join(hydra.utils.get_original_cwd(),
             "conf/base/logging.yml")
-    {{ cookiecutter.src_package_name_short }}.general_utils.setup_logging(logger_config_path)
+    {{cookiecutter.src_package_name_short}}.general_utils.setup_logging(logger_config_path)
 
     logger.info("Loading config file.")
 
-    mlflow.set_tracking_uri(args["train"]["mlflow_tracking_uri"])
-    mlflow.set_experiment(args["train"]["mlflow_exp_name"])
-    mlflow.set_registry_uri(args["train"]["mlflow_artifact_location"])
-    mlflow.tensorflow.autolog()
+    mlflow_init_status = {{cookiecutter.src_package_name_short}}.general_utils.\
+        mlflow_init(
+            args, setup_mlflow=args["train"]["setup_mlflow"],
+            autolog=args["train"]["mlflow_autolog"])
+    {{cookiecutter.src_package_name_short}}.general_utils.\
+        mlflow_log(
+            mlflow_init_status, type="param",
+            track_dict=args["train"])
 
-    datasets = {{ cookiecutter.src_package_name_short }}.modeling.data_loaders.\
+    datasets = {{cookiecutter.src_package_name_short}}.modeling.data_loaders.\
         load_datasets(hydra.utils.get_original_cwd(), args)
 
-    model = {{ cookiecutter.src_package_name_short }}.modeling.models.seq_model(args)
+    model = {{cookiecutter.src_package_name_short}}.modeling.models.seq_model(args)
 
-    print('Training the model...')
+    logger.info("Training the model...")
     model.fit(
-        datasets['train'],
-        epochs=args['train']['epochs'],
-        validation_data=datasets['val'])
+        datasets["train"],
+        epochs=args["train"]["epochs"],
+        validation_data=datasets["val"])
 
-    print('Evaluating the model...')
+    logger.info("Evaluating the model...")
+    model.evaluate(datasets["test"])
 
-    # eval_metrics = model.evaluate(datasets['test'])
-    model.evaluate(datasets['test'])
+    logger.info("Exporting the model...")
+    {{cookiecutter.src_package_name_short}}.modeling.utils.export_model(model)
 
-    {{ cookiecutter.src_package_name_short }}.modeling.utils.export_model(model)
+    if mlflow_init_status:
+        artifact_uri = mlflow.get_artifact_uri()
+        logger.info("Artifact URI: {}".format(artifact_uri))
+        {{cookiecutter.src_package_name_short}}.general_utils.mlflow_log(
+            mlflow_init_status, type="param",
+            track_dict={"artifact_uri": artifact_uri})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

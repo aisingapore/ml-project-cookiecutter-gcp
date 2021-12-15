@@ -4,6 +4,8 @@ data_prep:
   processed_data_path: "../{{cookiecutter.repo_name}}-data/processed/subdir"
 
 train:
+  setup_mlflow: false
+  mlflow_autolog: false
   mlflow_tracking_uri: "mlflow-nginx-server-svc.polyaxon-v1.svc.local"
   mlflow_exp_name: "{{cookiecutter.repo_name}}"
   mlflow_artifact_location: "gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server"

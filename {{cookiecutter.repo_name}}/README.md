@@ -721,8 +721,10 @@ Now that we have the Docker image pushed to the registry,
 we can run a job using it:
 
 ```bash
+$ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
+$ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
 $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
-  -P MLFLOW_TRACKING_USERNAME=ryzal -P MLFLOW_TRACKING_PASSWORD=a1s1n9apore \
+  -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
   -P MLFLOW_TRACKING_URI="http://<CLUSTER_IP_OF_MLFLOW_SERVICE>:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
   -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \

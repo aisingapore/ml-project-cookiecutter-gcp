@@ -8,7 +8,8 @@ def seq_model(args):
     Paramaters
     ----------
     args : dict
-        A dictionary contained imported arguments from 'configs' folder.
+        Dictionary containing the pipeline's configuration passed from
+        Hydra.
 
     Returns
     -------
@@ -17,17 +18,17 @@ def seq_model(args):
     """
 
     hub_layer = hub.KerasLayer(
-        args['train']['pretrained_embedding'], input_shape=[],
+        args["train"]["pretrained_embedding"], input_shape=[],
         dtype=tf.string, trainable=True)
 
     model = tf.keras.Sequential()
     model.add(hub_layer)
-    model.add(tf.keras.layers.Dense(16, activation='relu'))
-    model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+    model.add(tf.keras.layers.Dense(16, activation="relu"))
+    model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
 
     model.compile(
-        optimizer=args['train']['optimiser'],
+        optimizer=args["train"]["optimiser"],
         loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-        metrics=[args['train']['metric']])
+        metrics=[args["train"]["metric"]])
 
     return model
