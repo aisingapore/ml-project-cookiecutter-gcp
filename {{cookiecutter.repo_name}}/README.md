@@ -99,6 +99,13 @@ Customised for {{cookiecutter.project_name}}.
                             repository's packages.
 ```
 
+References:
+
+- [Dockerfile reference - `.dockerignore`](https://docs.docker.com/engine/reference/builder/#dockerignore-file)
+- [Atlassian's Tutorial on `.gitignore`](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)
+- [GitLab CI/CD Quickstart](https://docs.gitlab.com/ee/ci/quick_start/)
+- [`pylint` Docs - Command-line Arguments and Configuration Files](https://pylint.pycqa.org/en/latest/user_guide/ide-integration.html?highlight=pylintrc#command-line-arguments-and-configuration-files)
+
 ## Preface
 
 This repository provides an end-to-end template for AI
