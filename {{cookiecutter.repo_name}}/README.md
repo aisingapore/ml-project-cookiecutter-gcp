@@ -44,36 +44,59 @@ Customised for {{cookiecutter.project_name}}.
 ```
 {{cookiecutter.repo_name}}
     ├── {{cookiecutter.repo_name}}-conda-env.yml
-    │                   ^-  The conda environment file for reproducing
+    │                   ^-  The `conda` environment file for reproducing
     │                       the project's development environment.
     ├── LICENSE         <-  The license this repository is to be
-    │                       respected under. Usually the default choice
-    │                       for open source projects by AI Singapore is
-    │                       the Apache License 2.0.
-    ├── README.md       <-  The top-level README for developers using
-    │                       this project.
+    │                       respected under. Can be absent due to
+    │                       omission upon generation of repository.
+    ├── README.md       <-  The top-level README containing the basic
+    │                       guide for using the repository.
+    ├── .gitlab-ci.yml  <-  YAML file for configuring instructions for
+    │                       GitLab CI/CD.
+    ├── .dockerignore   <-  File for specifying files or directories
+    │                       to be ignored by Docker contexts.
+    ├── .pylintrc       <-  Configurations for `pylint`.
+    ├── .gitignore      <-  File for specifying files or directories
+    │                       to be ignored by Git.
+    ├── aisg-context    <-  Folders containing files and assets relevant
+    │   │                   for works within the context of AISG's
+    │   │                   development environments.
+    │   ├── code-server <-  Directory containing the entry point script
+    │   │                   for the VSCode server's Docker image.
+    │   │
+    │   │
+    │   └── polyaxon    <-  Specification files for services and jobs
+    │                       to be executed by the Polyaxon server.
+    ├── assets          <-  Screenshots and images.
     ├── conf            <-  Configuration files associated with the
-    │                       various stages of the pipeline.
+    │                       various pipelines as well as for logging.
     ├── data            <-  The folder that is to contain the DVC files
-    │                       of the project.
+    │                       of the project. Contents of folder will be
+    │                       ignored except for `.dvc` and `.gitignore`
+    │                       files.
     ├── docker          <-  Dockerfiles associated with the various
     │                       stages of the pipeline.
     ├── docs            <-  A default Sphinx project; see sphinx-doc.org
     │                       for details.
     ├── helm-charts     <-  Helm charts for the deployment to the
     │                       Kubernetes cluster.
-    ├── models          <-  DVC files of trained and serialized models,
-    │                       model predictions, or model summaries
+    ├── models          <-  DVC files of trained and serialised models.
     ├── notebooks       <-  Jupyter notebooks. Naming convention is a
     │                       number (for ordering), the creator's
     │                       initials, and a short `-` delimited
     │                       description, e.g.
     │                       `1.0-jqp-initial-data-exploration`.
-    ├── scripts         <-  Bash scripts for CI/CD execution.
-    └── src             <-  Main source code for use in this project.
-        └── {{ cookiecutter.src_package_name}}_api
-                        ^-  Files associated with the deployment of
-                            models as API.
+    ├── scripts         <-  Bash scripts for any parts of the pipelines.
+    └── src             <-  Directory containing the source code and
+        |                   packages for the project repository.
+        |── {{cookiecutter.src_package_name}}
+        |               ^-  Package containing modules for all pipelines
+        |                   except deployment.
+        |── {{cookiecutter.src_package_name}}_api
+        |               ^-  Files associated with the deployment of
+        |                   models as API.
+        └── tests       <-  Directory containing tests for the
+                            repository's packages.
 ```
 
 ## Preface
@@ -421,7 +444,7 @@ $ docker build \
 $ docker push asia.gcr.io/$GCP_PROJECT_ID/vscode-server:0.1.0
 ```
 
-Once that is done, change the value of `run.container.image` for the
+Once that is done, change the value of `.run.container.image` for the
 file `aisg-context/polyaxon/polyaxonfiles/vscode-service.yml` to the name and tag of
 the Docker image you've just pushed:
 
@@ -506,17 +529,14 @@ data for your own project's problem statement.)
 
 > More content to be included for uploading of project data through UDP...
 
-__Note:__ If you would like to follow along with this guide, you may clone
-[this repo](https://github.com/aimakerspace/{{cookiecutter.repo_name}}-data) to
-obtain the public data used for this example.
-
 For this guide's problem statement, we will use the following repository:
-https://github.com/aimakerspace/{{cookiecutter.repo_name}}-data
+https://github.com/aimakerspace/e2e-project-template-gcp-data
 
 We will clone that repository within our development workspace.
 For the following commands, substitute `<PROJECT_DATA_GIT_URL>` and
-`<PROJECT_DATA_REPO_NAME>` with the aforementioned link and repository name
-respectively.
+`<PROJECT_DATA_REPO_NAME>` with the link above
+(https://github.com/aimakerspace/e2e-project-template-gcp-data)
+and the repository name respectively.
 
 ```bash
 $ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>
@@ -531,8 +551,8 @@ drwxr-sr-x 8 coder 2222 xxxx xxx xx xx:xx .git
 ```
 
 Projects' data repositories contains base configurations for the remote DVC
-cache which stores versions of your project's data. In our context here, the remote
-cache is situated within a GCS bucket (a publicly acessible one).
+cache which stores versions of your project's data. In our context here, the
+remote cache is situated within a GCS bucket (a publicly accessible one).
 For you to be able to navigate between the different versions of your project's
 data, you need the cache.
 
