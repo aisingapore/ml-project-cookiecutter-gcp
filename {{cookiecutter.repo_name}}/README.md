@@ -9,9 +9,11 @@ Customised for {{cookiecutter.project_name}}.
 - [End-to-end Project Template (GCP)](#end-to-end-project-template-gcp)
   - [Table of Contents](#table-of-contents)
   - [Project Repo Tree](#project-repo-tree)
-  - [Preface](#preface)
-  - [Guide's Problem Statement](#guides-problem-statement)
   - [Prerequisites](#prerequisites)
+    - [NUS VPN](#nus-vpn)
+  - [Preface](#preface)
+    - [Repository Setup](#repository-setup)
+    - [Guide's Problem Statement](#guides-problem-statement)
     - [Google Cloud Platform (GCP) Projects](#google-cloud-platform-gcp-projects)
       - [Authorisation](#authorisation)
   - [MLOps Components & Platform](#mlops-components--platform)
@@ -27,6 +29,7 @@ Customised for {{cookiecutter.project_name}}.
     - [VSCode](#vscode)
     - [Jupyter Lab](#jupyter-lab)
   - [Git Repository](#git-repository)
+  - [Cloud SDK for Development Environment](#cloud-sdk-for-development-environment)
   - [Virtual Environment](#virtual-environment)
   - [Data Versioning](#data-versioning)
   - [Job Orchestration](#job-orchestration)
@@ -106,45 +109,18 @@ References:
 - [GitLab CI/CD Quickstart](https://docs.gitlab.com/ee/ci/quick_start/)
 - [`pylint` Docs - Command-line Arguments and Configuration Files](https://pylint.pycqa.org/en/latest/user_guide/ide-integration.html?highlight=pylintrc#command-line-arguments-and-configuration-files)
 
-## Preface
-
-This repository provides an end-to-end template for AI
-Singapore's AI engineers to onboard their AI projects. This repository
-was created using AI Singapore's
-[`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/)
-template located
-[here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp).
-To replicate the creation of this repo, you can execute the following:
-
-```bash
-$ pip install cookiecutter
-$ cookiecutter https://github.com/aimakerspace/ml-project-cookiecutter-gcp
-```
-
-While this repository serves as a template, with this `README.md`
-document, you are presented with a linear guide on how to use the
-boilerplates that are rendered when you generate this repository using
-`cookiecutter`.
-You can follow along the guide but it will be tackling a simple problem
-statement.
-
-## Guide's Problem Statement
-
-For this guide, we will work towards building a predictive model that is
-able to conduct sentiment classification for movie reviews.
-The model is then to be deployed through a REST API and used for batch
-inferencing as well.
-The raw dataset to be used is made available for you to download;
-instructions are detailed [here](#data-preparation).
-
 ## Prerequisites
 
 Aside from an internet connection, you would need the following to
 follow through with the guide:
 
+- NUS Staff/Student account
 - Google account with `@aisingapore.org`/`@aiap.sg` domains provisioned
   by AI Singapore
 - PC with the following installed:
+  - Pulse Secure
+    - Refer to [NUS IT eGuides](https://nusit.nus.edu.sg/eguides/)
+      for installation guides.
   - Web browser
   - Terminal
   - Docker Engine
@@ -157,7 +133,61 @@ follow through with the guide:
   - [Helm](https://helm.sh/docs/intro/install/),
     CLI for Kubernetes' package manager
   - [yq](https://github.com/mikefarah/yq), command-line YAML processor
-- Access to a project on Google Cloud Platform
+- Access to a project on
+  [Google Cloud Platform](https://console.cloud.google.com)
+
+### NUS VPN
+
+Your credentials for your NUS Staff/Student account is needed to
+login to NUS' VPN for access to the following:
+
+- AI Singapore's GitLab instance
+- NUS resources
+
+In order to interact with remote Git repositories situated on
+AI Singapore's GitLab instance (clone, push, fetch, etc.)
+outside of NUS' network or GCP (for regions `asia-southeast1` and
+`us-central1`), you would need to login to NUS' VPN.
+
+## Preface
+
+### Repository Setup
+
+This repository provides an end-to-end template for AI
+Singapore's AI engineers to onboard their AI projects. This repository
+was created using AI Singapore's
+[`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/)
+template located
+[here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp).
+
+While this repository provides users with a set of boilerplates,
+with this `README.md` document, you are presented with a linear guide on
+how to use the boilerplates that are rendered when you generated this
+repository using `cookiecutter`.
+You can follow along the guide but it will be tackling a simple problem
+statement.
+
+Since we will be making use of this repository and the files
+contained within it, __ensure that this repository is pushed to a
+remote repository__. Refer to
+[here](https://docs.gitlab.com/ee/user/project/working_with_projects.html#create-a-project)
+on creating a blank remote repository (or project in GitLab's term).
+
+```bash
+$ git init
+$ git remote add origin <REMOTE_URL>
+$ git push -u origin
+```
+
+### Guide's Problem Statement
+
+For this guide, we will work towards building a predictive model that is
+able to conduct sentiment classification for movie reviews.
+The model is then to be deployed through a REST API and used for batch
+inferencing as well.
+The raw dataset to be used is made available for you to download;
+instructions are detailed [here](#data-preparation), to be referred
+to later on.
 
 ### Google Cloud Platform (GCP) Projects
 
@@ -174,7 +204,8 @@ contact `mlops@aisingapore.org`.
 #### Authorisation
 
 You can use GCP's [Cloud SDK](https://cloud.google.com/sdk) to interact
-with the varying services. When you're using the SDK for the first time,
+with the varying GCP services.
+When you're using the SDK for the first time,
 you are to provide authorisation using a user or service account. In AI
 Singapore's context, unless your use case concerns some automation or
 CI/CD pipelines, you will probably be using your user account
@@ -190,7 +221,7 @@ $ gcloud auth login
 ```
 
 To register `gcloud` for Docker so you can push to
-Google's Container Registry:
+Google Container Registry:
 
 ```bash
 $ gcloud auth configure-docker
@@ -235,7 +266,7 @@ line access:
 $ gcloud container clusters get-credentials <CLUSTER_NAME> --zone asia-southeast1-c --project <GCP_PROJECT_ID>
 ```
 
-After obtaining the credentials and configuration for the GKE cluster,
+After obtaining the credentials and configurations for the GKE cluster,
 you can start to interact with the main MLOps platforms tool that you
 will be leveraging on for a development workspace, data preparation as
 well as model training.
@@ -274,7 +305,7 @@ $ conda env create -f {{cookiecutter.repo_name}}-conda-env.yml
 ```
 
 At any point of time you would like __to interact with the Polyaxon
-server, you would need port-forwarding of the Polyaxon Kubernetes
+server, you would need port forwarding of the Polyaxon Kubernetes
 service to your localhost__.
 You can do port forwarding to a port on the localhost with
 the Polyaxon CLI (we'll go ahead with the port `8888`):
@@ -300,6 +331,10 @@ $ polyaxon project create --name {{cookiecutter.repo_name}}-<YOUR_NAME>
 After the command above, you should see a project with the name you've
 specified above in the
 [projects dashboard](http://localhost:8888/ui/orgs/default/projects).
+
+__Reference(s):__
+
+- [Ampersands & on the command line](https://bashitout.com/2013/05/18/Ampersands-on-the-command-line.html)
 
 ### Relevant Concepts
 
@@ -344,8 +379,8 @@ environment, one for your data preparation pipeline, and another for
 your model training workflow. You can also have different components for
 different variations of your pipelines. However these workflows are to
 be defined, they all start with specifying a component.
-
-Shown under [Components](#components), you can specify various runtimes
+Shown [here](https://polyaxon.com/docs/intro/concepts/runtime-concepts/),
+you can specify various runtimes
 (experimentation tools) you would like to spin up through the Polyaxon
 server.
 
@@ -389,7 +424,8 @@ access to these credentials, you need to carry out the following:
 1. Download a service account key to your local machine (or obtain it
    from the lead engineer/MLOps team) and rename it to
    `gcp-service-account.json`. Take note of the client email detailed
-   in the JSON file.
+   in the JSON file. The client email should be of the following
+   convention: `aisg-100e-sa@<PROJECT_ID>.iam.gserviceaccount.com`.
 2. Create a Kubernetes secret on your Kubernetes (GKE) cluster,
    within the same namespace where Polyaxon is deployed: `polyaxon-v1`.
 3. Configure Polyaxonfiles to refer to these secrets.
@@ -437,6 +473,10 @@ run:
 ...
 ```
 
+__Reference(s):__
+
+- [Kubernetes Docs - Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
+
 ## Development Environment
 
 An advantage presented by the Polyaxon platform is that you can utilise
@@ -444,8 +484,15 @@ the GKE cluster's resources for your development and engineering works
 instead of your own resources. We can make use of
 [Polyaxon services](https://polyaxon.com/docs/experimentation/services/#specification)
 to spin up VSCode or Jupyter Lab servers with which cluster resources
-can be dedicated; all you need on your end is a machine with WebSockets,
+can be dedicated (except for GPUs);
+all you need on your end is a machine with WebSockets,
 a browser and a terminal.
+
+A caveat: since these development environments are essentially pods
+deployed within a Kubernetes cluster, using Docker within the pods
+themselves is not feasible or recommended. We will explore alternatives
+later on for building Docker images outside of your local machine's
+context.
 
 ### VSCode
 
@@ -500,8 +547,6 @@ dedicated to this service.
 To open up the integrated terminal within the VSCode environment, you
 can use the keyboard shortcut <code>Ctrl + Shift + `</code>.
 
-The path to persistent storage is `/polyaxon-v1-data`.
-
 ### Jupyter Lab
 
 > Coming soon...
@@ -522,9 +567,34 @@ The path to persistent storage on Polyaxon is located at
 $ sudo mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>
 $ sudo chown -R 2222:2222 /polyaxon-v1-data/workspaces
 $ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>
-$ git clone <GIT_REPO_URL>
-$ cd <GIT_REPO_NAME>
+$ git clone <REMOTE_URL_HTTPS>
+$ cd {{cookiecutter.repo_name}}
 ```
+
+## Cloud SDK for Development Environment
+
+As mentioned [here](#secrets--credentials-on-kubernetes),
+credentials or secrets can be attached to Polyaxon services or jobs
+when configured properly. In doing so, you can make use of Google
+service accounts to interact with GCP services or resources.
+
+If you used the provided Dockerfile to build the image for the VSCode
+service on Polyaxon, the VSCode environment would have the Cloud SDK
+installed. You can configure the `gcloud` CLI to make use of the
+service account attached to the VSCode service:
+
+```bash
+$ gcloud auth activate-service-account --key-file /var/secret/cloud.google.com/gcp-service-account.json
+```
+
+Once the service account has been configured, examples of actions you
+can carry out consists of the following:
+
+- list objects within GCS buckets
+- create objects within GCS buckets
+- list deployed pods within a GKE cluster
+
+Do note that the service account has limited permissions.
 
 ## Virtual Environment
 
@@ -557,16 +627,10 @@ For this guide's problem statement,
 we will use the following repository:
 https://github.com/aimakerspace/e2e-project-template-gcp-data
 
-We will clone that repository within our development workspace.
-For the following commands, substitute `<PROJECT_DATA_GIT_URL>` and
-`<PROJECT_DATA_REPO_NAME>` with the link above
-(https://github.com/aimakerspace/e2e-project-template-gcp-data)
-and the repository name respectively.
-
 ```bash
 $ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>
-$ git clone <PROJECT_DATA_GIT_URL>
-$ cd <PROJECT_DATA_REPO_NAME>
+$ git clone https://github.com/aimakerspace/e2e-project-template-gcp-data
+$ cd e2e-project-template-gcp-data
 $ ls -la
 drwxr-sr-x 5 coder 2222 xxxx xxx xx xx:xx .dvc
 -rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx .dvcignore
@@ -631,7 +695,7 @@ Assuming you're still connected to the Polyaxon server through
 port-forwarding, submit a job to the server like such:
 
 ```bash
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/update-raw-data.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> -P WORKING_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/<PROJECT_DATA_REPO_NAME>"
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/update-raw-data.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> -P WORKING_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data"
 Creating a new run...
 A new run `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` was created
 You can view this run on Polyaxon UI: http://localhost:8888/ui/default/<YOUR_PROJECT_NAME>/runs/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/
@@ -657,7 +721,7 @@ To inspect the contents of the pulled data, head back over to the VSCode
 interface.
 
 ```bash
-$ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>/<PROJECT_DATA_REPO_NAME>
+$ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data
 $ ls -la
 drwxr-sr-x 5 coder 2222 xxxx xxx xx xx:xx .dvc
 -rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx .dvcignore
@@ -685,8 +749,8 @@ while specifying the same Docker image used for pulling in the raw data.
 ```bash
 $ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/process-data.yml
 $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
-  -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/<PROJECT_DATA_REPO_NAME>/raw/aclImdb-aisg-set1"]' \
-  -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/<PROJECT_DATA_REPO_NAME>/processed/aclImdb-aisg-combined" \
+  -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/raw/aclImdb-aisg-set1"]' \
+  -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}"
 ```
 
@@ -723,12 +787,14 @@ we can run a job using it:
 ```bash
 $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
 $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
+$ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
 $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
   -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
-  -P MLFLOW_TRACKING_URI="http://<CLUSTER_IP_OF_MLFLOW_SERVICE>:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
+  -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
+  -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
   -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
-  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/<PROJECT_DATA_REPO_NAME>/processed/aclImdb-aisg-combined"
+  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined"
 ```
 
 #### Hyperparameter Tuning
