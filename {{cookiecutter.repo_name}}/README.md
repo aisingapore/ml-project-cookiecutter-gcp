@@ -102,7 +102,7 @@ Customised for {{cookiecutter.project_name}}.
                             repository's packages.
 ```
 
-References:
+Reference(s):
 
 - [Dockerfile reference - `.dockerignore`](https://docs.docker.com/engine/reference/builder/#dockerignore-file)
 - [Atlassian's Tutorial on `.gitignore`](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)
