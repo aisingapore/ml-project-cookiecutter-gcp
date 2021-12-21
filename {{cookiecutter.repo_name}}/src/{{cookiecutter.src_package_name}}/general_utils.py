@@ -70,9 +70,8 @@ def mlflow_init(args, setup_mlflow=False, autolog=False):
 
 
 def mlflow_log(mlflow_init_status,
-            type="metric", track_dict={},
-            artifact_path="", directory=False):
-    """Custom function for logging to MLflow server.
+            log_function, **kwargs):
+    """Custom function for utilising MLflow's logging functions.
 
     This function is only relevant when the function `mlflow_init`
     returns a "True" value, translating to a successful initialisation
@@ -81,27 +80,18 @@ def mlflow_log(mlflow_init_status,
     Parameters
     ----------
     mlflow_init_status : bool
-        Boolean value indicative of success
-        of intialising connection with MLflow server.
-    type : {"metric", "param", "artifact"}
-        Logging type, by default "metric"
-    track_dict : dict, optional
-        Dictionary containing keys and values of metrics or parameters
-        to be tracked by MLflow, by default {}
-    artifact_path : str, optional
-        Path to a file or directory to be logged as artifact(s),
-        by default ""
-    directory : bool, optional
-        Whether artifact being specified is a directory or not,
-        by default False
+        Boolean value indicative of success of intialising connection
+        with MLflow server.
+    log_function : str
+        Name of MLflow logging function to be used.
+        See https://www.mlflow.org/docs/latest/python_api/mlflow.html
+    **kwargs
+        Keyword arguments passed to `log_function`.
     """
     if mlflow_init_status:
-        if type == "metric" and bool(track_dict):
-            mlflow.log_metrics(track_dict)
-        if type == "param" and bool(track_dict):
-            mlflow.log_params(track_dict)
-        if type == "artifact" and artifact_path:
-            if directory:
-                mlflow.log_artifacts(artifact_path)
-            else:
-                mlflow.log_artifact(artifact_path)
+        try:
+            method = getattr(mlflow, log_function)
+            method(**{key: value for key, value in kwargs.items()
+                    if key in method.__code__.co_varnames})
+        except Exception as e:
+            logger.error(e)

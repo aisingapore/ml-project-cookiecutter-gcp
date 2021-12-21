@@ -32,8 +32,8 @@ def main(args):
             autolog=args["train"]["mlflow_autolog"])
     {{cookiecutter.src_package_name_short}}.general_utils.\
         mlflow_log(
-            mlflow_init_status, type="param",
-            track_dict=args["train"])
+            mlflow_init_status, "log_params",
+            params=args["train"])
 
     datasets = {{cookiecutter.src_package_name_short}}.modeling.data_loaders.\
         load_datasets(hydra.utils.get_original_cwd(), args)
@@ -56,8 +56,8 @@ def main(args):
         artifact_uri = mlflow.get_artifact_uri()
         logger.info("Artifact URI: {}".format(artifact_uri))
         {{cookiecutter.src_package_name_short}}.general_utils.mlflow_log(
-            mlflow_init_status, type="param",
-            track_dict={"artifact_uri": artifact_uri})
+                mlflow_init_status, "log_params",
+                params={"artifact_uri": artifact_uri})
 
 
 if __name__ == "__main__":
