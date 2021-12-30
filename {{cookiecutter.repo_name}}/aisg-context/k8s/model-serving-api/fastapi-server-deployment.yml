@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-server-deployment
+spec:
+  selector:
+    matchLabels:
+      app: fastapi-server
+  template:
+    metadata:
+      labels:
+        app: fastapi-server
+    spec:
+      containers:
+        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/fastapi-server:0.1.0
+          imagePullPolicy: Always
+          name: fastapi-server
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "4"
+            limits:
+              memory: "8Gi"
+              cpu: "8"
+          ports:
+            - containerPort: 8080
+              name: fastapi-server
+          volumeMounts:
+            - name: fastapi-server-persistent-storage
+              mountPath: /home/aisg/from-gcs
+            - name: gcp-service-account
+              mountPath: /var/secret/cloud.google.com
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secret/cloud.google.com/gcp-service-account.json
+      imagePullSecrets:
+        - name: gcp-imagepullsecrets
+      volumes:
+        - name: fastapi-server-persistent-storage
+          persistentVolumeClaim:
+            claimName: fstore-rwx-pvc
+        - name: gcp-service-account
+          secret:
+            secretName: "gcp-sa-credentials"
