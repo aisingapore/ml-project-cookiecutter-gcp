@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-nginx-server-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mlflow-nginx-server
+  template:
+    metadata:
+      labels:
+        app: mlflow-nginx-server
+    spec:
+      containers:
+        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/mlflow-nginx-server:0.1.0
+          imagePullPolicy: Always
+          name: mlflow
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "2"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          ports:
+            - containerPort: 5005
+              name: mlflow
+          volumeMounts:
+            - name: mlflow-persistent-storage
+              mountPath: /polyaxon-v1-data
+          env:
+            - name: MLFLOW_TRACKING_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-nginx-server-secrets
+                  key: mlflowTrackingUsername
+            - name: MLFLOW_TRACKING_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-nginx-server-secrets
+                  key: mlflowTrackingPassword
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-nginx-server-secrets
+                  key: databaseUri
+      imagePullSecrets:
+        - name: gcp-imagepullsecrets
+      volumes:
+        - name: mlflow-persistent-storage
+          persistentVolumeClaim:
+            claimName: fstore-rwx-pvc
