@@ -24,7 +24,7 @@ run:
       secret:
         secretName: "gcp-sa-credentials"
   container:
-    image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/data-prep:0.1.0
+    image: asia.gcr.io/<GCP_PROJECT_ID>/data-prep:0.1.0
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
     command: ["/bin/bash", "-c"]

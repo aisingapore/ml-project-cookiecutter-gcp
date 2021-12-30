@@ -33,7 +33,7 @@ run:
       secret:
         secretName: "gcp-sa-credentials"
   container:
-    image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/data-prep:0.1.0
+    image: asia.gcr.io/<GCP_PROJECT_ID>/data-prep:0.1.0
     imagePullPolicy: IfNotPresent
     command: ["/bin/bash", "-c"]
     args: [

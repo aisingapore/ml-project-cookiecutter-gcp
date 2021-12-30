@@ -27,7 +27,7 @@ run:
     - 8080
   rewritePath: true
   container:
-    image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/vscode-server:0.1.0
+    image: asia.gcr.io/<GCP_PROJECT_ID>/vscode-server:0.1.0
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
     args:
