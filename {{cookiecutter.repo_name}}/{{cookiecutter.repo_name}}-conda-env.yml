@@ -19,4 +19,8 @@ dependencies:
     - polyaxon==1.11.3
     - google-cloud-storage==1.43.0
     - hydra-core==1.1.1
+    - hydra-optuna-sweeper==1.1.1
     - optuna==2.10.0
+    - fastapi==0.70.1
+    - uvicorn[standard]==0.14.0
+    - gunicorn==20.1.0
