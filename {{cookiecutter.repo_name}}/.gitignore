@@ -9,15 +9,15 @@ conf/**/*credentials*
 data/**
 logs/**
 models/**
-k8s/pvc/**
-k8s/secrets/**
+aisg-context/k8s/pvc/**
+aisg-context/k8s/secrets/**
 
 # Except their sub-folders
 !data/**/
 !logs/**/
 !models/**/
-!k8s/pvc/**/
-!k8s/secrets/**/
+!aisg-context/k8s/pvc/**/
+!aisg-context/k8s/secrets/**/
 
 # Keep all .gitkeep files
 !.gitkeep
