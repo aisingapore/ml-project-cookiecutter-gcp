@@ -49,11 +49,17 @@ def mlflow_init(args, setup_mlflow=False, autolog=False):
 
     Returns
     -------
-    bool
-        This function returns a boolean value indicative of success
+    init_success : bool
+        Boolean value indicative of success
         of intialising connection with MLflow server.
+
+    mlflow_run : Union[None, `mlflow.entities.Run` object]
+        On successful initialisation, the function returns an object
+        containing the data and properties for the MLflow run.
+        On failure, the function returns a null value.
     """
     init_success = False
+    mlflow_run = None
     if setup_mlflow:
         try:
             mlflow.set_tracking_uri(args["train"]["mlflow_tracking_uri"])
@@ -61,12 +67,16 @@ def mlflow_init(args, setup_mlflow=False, autolog=False):
             mlflow.set_registry_uri(args["train"]["mlflow_artifact_location"])
             if autolog:
                 mlflow.autolog()
+            mlflow.start_run()
+            mlflow_run = mlflow.active_run()
             init_success = True
             logger.info("MLflow initialisation has succeeded.")
+            logger.info("UUID for MLflow run: {}".format(
+                mlflow_run.info.run_id))
         except:
             logger.error("MLflow initialisation has failed.")
 
-    return init_success
+    return init_success, mlflow_run
 
 
 def mlflow_log(mlflow_init_status,

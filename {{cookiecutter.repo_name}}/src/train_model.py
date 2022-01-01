@@ -55,9 +55,14 @@ def main(args):
     if mlflow_init_status:
         artifact_uri = mlflow.get_artifact_uri()
         logger.info("Artifact URI: {}".format(artifact_uri))
-        {{cookiecutter.src_package_name_short}}.general_utils.mlflow_log(
+        {{cookiecutter.src_package_name_short}}.general_utils.\
+            mlflow_log(
                 mlflow_init_status, "log_params",
                 params={"artifact_uri": artifact_uri})
+        logger.info("Model training with MLflow run ID {} has completed.".
+            format(mlflow_run.info.run_id))
+    else:
+        logger.info("Model training has completed.")
 
 
 if __name__ == "__main__":

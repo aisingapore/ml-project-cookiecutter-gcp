@@ -27,7 +27,7 @@ RUN groupadd -g 2222 $PROJECT_USER && useradd -u 2222 -g 2222 -m $PROJECT_USER
 RUN touch "$HOME_DIR/.bashrc"
 
 RUN apt-get update && \
-    apt-get -y install curl gcc rsync locales \
+    apt-get -y install bzip2 curl wget gcc rsync git vim locales \
     apt-transport-https ca-certificates gnupg && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen && \
