@@ -72,8 +72,8 @@ Customised for {{cookiecutter.project_name}}.
     │   │                   development environments.
     │   ├── code-server <-  Directory containing the entry point script
     │   │                   for the VSCode server's Docker image.
-    │   │
-    │   │
+    │   ├── k8s         <-  Manifest files for spinning up Kubernetes
+    │   │                   resources.
     │   └── polyaxon    <-  Specification files for services and jobs
     │                       to be executed by the Polyaxon server.
     ├── assets          <-  Screenshots and images.
@@ -87,8 +87,6 @@ Customised for {{cookiecutter.project_name}}.
     │                       stages of the pipeline.
     ├── docs            <-  A default Sphinx project; see sphinx-doc.org
     │                       for details.
-    ├── helm-charts     <-  Helm charts for the deployment to the
-    │                       Kubernetes cluster.
     ├── models          <-  DVC files of trained and serialised models.
     ├── notebooks       <-  Jupyter notebooks. Naming convention is a
     │                       number (for ordering), the creator's
