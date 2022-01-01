@@ -10,8 +10,6 @@ dependencies:
     - mlflow==1.22.0
     - pylint==2.6.0
     - pytest-cov==2.10.1
-    - Flask==1.1.2
-    - seldon-core==1.6
     - tensorflow==2.3.0
     - tensorflow_hub==0.10.0
     - pyyaml==5.4.1
