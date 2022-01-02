@@ -47,7 +47,10 @@ def main(args):
         validation_data=datasets["val"])
 
     logger.info("Evaluating the model...")
-    model.evaluate(datasets["test"])
+    test_loss, test_acc = model.evaluate(datasets["test"])
+
+    logger.info("Test Loss: {}, Test Accuracy: {}".\
+        format(test_loss, test_acc))
 
     logger.info("Exporting the model...")
     {{cookiecutter.src_package_name_short}}.modeling.utils.export_model(model)
@@ -61,6 +64,7 @@ def main(args):
                 params={"artifact_uri": artifact_uri})
         logger.info("Model training with MLflow run ID {} has completed.".
             format(mlflow_run.info.run_id))
+        mlflow.end_run()
     else:
         logger.info("Model training has completed.")
 
