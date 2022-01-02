@@ -14,7 +14,8 @@ ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
 
 ARG PRED_MODEL_UUID
 RUN test -n "$PRED_MODEL_UUID"
-ARG PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}/mlflow-tracking-server/$PRED_MODEL_UUID"
+ARG PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$PRED_MODEL_UUID"
+
 ARG PRED_MODEL_PATH="$HOME_DIR/from-gcs/$PRED_MODEL_UUID/artifacts/model/data/model"
 ENV PRED_MODEL_UUID=$PRED_MODEL_UUID
 ENV PRED_MODEL_GCS_URI=$PRED_MODEL_GCS_URI
