@@ -1,3 +1,6 @@
+"""This module provides definitions of predictive models to be
+trained."""
+
 import tensorflow as tf
 import tensorflow_hub as hub
 

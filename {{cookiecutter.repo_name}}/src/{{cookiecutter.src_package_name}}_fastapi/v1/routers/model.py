@@ -50,8 +50,8 @@ def predict_sentiment(movie_reviews_json: {{cookiecutter.src_package_name_short}
                 "Sentiment generated for Review ID: {}".
                 format(review_val["id"]))
 
-    except Exception as e:
-        print(e)
+    except Exception as error:
+        print(error)
         raise fastapi.HTTPException(
             status_code=500, detail="Internal server error.")
 

@@ -1,7 +1,8 @@
+"""This module contains functions for cleaning text data."""
+
 import logging
 import re
 import string
-import pandas as pd
 import tensorflow as tf
 
 
@@ -27,18 +28,18 @@ def tag_punct_remover(input_text):
     lowercase_text = tf.strings.lower(input_text)
     strip_html_text = tf.\
         strings.regex_replace(lowercase_text,
-                              "<[^>]+>", " ")
+                            "<[^>]+>", " ")
     no_punct_text = tf.\
         strings.regex_replace(strip_html_text,
-                              "[%s]" % re.escape(string.punctuation), " ")
+                            "[%s]" % re.escape(string.punctuation), " ")
 
     no_sing_charac_text = tf.\
         strings.regex_replace(no_punct_text,
-                              "\s+[a-zA-Z]\s+", " ")
+                            "\s+[a-zA-Z]\s+", " ")
 
     sing_wspaced_text = tf.\
         strings.regex_replace(no_sing_charac_text,
-                              "\s+", " ")
+                            "\s+", " ")
 
     return sing_wspaced_text
 

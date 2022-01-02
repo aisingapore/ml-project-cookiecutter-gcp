@@ -1,3 +1,6 @@
+"""This module contains functions that assist in loading datasets
+for the model training pipeline."""
+
 import os
 import tensorflow as tf
 
