@@ -29,11 +29,15 @@ aisg-context/k8s/secrets/**
 **/mlruns
 
 # Ignore outputs from OmegaConf/Hydra
-**/outputs/**
+**/outputs
+**/multirun
 
 ####################
 ### Common files ###
 ####################
+
+# Obsidian config directory
+**/.obsidian
 
 # IntelliJ
 .idea/
@@ -133,6 +137,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+public
 
 # PyBuilder
 target/
