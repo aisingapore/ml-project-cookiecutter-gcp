@@ -800,6 +800,25 @@ proceed with training the predictive model.
 
 ### Model Training
 
+Now that we have processed the raw data, we can look into training the
+sentiment classification model. The script relevant for this section
+is `src/train_model.py`. In this script, you can see it using
+some utility functions from
+`src/{{cookiecutter.src_package_name}}/general_utils.py` for initialising
+MLflow runs. An MLflow Tracking server is usually set up for
+GCP projects that utilises Polyaxon. With this MLflow Tracking server,
+a team can log model training runs to it and keep track of the myriad
+of experiments to be executed and their accompanying parameters and
+metrics. Artifacts can also be logged through the MLflow API and
+uploaded to GCS buckets. This guide requires you to create a bucket
+for storing all your model experiment artifacts (assuming the bucket
+has yet to be created):
+
+```bash
+$ gsutil mb gs://{{cookiecutter.repo_name}}-artifacts
+Creating gs://{{cookiecutter.repo_name}}-artifacts/...
+```
+
 Before we submit a job to Polyaxon to train our model,
 we need to build the Docker image to be used for it:
 
@@ -814,6 +833,7 @@ Now that we have the Docker image pushed to the registry,
 we can run a job using it:
 
 ```bash
+$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml
 $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
 $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
 $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
@@ -908,6 +928,7 @@ you submitted the job to Polyaxon. This tag is defined using the
 environment value `MLFLOW_HPTUNING_TAG`.
 
 ```bash
+$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml
 $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
 $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
 $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
