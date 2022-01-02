@@ -1,0 +1,38 @@
+defaults:
+  - override hydra/sweeper: "optuna"
+  - override hydra/sweeper/sampler: "tpe"
+
+hydra:
+  sweeper:
+    sampler:
+      seed: 123
+    direction: ["minimize", "maximize"]
+    study_name: "sentiment-classification"
+    storage: null
+    n_trials: 3
+    n_jobs: 1
+
+    search_space:
+      train.val_split:
+        type: "float"
+        low: 0.2
+        high: 0.35
+        step: 0.025
+      train.optimiser:
+        type: "categorical"
+        choices: ["adam", "rmsprop"]
+
+train:
+  setup_mlflow: false
+  mlflow_autolog: false
+  mlflow_tracking_uri: "mlflow-nginx-server-svc.polyaxon-v1.svc.local"
+  mlflow_exp_name: "{{cookiecutter.repo_name}}"
+  mlflow_artifact_location: "gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server"
+  data_path: "../{{cookiecutter.repo_name}}-data/processed/subdir"
+  val_split: 0.2
+  bs: 32
+  seed: 4002
+  epochs: 3
+  optimiser: "adam"
+  metric: "accuracy"
+  pretrained_embedding: "https://tfhub.dev/google/nnlm-en-dim128-with-normalization/2"

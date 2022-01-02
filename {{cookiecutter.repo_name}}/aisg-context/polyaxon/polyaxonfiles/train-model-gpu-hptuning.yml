@@ -1,0 +1,99 @@
+version: 1.1
+kind: component
+name: train-model-gpu
+description: Job for training a predictive model using GPU.
+tags: [model_training, keras, gpu, hptuning]
+inputs:
+  - name: MLFLOW_TRACKING_USERNAME
+    description: Username for MLflow Tracking server.
+    isOptional: false
+    type: str
+    toEnv: MLFLOW_TRACKING_USERNAME
+  - name: MLFLOW_TRACKING_PASSWORD
+    description: Password for MLflow Tracking server.
+    isOptional: false
+    type: str
+    toEnv: MLFLOW_TRACKING_PASSWORD
+  - name: SETUP_MLFLOW
+    description: Whether to intialise MLflow logging or not.
+    isOptional: true
+    type: bool
+    value: false
+  - name: MLFLOW_AUTOLOG
+    description: Whether to use MLflow's autologging feature.
+    isOptional: true
+    type: bool
+    value: false
+  - name: MLFLOW_TRACKING_URI
+    description: URI for MLflow Tracking server.
+    isOptional: false
+    type: str
+  - name: MLFLOW_EXP_NAME
+    description: Experiment name for MLflow Tracking server.
+    isOptional: false
+    type: str
+  - name: MLFLOW_ARTIFACT_LOCATION
+    description: GCS URI for artifacts logged through MLflow.
+    isOptional: false
+    type: str
+  - name: WORKING_DIR
+    description: The working directory for the job to run in.
+    isOptional: false
+    type: str
+  - name: SA_CRED_PATH
+    description: Path to credential file for GCP service account.
+    isOptional: true
+    type: str
+    value: /var/secret/cloud.google.com/gcp-service-account.json
+    toEnv: GOOGLE_APPLICATION_CREDENTIALS
+  - name: INPUT_DATA_DIR
+    description: The directory where input data is located at.
+    type: str
+    isOptional: false
+  - name: MLFLOW_HPTUNING_TAG
+    description: Tag for all experiments within a single Optuna study.
+    isOptional: false
+    type: str
+    toEnv: MLFLOW_HPTUNING_TAG
+run:
+  kind: job
+  connections: [fstore-pvc]
+  environment:
+    imagePullSecrets: ["gcp-imagepullsecrets"]
+    tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "present"
+        effect: "NoSchedule"
+  volumes:
+    - name: gcp-service-account
+      secret:
+        secretName: "gcp-sa-credentials"
+  container:
+    image: asia.gcr.io/<GCP_PROJECT_ID>/model-train:0.1.0
+    imagePullPolicy: IfNotPresent
+    workingDir: "{{ WORKING_DIR }}"
+    command: ["/bin/bash","-c"]
+    args: [
+      "source ~/.bashrc &&
+      python src/train_model_hptuning.py
+      --multirun
+      train.setup_mlflow={{ SETUP_MLFLOW }}
+      train.mlflow_autolog={{ MLFLOW_AUTOLOG }}
+      train.mlflow_tracking_uri={{ MLFLOW_TRACKING_URI }}
+      train.mlflow_exp_name={{ MLFLOW_EXP_NAME }}
+      train.mlflow_artifact_location={{ MLFLOW_ARTIFACT_LOCATION }}
+      train.data_path={{ INPUT_DATA_DIR }}"
+    ]
+    resources:
+      requests:
+        memory: "16Gi"
+        cpu: "16"
+        nvidia.com/gpu: 1
+      limits:
+        memory: "16Gi"
+        cpu: "16"
+        nvidia.com/gpu: 1
+    volumeMounts:
+      - name: gcp-service-account
+        mountPath: /var/secret/cloud.google.com

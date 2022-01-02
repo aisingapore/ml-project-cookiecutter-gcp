@@ -33,6 +33,7 @@ Customised for {{cookiecutter.project_name}}.
   - [Virtual Environment](#virtual-environment)
   - [Data Versioning](#data-versioning)
   - [Job Orchestration](#job-orchestration)
+    - [Pipeline Configuration](#pipeline-configuration)
     - [Data Preparation](#data-preparation)
       - [Pulling Raw Data](#pulling-raw-data)
       - [Processing Data](#processing-data)
@@ -673,6 +674,27 @@ Any jobs that are submitted to the Polyaxon server can be tracked and
 monitored through Polyaxon's dashboard. See [this section](#dashboard)
 on how to access the dashboard for Polyaxon and create a project.
 
+### Pipeline Configuration
+
+In this template, Hydra is the configuration framework of choice for the
+data preparation and model training pipelines script (or any
+pipelines that doesn't belong to the model serving aspects).
+
+The configurations for logging, pipelines and hyperparameter tuning
+can be found under `conf/base`. These YAML files are then referred to
+by Hydra or general utility functions
+(`src/{{cookiecutter.src_package_name}}/general_utils.py`)
+for loading of parameters
+and configurations. The defined default values can be overridden through
+the CLI.
+
+It is recommended that you have a basic understanding of Hydra's
+concepts before you move on.
+
+Reference(s):
+
+- [Hydra Docs - Basic Override Syntax](https://hydra.cc/docs/advanced/override_grammar/basic/)
+
 ### Data Preparation
 
 #### Pulling Raw Data
@@ -799,14 +821,114 @@ $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -p {{c
   -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
   -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
   -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
-  -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}/mlflow-tracking-server" \
+  -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
   -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined"
 ```
 
 #### Hyperparameter Tuning
 
-> Coming soon...
+For many ML problems, we would
+be bothered with finding the optimal parameters to train our models
+with. While we are able to override and set the values for the
+parameters for our model training workflows, imagine having to sweep
+through a distribution of values with steps within a set range. For
+example, if you were seek for the optimal learning rate for training
+our model within a log space, we would have to execute
+`polyaxon run` multiple times manually just to provide the training
+script with different learning rate value each time. It is reasonable
+that one seeks for ways to automate this workflow.
+
+[Optuna](https://optuna.readthedocs.io/en/stable/) is an optimisation
+framework designed for ML use-cases. Its API allows for ease of
+modularity and it has many optimisation algorithms that ML engineers
+can make use of. It also allows for
+[paralellisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/004_distributed.html)
+resulting in faster sweeps. Also, Hydra has a plugin for utilising
+Optuna which further translates to ease of configuration.
+
+To use Hydra's plugin for Optuna, we have to provide further overrides
+within the YAML config, and this is observed in
+`conf/base/train-model-hptuning.yml`:
+
+```yaml
+defaults:
+  - override hydra/sweeper: "optuna"
+  - override hydra/sweeper/sampler: "tpe"
+
+hydra:
+  sweeper:
+    sampler:
+      seed: 123
+    direction: ["minimize", "maximize"]
+    study_name: "sentiment-classification"
+    storage: null
+    n_trials: 3
+    n_jobs: 1
+
+    search_space:
+      train.val_split:
+        type: "float"
+        low: 0.2
+        high: 0.35
+        step: 0.025
+      train.optimiser:
+        type: "categorical"
+        choices: ["adam", "rmsprop"]
+```
+
+The fields defined are terminologies used by Optuna. Therefore, it is
+recommended that you understand the basics of the tool.
+[This overview video](https://www.youtube.com/watch?v=P6NwZVl8ttc)
+covers well on the concepts brought upon by Optuna.
+
+The script with which hyperparameter tuning is conducted,
+`src/train_model_hptuning.py`, there's essentially 2 lines that are
+different from `src/train_model.py`:
+
+```python
+...
+@hydra.main(config_path="../conf/base", config_name="train-model-hptuning.yml")
+...
+    return test_loss,test_acc
+```
+
+The first change specifies the different config file needed for
+utilising the Optuna plugin. The second one is needed for Optuna
+to judge the performance of the objectives (i.e. metrics) within each
+iteration, or as they put it, "trials".
+
+Another difference with this workflow is that for each trial with a
+different set of parameters, a new MLflow run has to be intiialised.
+However, we need to somehow link all these different runs together so
+that we can compare all the runs within a single Optuna study (set of
+trials). How we do this is that we provide the script with a
+tag (`hptuning_tag`) which would essentially be the date epoch value of the moment
+you submitted the job to Polyaxon. This tag is defined using the
+environment value `MLFLOW_HPTUNING_TAG`.
+
+```bash
+$ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
+$ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
+$ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
+  -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
+  -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
+  -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
+  -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server" \
+  -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined"
+  -P MLFLOW_HPTUNING_TAG="$(date +%s)"
+```
+
+Say the tag is `1641159546`, you can then filter this within MLflow's
+dashboard for runs with the associated tag like such in the search bar:
+`tags.hptuning_tag="1641159546"`.
+
+Reference(s):
+
+- [Hydra Docs - Optuna Sweeper Plugin](https://hydra.cc/docs/plugins/optuna_sweeper/)
+- [MLflow Docs - Search Syntax](https://www.mlflow.org/docs/latest/search-syntax.html)
 
 ## Deployment
 
@@ -905,7 +1027,7 @@ Run the FastAPI server using [Gunicorn](https://gunicorn.org):
 
 ```bash
 $ cd src
-$ gunicorn e2e_project_template_gcp_fastapi.main:APP -b 0.0.0.0:8080 -w 4 -k uvicorn.workers.UvicornWorker
+$ gunicorn {{cookiecutter.src_package_name}}_fastapi.main:APP -b 0.0.0.0:8080 -w 4 -k uvicorn.workers.UvicornWorker
 ```
 
 __Note:__ See
@@ -932,7 +1054,7 @@ to the model for it to load? FastAPI utilises
 [Pydantic](https://pydantic-docs.helpmanual.io/), a library for data
 and schema validation as well as settings management. There's a class
 called `Settings` under the module
-`src/e2e_project_template_gcp_fastapi/config.py`. This class contains
+`src/{{cookiecutter.src_package_name}}_fastapi/config.py`. This class contains
 several fields: some are defined and some others not. The fields
 `PRED_MODEL_UUID` and `PRED_MODEL_PATH` inherit their values from
 the environment variables. This means that the export commands we

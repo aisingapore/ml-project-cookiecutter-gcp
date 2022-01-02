@@ -1,6 +1,7 @@
 """Utilities or functions that are useful across all the different
 modules in this package can be defined here."""
 
+import os
 import logging
 import logging.config
 import yaml
@@ -67,9 +68,15 @@ def mlflow_init(args, setup_mlflow=False, autolog=False):
             mlflow.set_tracking_uri(args["train"]["mlflow_tracking_uri"])
             mlflow.set_experiment(args["train"]["mlflow_exp_name"])
             mlflow.set_registry_uri(args["train"]["mlflow_artifact_location"])
+
+            if "MLFLOW_HPTUNING_TAG" in os.environ:
+                mlflow.set_tag(
+                    "hptuning_tag",
+                    os.environ.get("MLFLOW_HPTUNING_TAG"))
+
             if autolog:
                 mlflow.autolog()
-            mlflow.start_run()
+
             mlflow_run = mlflow.active_run()
             init_success = True
             logger.info("MLflow initialisation has succeeded.")
