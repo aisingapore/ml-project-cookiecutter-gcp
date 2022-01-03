@@ -11,9 +11,10 @@ LOGGER.info("Setting up logging configuration.")
 {{cookiecutter.src_package_name_short}}.general_utils.setup_logging(
     logging_config_path={{cookiecutter.src_package_name_short}}_fapi.config.SETTINGS.LOGGER_CONFIG_PATH)
 
+API_V1_STR = {{cookiecutter.src_package_name_short}}_fapi.config.SETTINGS.API_V1_STR
 APP = fastapi.FastAPI(
     title={{cookiecutter.src_package_name_short}}_fapi.config.SETTINGS.API_NAME,
-    openapi_url=f"{{{cookiecutter.src_package_name_short}}_fapi.config.SETTINGS.API_V1_STR}/openapi.json")
+    openapi_url=f"{API_V1_STR}/openapi.json")
 API_ROUTER = fastapi.APIRouter()
 API_ROUTER.include_router(
     {{cookiecutter.src_package_name_short}}_fapi.v1.routers.model.ROUTER, prefix="/model", tags=["model"])
