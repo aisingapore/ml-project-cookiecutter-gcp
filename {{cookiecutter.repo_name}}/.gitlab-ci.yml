@@ -24,8 +24,13 @@ build-model-train-image:
 
 pages:
   stage: deploy-docs
+  image:
+    name: continuumio/miniconda:4.7.12
   script:
-  - pip install -U sphinx
+  - conda env update -f {{cookiecutter.repo_name}}-conda-env.yml
+  - conda init bash
+  - source ~/.bashrc
+  - conda activate {{cookiecutter.repo_name}}
   - sphinx-apidoc -f -o docs src
   - sphinx-build -b html docs public
   artifacts:
