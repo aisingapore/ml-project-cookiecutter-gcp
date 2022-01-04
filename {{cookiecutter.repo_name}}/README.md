@@ -557,7 +557,39 @@ can use the keyboard shortcut <code>Ctrl + Shift + `</code>.
 
 ### Jupyter Lab
 
-> Coming soon...
+While Jupyter Notebooks are viewable, editable and executable within
+a VSCode environment, most are still more familiar with Jupyter's
+interface for interacting with or editing notebooks. We can spin up
+a Jupyter Lab service on Polyaxon:
+
+```bash
+$ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+$ docker build \
+  -t asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0 \
+  -f docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile .
+$ docker push asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0
+```
+
+Once that is done, change the value of `.run.container.image` for the
+file `aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml` to the
+name and tag of the Docker image you've just pushed:
+
+```bash
+$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml
+```
+
+Push the configurations to the Polyaxon server to start up the VSCode
+service:
+
+```bash
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml -P WORKING_DIR='/polyaxon-v1-data' -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+```
+
+Now head over to the services dashboard under your project.
+The service should be accompanied with the tags `jupyter`,
+`notebook` and `lab`.
+
+![Polyaxon v1- Jupyter Lab Service Interface](./assets/screenshots/polyaxon-v1-jupyter-service-interface.png)
 
 ## Git Repository
 
