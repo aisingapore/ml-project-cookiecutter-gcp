@@ -27,7 +27,10 @@ Customised for {{cookiecutter.project_name}}.
     - [Secrets & Credentials on Kubernetes](#secrets--credentials-on-kubernetes)
   - [Development Environment](#development-environment)
     - [VSCode](#vscode)
+      - [Git from VSCode](#git-from-vscode)
     - [Jupyter Lab](#jupyter-lab)
+    - [Authorising `gcloud`](#authorising-gcloud)
+    - [Using Docker within Polyaxon Services](#using-docker-within-polyaxon-services)
   - [Git Repository](#git-repository)
   - [Cloud SDK for Development Environment](#cloud-sdk-for-development-environment)
   - [Virtual Environment](#virtual-environment)
@@ -48,6 +51,8 @@ Customised for {{cookiecutter.project_name}}.
     - [Model Serving (Kapitan Scout)](#model-serving-kapitan-scout)
   - [Batch Inferencing](#batch-inferencing)
   - [Continuous Integration & Deployment](#continuous-integration--deployment)
+  - [Documentation](#documentation)
+    - [GitLab Pages](#gitlab-pages)
 
 ## Project Repo Tree
 
@@ -73,6 +78,9 @@ Customised for {{cookiecutter.project_name}}.
     │   │                   development environments.
     │   ├── code-server <-  Directory containing the entry point script
     │   │                   for the VSCode server's Docker image.
+    │   ├── jupyter     <-  Directory containing the entry point scripts
+    │   │                   and config for the Jupyter server's Docker
+    │   │                   image.
     │   ├── k8s         <-  Manifest files for spinning up Kubernetes
     │   │                   resources.
     │   └── polyaxon    <-  Specification files for services and jobs
@@ -80,15 +88,14 @@ Customised for {{cookiecutter.project_name}}.
     ├── assets          <-  Screenshots and images.
     ├── conf            <-  Configuration files associated with the
     │                       various pipelines as well as for logging.
-    ├── data            <-  The folder that is to contain the DVC files
-    │                       of the project. Contents of folder will be
-    │                       ignored except for `.dvc` and `.gitignore`
-    │                       files.
+    ├── data            <-  Folder to contain any data for the various
+    │                       pipelines. Ignored by Git except its
+    │                       `.gitkeep` file.
     ├── docker          <-  Dockerfiles associated with the various
     │                       stages of the pipeline.
     ├── docs            <-  A default Sphinx project; see sphinx-doc.org
     │                       for details.
-    ├── models          <-  DVC files of trained and serialised models.
+    ├── models          <-  Directory for trained and serialised models.
     ├── notebooks       <-  Jupyter notebooks. Naming convention is a
     │                       number (for ordering), the creator's
     │                       initials, and a short `-` delimited
@@ -171,7 +178,7 @@ template located
 While this repository provides users with a set of boilerplates,
 with this `README.md` document, you are presented with a linear guide on
 how to use the boilerplates that are rendered when you generated this
-repository using `cookiecutter`.
+repository using [`cruft`](https://cruft.github.io/cruft/).
 You can follow along the guide but it will be tackling a simple problem
 statement.
 
@@ -180,6 +187,8 @@ contained within it, __ensure that this repository is pushed to a
 remote repository__. Refer to
 [here](https://docs.gitlab.com/ee/user/project/working_with_projects.html#create-a-project)
 on creating a blank remote repository (or project in GitLab's term).
+After creating the remote repository, retrieve the remote URL and push
+the local repository to remote:
 
 ```bash
 $ git init
@@ -194,8 +203,8 @@ able to conduct sentiment classification for movie reviews.
 The model is then to be deployed through a REST API and used for batch
 inferencing as well.
 The raw dataset to be used is made available for you to download;
-instructions are detailed [here](#data-preparation), to be referred
-to later on.
+instructions are detailed under ["Data Preparation"](#data-preparation),
+to be referred to later on.
 
 ### Google Cloud Platform (GCP) Projects
 
@@ -496,12 +505,6 @@ can be dedicated (except for GPUs);
 all you need on your end is a machine with WebSockets,
 a browser and a terminal.
 
-A caveat: since these development environments are essentially pods
-deployed within a Kubernetes cluster, using Docker within the pods
-themselves is not feasible or recommended. We will explore alternatives
-later on for building Docker images outside of your local machine's
-context.
-
 ### VSCode
 
 The VSCode service to be created will be using a Docker image. You
@@ -555,6 +558,16 @@ dedicated to this service.
 To open up the integrated terminal within the VSCode environment, you
 can use the keyboard shortcut <code>Ctrl + Shift + `</code>.
 
+#### Git from VSCode
+
+To clone or push to Git repositories within the VSCode integrated
+terminal, you would have to first disable VSCode's Git authentication
+handler:
+
+- Head over to `File > Preferences > Settings`.
+- Search for `git.terminalAuthentication`.
+- Uncheck the option.
+
 ### Jupyter Lab
 
 While Jupyter Notebooks are viewable, editable and executable within
@@ -590,6 +603,41 @@ The service should be accompanied with the tags `jupyter`,
 `notebook` and `lab`.
 
 ![Polyaxon v1- Jupyter Lab Service Interface](./assets/screenshots/polyaxon-v1-jupyter-service-interface.png)
+
+### Authorising `gcloud`
+
+To authorise `gcloud` to access Google Cloud services with the service
+account attached to the development environments,
+you can run the following in a terminal:
+
+```bash
+$ gcloud auth activate-service-account aisg-100e-engineer@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+```
+
+If you would like to view or create Kubernetes resources on GKE, you can
+run the following command to connect to this default
+`tekong-exp-cluster` cluster:
+
+```bash
+$ gcloud container clusters get-credentials tekong-exp-cluster --zone asia-southeast1-c --project {{cookiecutter.gcp_project_id}}
+```
+
+Do note that the service account is granted limited permissions
+so you would not be able to carry out certain actions with the
+cluster (e.g. view namespaces, delete resources).
+
+### Using Docker within Polyaxon Services
+
+A caveat: since these development environments are essentially pods
+deployed within a Kubernetes cluster, using Docker within the pods
+themselves is not feasible by default and while possible,
+should be avoided.
+
+Reference(s):
+
+- [Polyaxon - Integrations](https://polyaxon.com/integrations/)
+- [Cloud SDK Reference - gcloud auth activate-service-account](https://cloud.google.com/sdk/gcloud/reference/auth/activate-service-account)
+- [Using Docker-in-Docker for your CI or testing environment? Think twice. - jpetazzo](https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/)
 
 ## Git Repository
 
@@ -1191,7 +1239,32 @@ scaling.
 
 #### Deploy to GKE
 
-> Coming soon...
+To deploy the FastAPI server on GKE, you can make use of the sample
+Kubernetes manifest files provided with this template:
+
+```bash
+$ kubectl apply -f aisg-context/k8s/model-serving-api/fastapi-server-deployment.yml --namespace=polyaxon-v1
+$ kubectl apply -f aisg-context/k8s/model-serving-api/fastapi-server-service.yml --namespace=polyaxon-v1
+```
+
+To access the server, you can port-forward the service to a local port
+like such:
+
+```bash
+$ kubectl port-forward service/fastapi-server-svc 8080:8080 --namespace=polyaxon-v1
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+```
+
+You can view the documentation for the API at
+[`http://localhost:8080/docs`](http://localhost:8080/docs). You can also
+make a request to the API like so:
+
+```bash
+$ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
+  -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+  localhost:8080/api/v1/model/predict
+```
 
 Reference(s):
 
@@ -1207,8 +1280,156 @@ Reference(s):
 
 ## Batch Inferencing
 
-> Coming soon...
+Some problem statements do not warrant the deployment of an API server
+but instead methods for conducting batched inferencing where a batch
+of data is submitted to say a script and the script churns out
+a set of predictions, perhaps exported to a file.
+
+This template provides a Python script (`src/batch_inferencing.py`)
+as well as an accompanying
+Dockerfile (`docker/{{cookiecutter.repo_name}}-batch-inferencing.Dockerfile`)
+for containerised executions.
+
+To execute the script locally:
+
+```bash
+$ python src/batch_inferencing.py \
+  inference.model_path=<PATH_TO_MODEL> \
+  inference.input_data_dir=<PATH_TO_DIR_CONTAINING_TXT_FILES>
+```
+
+The paramater `inference.input_data_dir` assumes a directory
+containing `.txt` files containing movie reviews. At the end of the
+execution, the script will log to the terminal the location of the
+`.jsonl` file (`batch-infer-res.jsonl`) containing predictions that
+look like such:
+
+```jsonl
+...
+{"time": "2022-01-06T06:40:27+0000", "filepath": "/home/aisg/{{cookiecutter.repo_name}}/data/1131_2.txt", "logit_prob": 0.006387829780578613, "sentiment": "negative"}
+{"time": "2022-01-06T06:40:27+0000", "filepath": "/home/aisg/{{cookiecutter.repo_name}}/data/11020_3.txt", "logit_prob": 0.0041103363037109375, "sentiment": "negative"}
+{"time": "2022-01-06T06:40:27+0000", "filepath": "/home/aisg/{{cookiecutter.repo_name}}/data/11916_3.txt", "logit_prob": 0.023626357316970825, "sentiment": "negative"}
+{"time": "2022-01-06T06:40:27+0000", "filepath": "/home/aisg/{{cookiecutter.repo_name}}/data/3129_2.txt", "logit_prob": 0.00018364191055297852, "sentiment": "negative"}
+{"time": "2022-01-06T06:40:27+0000", "filepath": "/home/aisg/{{cookiecutter.repo_name}}/data/2444_4.txt", "logit_prob": 3.255962656112388e-05, "sentiment": "negative"}
+...
+```
+
+The inferencing results are exported to a subdirectory within the
+`outputs` folder. See
+[here])(https://hydra.cc/docs/tutorials/basic/running_your_app/working_directory/)
+for more information on outputs generated by Hydra.
+
+To use the Docker image, first build it:
+
+```bash
+$ docker build \
+  -t asia.gcr.io/{{cookiecutter.gcp_project_id}}/batch-inference:0.1.0 \
+  --build-arg PRED_MODEL_UUID="abf043e8a8504eddb1f95bdbc634d2bd" \
+  -f docker/{{cookiecutter.repo_name}}-batch-inferencing.Dockerfile .
+```
+
+Similar to how the predictive models are defined for the FastAPI
+servers' images, `PRED_MODEL_UUID` requires the unique ID associated
+with the MLflow run that generated the predictive model that you wish
+to make use of for the batch inferencing.
+
+After building the image, you can run the container like so:
+
+```bash
+$ chgrp -R 2222 outputs
+$ docker run --rm --network=host \
+  --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
+  --env INPUT_DATA_DIR=/home/aisg/{{cookiecutter.repo_name}}/data \
+  -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
+  -v $PWD/models:/home/aisg/from-gcs \
+  -v $PWD/outputs:/home/aisg/{{cookiecutter.repo_name}}/outputs \
+  -v <PATH_TO_DIR_CONTAINING_TXT_FILES>:/home/aisg/{{cookiecutter.repo_name}}/data \
+  asia.gcr.io/{{cookiecutter.gcp_project_id}}/batch-inference:0.1.0
+```
+
+In Docker run command above we are passing two variables:
+`GOOGLE_APPLICATION_CREDENTIALS` and `INPUT_DATA_DIR`.
+The former allows the container's entrypoint to download the
+predictive model specified during build time from GCS. The latter
+will be fed to the script's parameter: `inference.input_data_dir`.
+4 volumes are attached to the container for persistence as well as
+usage of host files and directories.
+
+- `-v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json`:
+  This attaches the JSON file for the service account credentials to
+  the Docker container.
+- `-v $PWD/models:/home/aisg/from-gcs`: The models downloaded to the
+  host machine can be used by the container after being mounted to
+  `/home/aisg/from-gcs`.
+- `-v $PWD/outputs:/home/aisg/{{cookiecutter.repo_name}}/outputs`:
+  This is for persisting the batch inferencing outputs to the outputs
+  folder on the host machine.
+- `-v <PATH_TO_DIR_CONTAINING_TXT_FILES>:/home/aisg/{{cookiecutter.repo_name}}/data`:
+  To provide the container with access to the data that is on your local
+  machine, you need to mount the directory containing the text
+  files for inferencing.
+
+Reference(s):
+
+- [Docker Docs - Use volumes](https://docs.docker.com/storage/volumes/)
 
 ## Continuous Integration & Deployment
 
 > Coming soon...
+
+## Documentation
+
+The boilerplate packages generated by the template are populated with
+some
+[Numpy formatted docstrings](https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard)
+. What we can do with this is to observe how
+documentation can be automatically generated using
+[Sphinx](https://www.sphinx-doc.org/en/master/)
+, with the aid of the
+[Napoleon](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html)
+extension. Let's build the HTML asset for the documentation:
+
+```bash
+# From the root folder
+$ sphinx-apidoc -f -o docs src
+$ sphinx-build -b html docs public
+```
+
+![Sphinx - Generated Landing Page for Documentation Site](./assets/screenshots/sphinx-generated-doc-landing-page.png)
+
+### GitLab Pages
+
+Documentation generated through Sphinx can be served on
+[GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/), through
+GitLab CI/CD. With this template, a default CI job has written under
+`.gitlab-ci.yml` to serve the Sphinx documentation when pushes are
+done to the `master` branch:
+
+```yaml
+...
+pages:
+  stage: deploy-docs
+  image:
+    name: continuumio/miniconda:4.7.12
+  script:
+  - conda env update -f {{cookiecutter.repo_name}}-conda-env.yml
+  - conda init bash
+  - source ~/.bashrc
+  - conda activate {{cookiecutter.repo_name}}
+  - sphinx-apidoc -f -o docs src
+  - sphinx-build -b html docs public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
+...
+```
+
+The documentation page is viewable through the following convention:
+`<GROUP>.gitlab.aisingapore.net/<PROJECT_NAME>` or
+`<GROUP>.gitlab.aisingapore.net/<SUBGROUP>/<PROJECT_NAME>`.
+
+Reference(s):
+
+- [GitLab Docs - Pages domain names, URLs, and base URLs](https://docs.gitlab.com/ee/user/project/pages/getting_started_part_one.html)

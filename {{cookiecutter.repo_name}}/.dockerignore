@@ -1,26 +1,33 @@
 # Ignore all local configuration
 conf/local/**
+!conf/local/.gitkeep
 
 # Ignore potentially sensitive credentials files
 conf/**/*credentials*
 
 # Ignore everything in the following folders
-data/**
-logs/**
-models/**
-k8s/pvc/**
-k8s/secrets/**
+data
+logs
+models
+aisg-context/k8s/pvc
+aisg-context/k8s/secrets
 
-# Except their sub-folders
-!data/**/
-!logs/**/
-!models/**/
-!k8s/pvc/**/
-!k8s/secrets/**/
+# Ignore .deb packages
+*.deb
+
+# Ignore local MLflow logs
+**/mlruns
+
+# Ignore outputs from OmegaConf/Hydra
+outputs
+multirun
 
 ####################
 ### Common files ###
 ####################
+
+# Obsidian config directory
+.obsidian
 
 # IntelliJ
 .idea/
@@ -120,6 +127,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+public
 
 # PyBuilder
 target/

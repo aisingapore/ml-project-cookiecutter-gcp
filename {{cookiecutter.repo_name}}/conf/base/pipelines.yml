@@ -17,3 +17,7 @@ train:
   optimiser: "adam"
   metric: "accuracy"
   pretrained_embedding: "https://tfhub.dev/google/nnlm-en-dim128-with-normalization/2"
+
+inference:
+  model_path: "./models/model-dir"
+  input_data_dir: "../{{cookiecutter.repo_name}}-data/processed/subdir"

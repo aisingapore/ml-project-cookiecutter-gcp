@@ -10,7 +10,7 @@ import {{cookiecutter.src_package_name}} as {{cookiecutter.src_package_name_shor
 @hydra.main(config_path="../conf/base", config_name="pipelines.yml")
 def main(args):
     """This main function does the following:
-    - load config parameters
+    - load logging config
     - initialise experiment tracking (MLflow)
     - loads training, validation and test data
     - initialises model layers and compile
@@ -23,8 +23,6 @@ def main(args):
         join(hydra.utils.get_original_cwd(),
             "conf/base/logging.yml")
     {{cookiecutter.src_package_name_short}}.general_utils.setup_logging(logger_config_path)
-
-    logger.info("Loading config file.")
 
     mlflow_init_status = {{cookiecutter.src_package_name_short}}.general_utils.\
         mlflow_init(

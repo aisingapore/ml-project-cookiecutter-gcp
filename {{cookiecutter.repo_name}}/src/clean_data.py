@@ -20,8 +20,6 @@ def main(args):
             "conf/base/logging.yml")
     {{cookiecutter.src_package_name_short}}.general_utils.setup_logging(logger_config_path)
 
-    logger.info("Loading config file.")
-
     raw_data_dirs_list = args["data_prep"]["raw_dirs_paths"]
     processed_data_path = args["data_prep"]["processed_data_path"]
 
