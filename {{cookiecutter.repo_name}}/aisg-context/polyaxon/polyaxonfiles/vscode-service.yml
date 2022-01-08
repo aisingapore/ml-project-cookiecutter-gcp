@@ -4,6 +4,10 @@ name: vscode-service
 description: VSCode as development environment for AI engineer.
 tags: [vscode]
 inputs:
+  - name: DOCKER_IMAGE
+    isOptional: true
+    type: str
+    value: asia.gcr.io/<GCP_PROJECT_ID>/vscode-server:0.1.0
   - name: WORKING_DIR
     description: The working directory for the job to run in.
     isOptional: true
@@ -27,7 +31,7 @@ run:
     - 8080
   rewritePath: true
   container:
-    image: asia.gcr.io/<GCP_PROJECT_ID>/vscode-server:0.1.0
+    image: "{{ DOCKER_IMAGE }}"
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
     args:

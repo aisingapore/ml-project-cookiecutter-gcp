@@ -1,14 +1,31 @@
+![AI Singapore's Kapitan MlOps EPTG Banner](./assets/images/kapitan-mlops-eptg-banner.png)
+
 # End-to-end Project Template (GCP)
 
 Customised for {{cookiecutter.project_name}}.
 
 {{cookiecutter.description}}
 
+This template was generated using the following `cookiecutter` template:
+https://github.com/aimakerspace/ml-project-cookiecutter-gcp
+
+Inputs provided to `cookiecutter`/`cruft` for the generation of this
+template:
+
+- __cookiecutter.project_name:__ {{cookiecutter.project_name}}
+- __cookiecutter.description:__ {{cookiecutter.description}}
+- __cookiecutter.repo_name:__ {{cookiecutter.repo_name}}
+- __cookiecutter.src_package_name:__ {{cookiecutter.src_package_name}}
+- __cookiecutter.src_package_name_short:__ {{cookiecutter.src_package_name_short}}
+- __cookiecutter.gcp_project_id:__ {{cookiecutter.gcp_project_id}}
+- __cookiecutter.author_name:__ {{cookiecutter.author_name}}
+- __cookiecutter.open_source_license:__ {{cookiecutter.open_source_license}}
+
 ## Table of Contents
 
 - [End-to-end Project Template (GCP)](#end-to-end-project-template-gcp)
   - [Table of Contents](#table-of-contents)
-  - [Project Repo Tree](#project-repo-tree)
+  - [Directory Tree](#directory-tree)
   - [Prerequisites](#prerequisites)
     - [NUS VPN](#nus-vpn)
   - [Preface](#preface)
@@ -17,29 +34,27 @@ Customised for {{cookiecutter.project_name}}.
     - [Google Cloud Platform (GCP) Projects](#google-cloud-platform-gcp-projects)
       - [Authorisation](#authorisation)
   - [MLOps Components & Platform](#mlops-components--platform)
+    - [Kubernetes](#kubernetes)
+      - [`kubectl` Configuration for GKE](#kubectl-configuration-for-gke)
+      - [Persistent Volumes](#persistent-volumes)
     - [Polyaxon](#polyaxon)
       - [Dashboard](#dashboard)
-    - [Relevant Concepts](#relevant-concepts)
-      - [Polyaxonfiles](#polyaxonfiles)
-      - [Components](#components)
-      - [Jobs](#jobs)
-      - [Services](#services)
-    - [Secrets & Credentials on Kubernetes](#secrets--credentials-on-kubernetes)
+      - [Relevant Concepts](#relevant-concepts)
+      - [Secrets & Credentials on Kubernetes](#secrets--credentials-on-kubernetes)
+    - [Google Container Registry](#google-container-registry)
   - [Development Environment](#development-environment)
     - [VSCode](#vscode)
       - [Git from VSCode](#git-from-vscode)
     - [Jupyter Lab](#jupyter-lab)
-    - [Authorising `gcloud`](#authorising-gcloud)
     - [Using Docker within Polyaxon Services](#using-docker-within-polyaxon-services)
-  - [Git Repository](#git-repository)
-  - [Cloud SDK for Development Environment](#cloud-sdk-for-development-environment)
+    - [Git Repository](#git-repository)
+    - [Cloud SDK for Development Environment](#cloud-sdk-for-development-environment)
   - [Virtual Environment](#virtual-environment)
-  - [Data Versioning](#data-versioning)
+  - [Data Storage & Versioning](#data-storage--versioning)
+    - [Sample Data](#sample-data)
   - [Job Orchestration](#job-orchestration)
     - [Pipeline Configuration](#pipeline-configuration)
-    - [Data Preparation](#data-preparation)
-      - [Pulling Raw Data](#pulling-raw-data)
-      - [Processing Data](#processing-data)
+    - [Data Preparation & Preprocessing](#data-preparation--preprocessing)
     - [Model Training](#model-training)
       - [Hyperparameter Tuning](#hyperparameter-tuning)
   - [Deployment](#deployment)
@@ -54,7 +69,7 @@ Customised for {{cookiecutter.project_name}}.
   - [Documentation](#documentation)
     - [GitLab Pages](#gitlab-pages)
 
-## Project Repo Tree
+## Directory Tree
 
 ```
 {{cookiecutter.repo_name}}
@@ -174,6 +189,8 @@ was created using AI Singapore's
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/)
 template located
 [here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp).
+Instructions for generating this template is detailed in that
+repository's `README.md`.
 
 While this repository provides users with a set of boilerplates,
 with this `README.md` document, you are presented with a linear guide on
@@ -181,10 +198,16 @@ how to use the boilerplates that are rendered when you generated this
 repository using [`cruft`](https://cruft.github.io/cruft/).
 You can follow along the guide but it will be tackling a simple problem
 statement.
+Once you've grasp what this template offers, you can deviate from it
+and customise it to your needs.
 
 Since we will be making use of this repository and the files
 contained within it, __ensure that this repository is pushed to a
-remote repository__. Refer to
+remote repository__.
+Most probably you will be resorting to
+[AI Singapore's GitLab instance](https://gitlab.aisingapore.net/) as
+the remote.
+Refer to
 [here](https://docs.gitlab.com/ee/user/project/working_with_projects.html#create-a-project)
 on creating a blank remote repository (or project in GitLab's term).
 After creating the remote repository, retrieve the remote URL and push
@@ -203,7 +226,8 @@ able to conduct sentiment classification for movie reviews.
 The model is then to be deployed through a REST API and used for batch
 inferencing as well.
 The raw dataset to be used is made available for you to download;
-instructions are detailed under ["Data Preparation"](#data-preparation),
+instructions are detailed under
+["Data Preparation & Versioning"](#data-storage--versioning),
 to be referred to later on.
 
 ### Google Cloud Platform (GCP) Projects
@@ -253,6 +277,20 @@ products/services:
 
 ## MLOps Components & Platform
 
+### Kubernetes
+
+We will be using
+[Kubernetes](https://kubernetes.io/)
+as the orchestration tool to execute
+pipelines and manage containerised applications and environments.
+
+From the Kubernetes site:
+
+> Kubernetes, also known as K8s, is an open-source system for automating
+> deployment, scaling, and management of containerized applications.
+> It groups containers that make up an application into logical units
+> for easy management and discovery.
+
 A number of services and applications that you will be interacting with
 (or deploying) are deployed (to be deployed) within a GKE cluster
 environment. A GKE cluster should be set up upon creation of your GCP
@@ -261,32 +299,61 @@ project, viewable
 If this is not the case, please notify the MLOps team at
 `mlops@aisingapore.org`.
 
-Some of the MLOps components for which the GKE environment will be
+Some of the MLOps components which the GKE environment will be
 relevant for are:
 
 - Developer Workspace
 - Model Experimentation
 - Experiment Tracking
-- Data/Artefact Storage
+- Data/Artifact Storage
 - Model Serving
-- Model Monitoring
 
 What this means is that AI engineers would need to be able to access the
 GKE cluster. Documentation for obtaining a cluster's configuration can
 be found
 [here](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#generate_kubeconfig_entry).
 
-The following command can be executed to configure `kubectl` command
-line access:
+#### `kubectl` Configuration for GKE
+
+If you would like to view or create Kubernetes (GKE) resources within
+development environments (or even on your own local machine), you can
+run the following command to connect to the
+`tekong-exp-cluster` cluster which by default
+your user or service account
+should have access to:
 
 ```bash
-$ gcloud container clusters get-credentials <CLUSTER_NAME> --zone asia-southeast1-c --project <GCP_PROJECT_ID>
+$ gcloud container clusters get-credentials tekong-exp-cluster --zone asia-southeast1-c --project {{cookiecutter.gcp_project_id}}
 ```
+
+Since the service account is granted limited permissions,
+you would not be able to carry out certain actions with the
+cluster (view namespaces, delete resources, etc).
 
 After obtaining the credentials and configurations for the GKE cluster,
 you can start to interact with the main MLOps platforms tool that you
 will be leveraging on for a development workspace, data preparation as
 well as model training.
+
+Reference(s):
+
+- [GKE Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview)
+
+#### Persistent Volumes
+
+Containers are ephemeral and what that translates to is that any data
+created and stored within the container as well as any changes made to
+it will be gone once the container is stopped. To persist these things,
+we would need to mount volumes to the containers. With the default
+configuration provided in this template, any services or jobs to be
+spun up on the MLOps platform Polyaxon will have a persistent volume
+attached. The volume's mount path is `/polyaxon-v1-data` and so
+anything that is stored within that path will be persisted.
+
+Reference(s):
+
+- [Kubernetes Docs - Volumes](https://kubernetes.io/docs/concepts/storage/volumes/)
+- [NetApp - What are Kubernetes persistent volumes?](https://www.netapp.com/knowledge-center/what-is-kubernetes-persistent-volumes/)
 
 ### Polyaxon
 
@@ -353,12 +420,12 @@ __Reference(s):__
 
 - [Ampersands & on the command line](https://bashitout.com/2013/05/18/Ampersands-on-the-command-line.html)
 
-### Relevant Concepts
+#### Relevant Concepts
 
 Before we proceed further, let's cover some basic concepts that one
 should know when getting started with Polyaxon.
 
-#### Polyaxonfiles
+__Polyaxonfiles:__
 
 To submit jobs or spin up services on the Polyaxon platform, users would
 have to make use of both the CLI as well as Polyaxon-specific config
@@ -372,7 +439,7 @@ AI Singapore's context, we will be sticking with YAML.
 Head over [here](https://polyaxon.com/docs/core/specification/) for the
 official documentation on Polyaxonfiles.
 
-#### Components
+__Components:__
 
 Before you can define a job or service for Polyaxon, you would have to
 call upon and define a component. Hence, in every Polyaxonfile that is
@@ -406,7 +473,7 @@ __Reference(s):__
 - [Polyaxon Docs - Component Specification](https://polyaxon.com/docs/intro/quick-start/components/)
 - [Polyaxon Docs - Polyaxon experimentation tools](https://polyaxon.com/docs/experimentation/)
 
-#### Jobs
+__Jobs:__
 
 One example of such components is "jobs". You can run jobs for training
 models, data preprocessing or any generic tasks that are executable
@@ -417,7 +484,7 @@ __Reference(s):__
 
 - [Polyaxon Docs - Jobs Introduction](https://polyaxon.com/docs/experimentation/jobs/)
 
-#### Services
+__Services:__
 
 The "services" runtime is used for spinning up applications or
 interfaces that are to remain running until you stop the service
@@ -432,7 +499,7 @@ __Reference(s):__
 We will dive deeper into these concepts and the usage of each one of
 them in later sections.
 
-### Secrets & Credentials on Kubernetes
+#### Secrets & Credentials on Kubernetes
 
 When executing jobs on Polyaxon, credentials are needed to access
 various services like GCR or GCS. To provide your container jobs with
@@ -442,7 +509,7 @@ access to these credentials, you need to carry out the following:
    from the lead engineer/MLOps team) and rename it to
    `gcp-service-account.json`. Take note of the client email detailed
    in the JSON file. The client email should be of the following
-   convention: `aisg-100e-sa@<PROJECT_ID>.iam.gserviceaccount.com`.
+   convention: `aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com`.
 2. Create a Kubernetes secret on your Kubernetes (GKE) cluster,
    within the same namespace where Polyaxon is deployed: `polyaxon-v1`.
 3. Configure Polyaxonfiles to refer to these secrets.
@@ -450,7 +517,7 @@ access to these credentials, you need to carry out the following:
 Here are the commands to be executed for creating the secrets:
 
 ```bash
-$ export SA_CLIENT_EMAIL=<SA_CLIENT_EMAIL>
+$ export SA_CLIENT_EMAIL="aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com"
 $ export PATH_TO_SA_JSON_FILE=<PATH_TO_SA_JSON_FILE>
 $ kubectl create secret docker-registry gcp-imagepullsecrets \
   --docker-server=https://asia.gcr.io \
@@ -494,7 +561,34 @@ __Reference(s):__
 
 - [Kubernetes Docs - Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/)
 
+### Google Container Registry
+
+AI Singapore's emphases on reproducibility and portability of
+workflows and accompanying environments translates to heavy usage of
+containerisation. Throughout this guide, we will be building Docker
+images necessary for setting up development environments, jobs for
+the various pipelines and deployment of the predictive model.
+
+Within the context of GCP, the
+[Google Container Registry (GCR)](https://cloud.google.com/container-registry)
+will be used to store and version our Docker images.
+Following authorisation to `gcloud`, you can view the image repositories
+of your project's registry like so:
+
+```bash
+$ gcloud container images list --repository=asia.gcr.io/{{cookiecutter.gcp_project_id}}
+```
+
+You will be pushing the Docker images to the aforementioned repository.
+
+Reference(s):
+
+- [`gcloud` Reference - `gcloud container images list`](https://cloud.google.com/sdk/gcloud/reference/container/images/list)
+- [GCR Guide - Pushing & Pulling Images](https://cloud.google.com/container-registry/docs/pushing-and-pulling)
+
 ## Development Environment
+
+![Development Environment Section](./assets/images/eptg-section-banner-dev-env.png)]
 
 An advantage presented by the Polyaxon platform is that you can utilise
 the GKE cluster's resources for your development and engineering works
@@ -522,20 +616,22 @@ $ docker build \
 $ docker push asia.gcr.io/$GCP_PROJECT_ID/vscode-server:0.1.0
 ```
 
-Once that is done, change the value of `.run.container.image` for the
-file `aisg-context/polyaxon/polyaxonfiles/vscode-service.yml` to the
-name and tag of the Docker image you've just pushed:
-
-```bash
-$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/vscode-server:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/vscode-service.yml
-```
-
 Push the configurations to the Polyaxon server to start up the VSCode
 service:
 
 ```bash
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/vscode-service.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/vscode-service.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/vscode-server:0.1.0" -P WORKING_DIR='/polyaxon-v1-data' -p {{cookiecutter.repo_name}}-<YOUR_NAME>
 ```
+
+The `-p` flag is used to specify the project for which you are
+dedicating the service or job to.
+The `-P` flag is used to pass an input for a parameter defined in the
+Polyaxonfile that is in question. In this case, we are specifying to the
+Polyaxon service that we intend to use the Docker image
+`asia.gcr.io/$GCP_PROJECT_ID/vscode-server:0.1.0` and to
+work from the path that we have
+specified, which is `/polyaxon-v1-data` where data and artifacts will
+be persisted.
 
 Now head over to the services dashboard under your project. The link to
 your services would be as such -
@@ -549,7 +645,8 @@ To access the VSCode service, expand the service and click on the
 
 ![Polyaxon v1 - VSCode Service Run View](./assets/screenshots/polyaxon-v1-vscode-service-run-view.png)
 
-The service you see here is embed within Polyaxon's dashboard. You can
+The service you see here is embedded within Polyaxon's dashboard.
+You can
 click on the `Fullscreen` button to have a single browser tab be
 dedicated to this service.
 
@@ -583,19 +680,11 @@ $ docker build \
 $ docker push asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0
 ```
 
-Once that is done, change the value of `.run.container.image` for the
-file `aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml` to the
-name and tag of the Docker image you've just pushed:
-
-```bash
-$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml
-```
-
-Push the configurations to the Polyaxon server to start up the VSCode
+Push the configurations to the Polyaxon server to start up the Jupyter
 service:
 
 ```bash
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml -P WORKING_DIR='/polyaxon-v1-data' -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0" -P WORKING_DIR="/polyaxon-v1-data" -p {{cookiecutter.repo_name}}-<YOUR_NAME>
 ```
 
 Now head over to the services dashboard under your project.
@@ -603,28 +692,6 @@ The service should be accompanied with the tags `jupyter`,
 `notebook` and `lab`.
 
 ![Polyaxon v1- Jupyter Lab Service Interface](./assets/screenshots/polyaxon-v1-jupyter-service-interface.png)
-
-### Authorising `gcloud`
-
-To authorise `gcloud` to access Google Cloud services with the service
-account attached to the development environments,
-you can run the following in a terminal:
-
-```bash
-$ gcloud auth activate-service-account aisg-100e-engineer@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-```
-
-If you would like to view or create Kubernetes resources on GKE, you can
-run the following command to connect to this default
-`tekong-exp-cluster` cluster:
-
-```bash
-$ gcloud container clusters get-credentials tekong-exp-cluster --zone asia-southeast1-c --project {{cookiecutter.gcp_project_id}}
-```
-
-Do note that the service account is granted limited permissions
-so you would not be able to carry out certain actions with the
-cluster (e.g. view namespaces, delete resources).
 
 ### Using Docker within Polyaxon Services
 
@@ -635,11 +702,12 @@ should be avoided.
 
 Reference(s):
 
+- [Polyaxon Docs - Run CLI Reference](https://polyaxon.com/docs/core/cli/run/)
 - [Polyaxon - Integrations](https://polyaxon.com/integrations/)
 - [Cloud SDK Reference - gcloud auth activate-service-account](https://cloud.google.com/sdk/gcloud/reference/auth/activate-service-account)
 - [Using Docker-in-Docker for your CI or testing environment? Think twice. - jpetazzo](https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/)
 
-## Git Repository
+### Git Repository
 
 Now that we have a development environment, we can clone this repository
 into the environment's persistent storage. As the persistent storage
@@ -659,20 +727,23 @@ $ git clone <REMOTE_URL_HTTPS>
 $ cd {{cookiecutter.repo_name}}
 ```
 
-## Cloud SDK for Development Environment
+### Cloud SDK for Development Environment
 
 As mentioned [here](#secrets--credentials-on-kubernetes),
 credentials or secrets can be attached to Polyaxon services or jobs
 when configured properly. In doing so, you can make use of Google
 service accounts to interact with GCP services or resources.
 
-If you used the provided Dockerfile to build the image for the VSCode
-service on Polyaxon, the VSCode environment would have the Cloud SDK
-installed. You can configure the `gcloud` CLI to make use of the
-service account attached to the VSCode service:
+If you use the provided Dockerfiles to build Docker images for the
+services on Polyaxon, the development environments would have the
+Cloud SDK installed.
+You can configure the `gcloud` CLI to make use of the
+service account credentials attached to the VSCode and Jupyter services,
+which its path is set to the environment variable
+`GOOGLE_APPLICATION_CREDENTIALS`:
 
 ```bash
-$ gcloud auth activate-service-account --key-file /var/secret/cloud.google.com/gcp-service-account.json
+$ gcloud auth activate-service-account aisg-100e-engineer@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 ```
 
 Once the service account has been configured, examples of actions you
@@ -682,7 +753,8 @@ can carry out consists of the following:
 - create objects within GCS buckets
 - list deployed pods within a GKE cluster
 
-Do note that the service account has limited permissions.
+The service account is granted a custom role with specific
+permissions deemed needed by AI engineers.
 
 ## Virtual Environment
 
@@ -700,48 +772,114 @@ $ alias {{cookiecutter.repo_name}}-conda-env="conda activate /polyaxon-v1-data/w
 $ {{cookiecutter.repo_name}}-conda-env
 ```
 
-## Data Versioning
+## Data Storage & Versioning
 
-Now that we have our development environment set up, we can clone the
-repository containing the metadata and cache information for the problem
-statement's raw data.
-(Please refer to the UDP guide for usage of the UDP portal for uploading
-raw data for your own project's problem statement.)
+![Data Storage & Versioning Banner](./assets/images/eptg-section-banner-data-storage-version.png)]
 
-> More content to be included for uploading of project data
-> through UDP...
+So we now have our development environment. However, the data for us to
+conduct EDA and predictive modeling on is nowhere in sight.
 
-For this guide's problem statement,
-we will use the following repository:
-https://github.com/aimakerspace/e2e-project-template-gcp-data
+Since the context of this guide is within the Google Cloud Platform,
+we will be making use of its
+[Google Cloud Storage](https://cloud.google.com/storage)
+service for remote and object storage.
+
+In most cases, raw data for 100E projects provided by the project
+sponsors are uploaded to GCS through AI Singapore's
+in-house tool for uploading data: UDP. When data is uploaded to GCS
+through UDP, a GCS bucket is populated with timestamped directories
+containing whatever raw that was uploaded.
+
+For example, assuming your project ID is `ai-proj-aut0`,
+a GCS bucket with the same name `ai-proj-aut0` exists. The tree in the
+bucket can look something like this:
 
 ```bash
-$ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>
-$ git clone https://github.com/aimakerspace/e2e-project-template-gcp-data
-$ cd e2e-project-template-gcp-data
-$ ls -la
-drwxr-sr-x 5 coder 2222 xxxx xxx xx xx:xx .dvc
--rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx .dvcignore
-drwxr-sr-x 8 coder 2222 xxxx xxx xx xx:xx .git
--rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx .gitignore
--rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx raw.dvc
+.
+└── ai-proj-aut0
+    ├── 20211214_1109568/
+    ├── 20211214_1110821/
+    ├── 20211214_1448200/
+    └── 20211214_1449172/
 ```
 
-Projects' data repositories contains base configurations for the remote
-DVC cache which stores versions of your project's data. In our context
-here, the remote cache is situated within a GCS bucket
-(a publicly accessible one). For you to be able to navigate between the
-different versions of your project's data, you need the cache.
+The subdirectories are timestamps indicative of the time that the raw
+data was added to GCS. A question that follows is how do we get
+the data into the persistent storage that's accessible by Polyaxon's
+jobs and services? Well, let's go back to the VSCode environment to use
+the integrated terminal.
 
-To pull from the remote cache, you need to execute a job that
-pulls (or push) data from (or to) it. The next section covers on how you
-can execute jobs on Polyaxon.
+From [this section](#cloud-sdk-for-development-environment),
+we've learned how to set up authorisation for `gcloud`
+to use the service account
+credentials we have attached to the service containers.
+This means that we can use
+[`gsutil`](https://cloud.google.com/storage/docs/gsutil)
+to pull in data from a GCS bucket.
 
-__Reference(s):__
+```bash
+$ mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/ai-proj-aut0 && cd "$_"
+$ gsutil -m rsync -r gs://ai-proj-aut0 .
+```
 
-- [DVC - Storing & Sharing](https://dvc.org/doc/start/data-and-model-versioning#storing-and-sharing)
+The `-m` flag is to utilise parallel synchronisation which would speed
+things up and the `-r` concerns recursion through a bucket/directory.
+
+Now, when a new set of raw data has been uploaded, a new subdirectory
+will appear in the bucket. Say the tree now looks like the following:
+
+```bash
+.
+└── ai-proj-aut0
+    ├── 20211215_0952332/
+    ├── 20211214_1109568/
+    ├── 20211214_1110821/
+    ├── 20211214_1448200/
+    └── 20211214_1449172/
+```
+
+To retrieve that new set of raw data i.e. the folder `20211215_0952332`,
+just run the same command in the relevant folder again:
+
+```bash
+$ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/ai-proj-aut0
+$ gsutil -m rsync -r gs://ai-proj-aut0 .
+```
+
+The `gsutil` utility will synchronise the directory in the persistent
+storage with the remote object storage/bucket.
+With that said, __do not place your processed data directory within
+this same directory containing all the raw data__ lest you'd lose
+the processed data upon sychronisation. Let the directory for raw data
+contain just raw data.
+
+### Sample Data
+
+While you may have your own project data to work with, for the purpose
+of following through with this template guide, let's download
+the sample data for the [problem statement](#guides-problem-statement)
+at hand.
+
+__Note:__ The sample data for this guide's problem statement is made
+accessible to the public. Hence any team or individual can download
+it. It is highly likely that your data is not publicly accessible and
+neither should it be, especially if it is a 100E project.
+
+```bash
+$ mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg && cd "$_"
+$ gsutil -m rsync -r gs://acl-movie-review-data-aisg .
+```
+
+In the following section, we will work towards processing the raw data
+and eventually training a sentiment classifier model.
+
+Reference(s):
+
+- [`gsutil` Reference - rsync](https://cloud.google.com/storage/docs/gsutil/commands/rsync)
 
 ## Job Orchestration
+
+![Job Orchestration Section](./assets/images/eptg-section-banner-job-orc.png)
 
 Jobs are submitted to the Polyaxon server and executed within Docker
 containers. These images are either pulled from a registry or built upon
@@ -775,15 +913,13 @@ Reference(s):
 
 - [Hydra Docs - Basic Override Syntax](https://hydra.cc/docs/advanced/override_grammar/basic/)
 
-### Data Preparation
+### Data Preparation & Preprocessing
 
-#### Pulling Raw Data
-
-If you have yet to pull in data from the remote DVC cache to the
-persistent storage on Polyaxon, this section will cover on how to do so.
-
-First, let's build the Docker image to be used for the data preparation
-pipelines and push it to your GCP project's image registry:
+To process the sample raw data,
+we will be spinning up a job on Polyaxon.
+This job will be using a Docker image that will be built from
+a Dockerfile (`docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile`)
+provided in this template:
 
 ```bash
 $ docker build \
@@ -792,74 +928,13 @@ $ docker build \
 $ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
 ```
 
-Replace the name of the Docker image for the value
-`.run.container.image` in the Polyaxonfile
-`aisg-context/polyaxon/polyaxonfiles/update-raw-data.yml`:
-
-```bash
-$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/update-raw-data.yml
-```
-
 Assuming you're still connected to the Polyaxon server through
 port-forwarding, submit a job to the server like such:
 
 ```bash
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/update-raw-data.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> -P WORKING_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data"
-Creating a new run...
-A new run `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` was created
-You can view this run on Polyaxon UI: http://localhost:8888/ui/default/<YOUR_PROJECT_NAME>/runs/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/
-```
-
-__Note:__ The `-P` flag is for overriding or specifying parameters that
-can be set for the Polyaxon component.
-See [here](https://polyaxon.com/docs/core/specification/io/)
-for more information on how to specify input parameters.
-
-Now, you can head over to the dashboard through the localhost URL
-`localhost:8888` and switch over to the jobs tab:
-
-![Polyaxon v1 - Project Overview Hover Jobs](./assets/screenshots/polyaxon-v1-project-overview-hover-jobs.png)
-
-![Polyaxon v1 - Project](./assets/screenshots/polyaxon-v1-jobs-dashboard.png)
-
-Refer to
-[this page](https://polyaxon.com/docs/management/runs-dashboard/) on
-how to navigate the interface listing the job runs you have submitted.
-
-To inspect the contents of the pulled data, head back over to the VSCode
-interface.
-
-```bash
-$ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data
-$ ls -la
-drwxr-sr-x 5 coder 2222 xxxx xxx xx xx:xx .dvc
--rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx .dvcignore
-drwxr-sr-x 8 coder 2222 xxxx xxx xx xx:xx .git
--rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx .gitignore
-drwxr-xr-x 3 coder 2222 xxxx xxx xx xx:xx raw
--rw-r--r-- 1 coder 2222 xxxx xxx xx xx:xx raw.dvc
-```
-
-__Note:__ Your output may differ from the above.
-
-Notice that now, the project's data repository is populated with
-subdirectories (corresponding with the names of files with the
-`.dvc` extension) containing data files.
-
-Now that we have the raw data, let's run a job to process the data to
-make it suitable for model training. (If you are using the example data,
-it will essentially be a removal of tags and punctuations.)
-
-#### Processing Data
-
-To process the raw data, we will be spinning up another separate job
-while specifying the same Docker image used for pulling in the raw data.
-
-```bash
-$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/process-data.yml
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
-  -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/raw/aclImdb-aisg-set1"]' \
-  -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined" \
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0" -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
+  -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1"]' \
+  -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}"
 ```
 
@@ -878,6 +953,10 @@ config as
 After some time, the data processing job should conclude and we can
 proceed with training the predictive model.
 
+The processed data is exported to the directory
+`/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined`
+. We will be passing this path to the model training workflows.
+
 ### Model Training
 
 Now that we have processed the raw data, we can look into training the
@@ -890,7 +969,12 @@ GCP projects that utilises Polyaxon. With this MLflow Tracking server,
 a team can log model training runs to it and keep track of the myriad
 of experiments to be executed and their accompanying parameters and
 metrics. Artifacts can also be logged through the MLflow API and
-uploaded to GCS buckets. This guide requires you to create a bucket
+uploaded to GCS buckets.
+
+__Note:__ The username and password for the MLflow Tracking server
+can be retrieved from the MLOps team or your team lead.
+
+This guide requires you to create a bucket
 for storing all your model experiment artifacts (assuming the bucket
 has yet to be created):
 
@@ -913,17 +997,16 @@ Now that we have the Docker image pushed to the registry,
 we can run a job using it:
 
 ```bash
-$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml
 $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
 $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
 $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
   -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
   -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
   -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
   -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
-  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined"
+  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined"
 ```
 
 #### Hyperparameter Tuning
@@ -999,7 +1082,7 @@ to judge the performance of the objectives (i.e. metrics) within each
 iteration, or as they put it, "trials".
 
 Another difference with this workflow is that for each trial with a
-different set of parameters, a new MLflow run has to be intiialised.
+different set of parameters, a new MLflow run has to be initialised.
 However, we need to somehow link all these different runs together so
 that we can compare all the runs within a single Optuna study (set of
 trials). How we do this is that we provide the script with a
@@ -1008,17 +1091,16 @@ you submitted the job to Polyaxon. This tag is defined using the
 environment value `MLFLOW_HPTUNING_TAG`.
 
 ```bash
-$ yq e ".run.container.image = \"asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0\"" -i aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml
 $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
 $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
 $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
+$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
   -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
   -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
   -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
   -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
-  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/e2e-project-template-gcp-data/processed/aclImdb-aisg-combined"
+  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined"
   -P MLFLOW_HPTUNING_TAG="$(date +%s)"
 ```
 
@@ -1033,7 +1115,9 @@ Reference(s):
 
 ## Deployment
 
-Assuming we have a predictive model that we are satisified with, we can
+![Deployment Section](./assets/images/eptg-section-banner-deploy.png)
+
+Assuming we have a predictive model that we are satisfied with, we can
 serve the model within a REST API with which requests can be made to
 and we will be provided with predictions.
 
@@ -1059,7 +1143,7 @@ uploaded to GCS through the MLflow Tracking server (done through
 autolog). By default, each experiment run is given a unique ID. When
 artifacts uploaded to GCS through MLflow, the artifacts are located
 within directories named after the unique IDs of the runs.
-This guide by default places uploads your artifacts to the following
+This guide by default uploads your artifacts to the following
 directory on GCS:
 `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
 Artifacts for specific runs will be uploaded to a directory with the
@@ -1216,7 +1300,7 @@ Let's go through a couple of the flags used above:
   folder to the container. The SA file is needed for `gsutil`
   to download the model from GCS and the `models` folder will persist
   the downloaded models.
-- `--env`: This sets environments variable within the container.
+- `--env`: This sets environment variables within the container.
 
 Use the same `curl` command for the server spun up by the container:
 
@@ -1298,7 +1382,7 @@ $ python src/batch_inferencing.py \
   inference.input_data_dir=<PATH_TO_DIR_CONTAINING_TXT_FILES>
 ```
 
-The paramater `inference.input_data_dir` assumes a directory
+The parameter `inference.input_data_dir` assumes a directory
 containing `.txt` files containing movie reviews. At the end of the
 execution, the script will log to the terminal the location of the
 `.jsonl` file (`batch-infer-res.jsonl`) containing predictions that
@@ -1337,7 +1421,7 @@ After building the image, you can run the container like so:
 
 ```bash
 $ chgrp -R 2222 outputs
-$ docker run --rm --network=host \
+$ docker run --rm \
   --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
   --env INPUT_DATA_DIR=/home/aisg/{{cookiecutter.repo_name}}/data \
   -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
@@ -1374,6 +1458,8 @@ Reference(s):
 - [Docker Docs - Use volumes](https://docs.docker.com/storage/volumes/)
 
 ## Continuous Integration & Deployment
+
+![CICD Section](./assets/images/eptg-section-banner-cicd.png)
 
 > Coming soon...
 

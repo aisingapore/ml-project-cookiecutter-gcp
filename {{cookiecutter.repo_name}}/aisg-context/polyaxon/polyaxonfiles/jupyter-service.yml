@@ -7,6 +7,10 @@ tags:
   - notebook
   - lab
 inputs:
+  - name: DOCKER_IMAGE
+    isOptional: true
+    type: str
+    value: asia.gcr.io/<GCP_PROJECT_ID>/jupyter:0.1.0
   - name: WORKING_DIR
     description: The working directory for the job to run in.
     isOptional: true
@@ -29,7 +33,7 @@ run:
   ports:
     - 8888
   container:
-    image: asia.gcr.io/<GCP_PROJECT_ID>/jupyter:0.1.0
+    image: "{{ DOCKER_IMAGE }}"
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
     command:

@@ -4,6 +4,10 @@ name: update-raw-data
 description: Test for pulling raw data from remote DVC cache on GCS.
 tags: [data_prep, processed]
 inputs:
+  - name: DOCKER_IMAGE
+    isOptional: true
+    type: str
+    value: asia.gcr.io/<GCP_PROJECT_ID>/data-prep:0.1.0
   - name: WORKING_DIR
     description: The working directory for the job to run in.
     isOptional: true
@@ -33,7 +37,7 @@ run:
       secret:
         secretName: "gcp-sa-credentials"
   container:
-    image: asia.gcr.io/<GCP_PROJECT_ID>/data-prep:0.1.0
+    image: "{{ DOCKER_IMAGE }}"
     imagePullPolicy: IfNotPresent
     command: ["/bin/bash", "-c"]
     args: [

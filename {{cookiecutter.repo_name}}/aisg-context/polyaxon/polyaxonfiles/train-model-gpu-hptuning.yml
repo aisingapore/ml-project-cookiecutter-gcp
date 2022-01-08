@@ -4,6 +4,10 @@ name: train-model-gpu
 description: Job for training a predictive model using GPU.
 tags: [model_training, keras, gpu, hptuning]
 inputs:
+  - name: DOCKER_IMAGE
+    isOptional: true
+    type: str
+    value: asia.gcr.io/<GCP_PROJECT_ID>/model-train:0.1.0
   - name: MLFLOW_TRACKING_USERNAME
     description: Username for MLflow Tracking server.
     isOptional: false
@@ -70,7 +74,7 @@ run:
       secret:
         secretName: "gcp-sa-credentials"
   container:
-    image: asia.gcr.io/<GCP_PROJECT_ID>/model-train:0.1.0
+    image: "{{ DOCKER_IMAGE }}"
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR }}"
     command: ["/bin/bash","-c"]

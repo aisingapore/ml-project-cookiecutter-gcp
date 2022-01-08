@@ -5,7 +5,7 @@
     "src_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
     "src_package_name_short": "{{ cookiecutter.src_package_name }}",
     "gcp_project_id": "ID of your GCP project.",
-    "author_name": "Your name (or your organisation/company/team).",
+    "author_name": "Your name (or your organisation/company/team). AISG is recommended for internal teams.",
     "open_source_license": ["MIT", "BSD-3-Clause", "No license file"],
     "_copy_without_render": [
         "aisg-context/polyaxon/polyaxonfiles"

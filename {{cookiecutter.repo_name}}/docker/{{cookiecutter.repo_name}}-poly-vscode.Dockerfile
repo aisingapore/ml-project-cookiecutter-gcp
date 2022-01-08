@@ -4,8 +4,8 @@ FROM debian:11
 ARG DVC_VERSION="2.8.3"
 ARG DVC_BINARY_NAME="dvc_2.8.3_amd64.deb"
 # VSCode Server arguments
-ARG CODE_SERVER_VERSION="3.12.0"
-ARG CODE_SERVER_BINARY_NAME="code-server_3.12.0_amd64.deb"
+ARG CODE_SERVER_VERSION="4.0.1"
+ARG CODE_SERVER_BINARY_NAME="code-server_4.0.1_amd64.deb"
 
 RUN apt-get update \
     && apt-get install -y \
