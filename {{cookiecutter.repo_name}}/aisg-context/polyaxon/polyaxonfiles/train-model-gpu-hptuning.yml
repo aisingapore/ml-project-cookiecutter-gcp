@@ -36,10 +36,6 @@ inputs:
     description: Experiment name for MLflow Tracking server.
     isOptional: false
     type: str
-  - name: MLFLOW_ARTIFACT_LOCATION
-    description: GCS URI for artifacts logged through MLflow.
-    isOptional: false
-    type: str
   - name: WORKING_DIR
     description: The working directory for the job to run in.
     isOptional: false
@@ -86,7 +82,6 @@ run:
       train.mlflow_autolog={{ MLFLOW_AUTOLOG }}
       train.mlflow_tracking_uri={{ MLFLOW_TRACKING_URI }}
       train.mlflow_exp_name={{ MLFLOW_EXP_NAME }}
-      train.mlflow_artifact_location={{ MLFLOW_ARTIFACT_LOCATION }}
       train.data_path={{ INPUT_DATA_DIR }}"
     ]
     resources:

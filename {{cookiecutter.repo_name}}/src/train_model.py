@@ -24,7 +24,7 @@ def main(args):
             "conf/base/logging.yml")
     {{cookiecutter.src_package_name_short}}.general_utils.setup_logging(logger_config_path)
 
-    mlflow_init_status = {{cookiecutter.src_package_name_short}}.general_utils.\
+    mlflow_init_status, mlflow_run = {{cookiecutter.src_package_name_short}}.general_utils.\
         mlflow_init(
             args, setup_mlflow=args["train"]["setup_mlflow"],
             autolog=args["train"]["mlflow_autolog"])

@@ -743,7 +743,7 @@ which its path is set to the environment variable
 `GOOGLE_APPLICATION_CREDENTIALS`:
 
 ```bash
-$ gcloud auth activate-service-account aisg-100e-engineer@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+$ gcloud auth activate-service-account aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 ```
 
 Once the service account has been configured, examples of actions you
@@ -1004,7 +1004,6 @@ $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -P DOC
   -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
   -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
   -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
-  -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
   -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined"
 ```
@@ -1098,9 +1097,8 @@ $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.y
   -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
   -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
   -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
-  -P MLFLOW_ARTIFACT_LOCATION="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server" \
   -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
-  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined"
+  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
   -P MLFLOW_HPTUNING_TAG="$(date +%s)"
 ```
 
