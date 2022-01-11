@@ -39,11 +39,13 @@ run:
   container:
     image: "{{ DOCKER_IMAGE }}"
     imagePullPolicy: IfNotPresent
+    workingDir: "{{ WORKING_DIR }}"
     command: ["/bin/bash", "-c"]
     args: [
-      "yq e '.data_prep.raw_dirs_paths = {{ RAW_DATA_DIRS }}' -i conf/base/pipelines.yml &&",
-      "python",
-      "src/clean_data.py"
+      "source ~/.bashrc &&
+      yq e '.data_prep.raw_dirs_paths = {{ RAW_DATA_DIRS }}' -i conf/base/pipelines.yml &&
+      python src/clean_data.py
+      data_prep.processed_data_path={{ PROCESSED_DATA_DIR }}"
     ]
     resources:
       requests:
