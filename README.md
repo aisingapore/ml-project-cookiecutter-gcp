@@ -20,6 +20,8 @@ is dedicated for the GCP environment.
 
 ## Usage
 
+[![asciicast](https://asciinema.org/a/460803.svg)](https://asciinema.org/a/460803)
+
 To use the template and create a repository, you would need to
 [install the `cruft` CLI](https://cruft.github.io/cruft/)
 , say within a virtual environment and pass the URL of this template as
