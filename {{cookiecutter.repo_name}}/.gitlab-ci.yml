@@ -3,6 +3,8 @@ stages:
 
 pages:
   stage: deploy-docs
+  tags:
+    - dind
   image:
     name: continuumio/miniconda:4.7.12
   script:
