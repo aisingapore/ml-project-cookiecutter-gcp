@@ -979,7 +979,7 @@ for storing all your model experiment artifacts (assuming the bucket
 has yet to be created):
 
 ```bash
-$ gsutil mb gs://{{cookiecutter.repo_name}}-artifacts
+$ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-artifacts
 Creating gs://{{cookiecutter.repo_name}}-artifacts/...
 ```
 
