@@ -1,19 +1,206 @@
+default:
+  tags:
+    - dind
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
 stages:
+  - test
+  - build
   - deploy-docs
+
+test:pylint-pytest:
+  stage: test
+  image:
+    name: continuumio/miniconda:4.7.12
+  before_script:
+    - conda env create -f {{cookiecutter.repo_name}}-conda-env.yml
+    - source activate {{cookiecutter.repo_name}}
+  script:
+    - pylint src --fail-under=7.0 --ignore=tests --disable=W1202
+    - pytest src/tests
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - src/**/*
+        - conf/**/*
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_COMMIT_TAG
+      when: never
+
+build:vscode-server-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-poly-vscode.Dockerfile"
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/vscode-server:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-poly-vscode.Dockerfile
+        - aisg-context/code-server/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:jupyter-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile"
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile
+        - aisg-context/jupyter/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:data-prep-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile"
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/data-prep:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile
+        - src/**/*
+        - conf/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:model-train-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile"
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/model-train:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile
+        - src/**/*
+        - conf/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:fastapi-server-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile"
+      --build-arg PRED_MODEL_UUID=${PRED_MODEL_UUID}
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/fastapi-server:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile
+        - src/**/*
+        - conf/**/*
+        - scripts/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:batch-inference-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-batch-inferencing.Dockerfile"
+      --build-arg PRED_MODEL_UUID=${PRED_MODEL_UUID}
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/batch-inference:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-batch-inferencing.Dockerfile
+        - src/**/*
+        - conf/**/*
+        - scripts/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build:retag-images:
+  stage: build
+  image:
+    name: google/cloud-sdk:debian_component_based
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /gcp-sa.json
+  script:
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /gcp-sa.json
+    - gcloud auth activate-service-account --key-file=/gcp-sa.json
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/vscode-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/vscode-server:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/data-prep:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/data-prep:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/model-train:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/model-train:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/fastapi-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/fastapi-server:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/batch-inference:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/batch-inference:${CI_COMMIT_TAG}"
+  rules:
+    - if: $CI_COMMIT_TAG
 
 pages:
   stage: deploy-docs
-  tags:
-    - dind
   image:
     name: continuumio/miniconda:4.7.12
+  before_script:
+    - conda env create -f {{cookiecutter.repo_name}}-conda-env.yml
+    - source activate {{cookiecutter.repo_name}}
   script:
-  - conda env update -f {{cookiecutter.repo_name}}-conda-env.yml
-  - conda init bash
-  - source ~/.bashrc
-  - conda activate {{cookiecutter.repo_name}}
-  - sphinx-apidoc -f -o docs src
-  - sphinx-build -b html docs public
+    - sphinx-apidoc -f -o docs src
+    - sphinx-build -b html docs public
   artifacts:
     paths:
     - public
