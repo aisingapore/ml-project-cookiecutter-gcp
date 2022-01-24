@@ -10,7 +10,7 @@ inputs:
     value: asia.gcr.io/<GCP_PROJECT_ID>/data-prep:0.1.0
   - name: WORKING_DIR
     description: The working directory for the job to run in.
-    isOptional: true
+    isOptional: false
     type: str
   - name: SA_CRED_PATH
     description: Path to credential file for GCP service account.
@@ -21,8 +21,7 @@ inputs:
   - name: RAW_DATA_DIRS
     description: List of subdirectories within the raw data folder.
     type: str
-    isOptional: true
-    value: '["/polyaxon-v1-data/workspaces/project_data/dir1", "/polyaxon-v1-data/workspaces/project_data/dir2"]'
+    isOptional: false
   - name: PROCESSED_DATA_DIR
     description: The directory where processed data will be written to.
     isOptional: true
@@ -53,7 +52,7 @@ run:
         cpu: "4"
       limits:
         memory: "8Gi"
-        cpu: "8"
+        cpu: "4"
     volumeMounts:
       - name: gcp-service-account
         mountPath: /var/secret/cloud.google.com

@@ -41,10 +41,10 @@ run:
     resources:
       requests:
         memory: "4Gi"
-        cpu: "4"
+        cpu: "2"
       limits:
-        memory: "8Gi"
-        cpu: "8"
+        memory: "4Gi"
+        cpu: "2"
     volumeMounts:
       - name: gcp-service-account
         mountPath: /var/secret/cloud.google.com
