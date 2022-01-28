@@ -3,7 +3,7 @@ import fastapi
 from fastapi.middleware.cors import CORSMiddleware
 
 import {{cookiecutter.src_package_name}} as {{cookiecutter.src_package_name_short}}
-import {{cookiecutter.src_package_name}} as {{cookiecutter.src_package_name_short}}_fapi
+import {{cookiecutter.src_package_name}}_fastapi as {{cookiecutter.src_package_name_short}}_fapi
 
 
 LOGGER = logging.getLogger(__name__)

@@ -56,5 +56,5 @@ def main(args):
     logging.info("Data preparation pipeline has completed.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
