@@ -56,6 +56,8 @@ template:
     - [Pipeline Configuration](#pipeline-configuration)
     - [Data Preparation & Preprocessing](#data-preparation--preprocessing)
     - [Model Training](#model-training)
+      - [Experiment Tracking](#experiment-tracking)
+      - [Container for Experiment Job](#container-for-experiment-job)
       - [Hyperparameter Tuning](#hyperparameter-tuning)
   - [Deployment](#deployment)
     - [Model Artifacts](#model-artifacts)
@@ -216,7 +218,9 @@ the local repository to remote:
 ```bash
 $ git init
 $ git remote add origin <REMOTE_URL>
-$ git push -u origin
+$ git add .
+$ git commit -m "Initial commit."
+$ git push -u origin master
 ```
 
 ### Guide's Problem Statement
@@ -661,9 +665,10 @@ To clone or push to Git repositories within the VSCode integrated
 terminal, you would have to first disable VSCode's Git authentication
 handler:
 
-- Head over to `File > Preferences > Settings`.
-- Search for `git.terminalAuthentication`.
-- Uncheck the option.
+1. Head over to `File > Preferences > Settings`.
+2. Search for `git.terminalAuthentication`.
+3. Uncheck the option.
+4. Open a new integrated terminal.
 
 ### Jupyter Lab
 
@@ -766,7 +771,8 @@ conda environment and store the packages within your own workspace
 directory:
 
 ```bash
-$ conda init bash
+$ /home/coder/miniconda3/bin/conda init bash
+$ source ~/.bashrc
 $ conda env create -f {{cookiecutter.repo_name}}-conda-env.yml -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}-conda-env
 $ alias {{cookiecutter.repo_name}}-conda-env="conda activate /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}-conda-env"
 $ {{cookiecutter.repo_name}}-conda-env
@@ -963,18 +969,38 @@ Now that we have processed the raw data, we can look into training the
 sentiment classification model. The script relevant for this section
 is `src/train_model.py`. In this script, you can see it using
 some utility functions from
-`src/{{cookiecutter.src_package_name}}/general_utils.py` for initialising
-MLflow runs. An MLflow Tracking server is usually set up for
-GCP projects that utilises Polyaxon. With this MLflow Tracking server,
-a team can log model training runs to it and keep track of the myriad
-of experiments to be executed and their accompanying parameters and
-metrics. Artifacts can also be logged through the MLflow API and
-uploaded to GCS buckets.
+`src/{{cookiecutter.src_package_name}}/general_utils.py`
+as well, most notably the functions for utilising MLflow utilities
+for tracking experiments. Let's set up the tooling for experiment
+tracking before we start model experimentation.
+
+#### Experiment Tracking
+
+In the module `src/{{cookiecutter.src_package_name}}/general_utils.py`,
+the functions `mlflow_init` and `mlflow_log` are used to initialise
+MLflow experiments as well as log information and artifacts relevant
+for a run to a remote MLflow Tracking server.
+An MLflow Tracking server is usually set up within a GKE cluster for
+projects that requires model experimentation.
+Artifacts logged through the MLflow API can be
+uploaded to GCS buckets, assuming the client is authorised for
+access to GCS.
 
 __Note:__ The username and password for the MLflow Tracking server
 can be retrieved from the MLOps team or your team lead.
 
-This guide requires you to create a bucket
+To log and upload artifacts to GCS buckets through MLflow, you need to
+do the following first:
+
+1. Ensure that the Polyaxon job for model experimentation is configured
+   to use your GCP project's service account credentials.
+   See
+   ["Secrets & Credentials on Kubernetes"](#secrets--credentials-on-kubernetes)
+   on how to do this.
+2. Create a bucket for storing such artifacts on GCS.
+3. Create an MLflow experiment on the tracking server.
+
+Let's create a GCS bucket
 for storing all your model experiment artifacts (assuming the bucket
 has yet to be created):
 
@@ -982,6 +1008,39 @@ has yet to be created):
 $ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-artifacts
 Creating gs://{{cookiecutter.repo_name}}-artifacts/...
 ```
+
+Now, let's access the MLflow Tracking server's dashboard. Open a
+separate terminal and run the following:
+
+```bash
+$ kubectl port-forward service/mlflow-nginx-server-svc 5005:5005 --namespace=polyaxon-v1
+```
+
+Head over to your web browser and access the following URL:
+`http://localhost:5005`. You should be presented with an interface
+similar to the one below:
+
+![MLflow - Dashboard Experiments View](./assets/screenshots/mlflow-dashboard-exps-view.png)
+
+We are to collate runs under experiments (see
+[here](https://www.mlflow.org/docs/latest/tracking.html#organizing-runs-in-experiments)
+for the distinction between runs and experiments) and for each
+experiment, we can specify paths and URLs for which we will upload
+artifacts to.
+
+![MLflow - Create Experiment (Button)](./assets/screenshots/mlflow-dashboard-create-exp-button.png)
+
+![MLflow - Create Experiment (Input)](./asssets/screenshots/../../assets/screenshots/mlflow-dashboard-create-exp-input.png)
+
+__Note:__ Here are some things to take note when creating an experiment:
+
+- Specifying of object storage paths for a new experiment
+through MLflow's CLI does not work well currently so we would have
+to make do with creation of experiments through the UI.
+- It is highly recommended that experiment names are
+  __without whitespaces__. Words can be concatenated with hyphens.
+
+#### Container for Experiment Job
 
 Before we submit a job to Polyaxon to train our model,
 we need to build the Docker image to be used for it:
