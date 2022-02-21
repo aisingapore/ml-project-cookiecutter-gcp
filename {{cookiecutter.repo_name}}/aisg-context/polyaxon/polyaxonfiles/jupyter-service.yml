@@ -52,10 +52,10 @@ run:
       - '--LabApp.base_url={{globals.base_url}}'
     resources:
       requests:
-        memory: "4Gi"
+        memory: "2Gi"
         cpu: "2"
       limits:
-        memory: "4Gi"
+        memory: "2Gi"
         cpu: "2"
     volumeMounts:
       - name: gcp-service-account
