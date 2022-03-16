@@ -1,0 +1,138 @@
+# Site Information
+site_name: "{{cookiecutter.project_name}}"
+site_url: ""
+site_author: "{{cookiecutter.author_name}}"
+site_description: >-
+  "{{cookiecutter.description}}"
+
+# Repository
+repo_name: ""
+repo_url: ""
+edit_uri: ""
+
+# Copyright
+copyright: Copyright &copy; 2022 - AI Singapore
+
+# Configuration
+docs_dir: "{{cookiecutter.repo_name}}/aisg-context/guide-site"
+theme:
+  name: material
+  logo: assets/aisg-logo.png
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  features:
+    # - navigation.instant
+    # - navigation.sections
+    - navigation.tabs
+    - navigation.top
+  palette:
+    - scheme: aisg
+      primary: red
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+
+  favicon: assets/favicon.svg
+
+# Page Tree
+nav:
+  - Home: index.md
+  - Guides:
+    - For Users:
+      - Prerequisites: guide-for-user/01-prerequisites.md
+      - Preface: guide-for-user/02-preface.md
+      - MLOps Components & PLatforms: guide-for-user/03-mlops-components-platform.md
+      - Development Environment: guide-for-user/04-dev-env.md
+      - Virtual Environment: guide-for-user/05-virtual-env.md
+      - Data Storage & Versioning: guide-for-user/06-data-storage-versioning.md
+      - Job Orchestration: guide-for-user/07-job-orchestration.md
+      - Deployment: guide-for-user/08-deployment.md
+      - Batch Inferencing: guide-for-user/09-batch-inferencing.md
+      - CI/CD: guide-for-user/10-cicd.md
+      - Documentation: guide-for-user/11-documentation.md
+    - For Administrators:
+      - Prerequisites: guide-for-admin/01-prerequisites.md
+
+# Plugins
+plugins:
+  - search
+  - ezlinks
+  # - git-revision-date
+  # - redirects:
+  #     redirect_maps:
+  #       changelog/insiders.md: insiders/changelog.md
+  #       extensions/admonition.md: reference/admonitions.md
+  #       extensions/codehilite.md: reference/code-blocks.md
+  #       extensions/footnotes.md: reference/footnotes.md
+  #       extensions/metadata.md: reference/meta-tags.md
+  #       extensions/permalinks.md: setup/setting-up-navigation.md #permalink
+  #       extensions/pymdown.md: reference/admonitions.md
+  #       plugins/revision-date.md: setup/adding-a-git-repository.md #revision-date
+  #       plugins/search.md: setup/setting-up-site-search.md
+  #       releases/4.md: upgrading.md #upgrading-from-4x-to-5x
+  #       releases/5.md: upgrading.md #upgrading-from-3x-to-4x
+  #       releases/changelog.md: changelog.md
+  #       setup/adding-social-links.md: setup/setting-up-the-footer.md
+  #       sponsorship.md: insiders/index.md
+  - minify:
+      minify_html: true
+
+# Customisation
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/aisingapore
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/aisingapore
+    - icon: fontawesome/brands/instagram
+      link: https://www.instagram.com/ai_singapore/
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - abbr
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.snippets
