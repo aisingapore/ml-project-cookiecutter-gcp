@@ -1,6 +1,6 @@
 # End-to-end Project Template (GCP Stack)
 
-![AI Singapore's Kapitan MlOps EPTG Banner](../assets/images/kapitan-mlops-eptg-banner.png)
+![AI Singapore's Kapitan MLOps EPTG Banner](./assets/images/kapitan-mlops-eptg-banner.png)
 
 __Customised for `{{cookiecutter.project_name}}`__.
 
