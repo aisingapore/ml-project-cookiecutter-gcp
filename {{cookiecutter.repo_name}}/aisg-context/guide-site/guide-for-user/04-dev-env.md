@@ -103,7 +103,7 @@ a Jupyter Lab service on Polyaxon:
     $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
     $ docker build \
       -t asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0 \
-      -f docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile \
+      -f docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile \
       --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0
     ```
@@ -114,7 +114,7 @@ a Jupyter Lab service on Polyaxon:
     $ $GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
     $ docker build `
       -t asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0 `
-      -f docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile `
+      -f docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile `
       --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/jupyter:0.1.0
     ```

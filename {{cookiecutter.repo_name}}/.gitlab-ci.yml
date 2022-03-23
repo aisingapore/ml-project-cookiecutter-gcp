@@ -68,12 +68,12 @@ build:jupyter-image:
     - >-
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile"
       --destination "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_SHORT_SHA}"
   rules:
     - if: $CI_MERGE_REQUEST_IID
       changes:
-        - docker/{{cookiecutter.repo_name}}-jupyter.Dockerfile
+        - docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile
         - aisg-context/jupyter/**/*
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
