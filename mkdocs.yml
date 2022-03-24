@@ -57,6 +57,7 @@ nav:
       - Batch Inferencing: guide-for-user/09-batch-inferencing.md
       - CI/CD: guide-for-user/10-cicd.md
       - Documentation: guide-for-user/11-documentation.md
+      - Streamlit: guide-for-user/12-streamlit.md
     - For Administrators:
       - Prerequisites: guide-for-admin/01-prerequisites.md
 

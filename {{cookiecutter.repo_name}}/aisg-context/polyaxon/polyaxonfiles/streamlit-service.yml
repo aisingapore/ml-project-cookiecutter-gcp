@@ -1,0 +1,49 @@
+version: 1.1
+kind: component
+name: streamlit-dashboard
+description: Dashboard using Streamlit.
+tags: [streamlit, dashboard, keras, gpu]
+inputs:
+  - name: DOCKER_IMAGE
+    isOptional: true
+    type: str
+    value: asia.gcr.io/<GCP_PROJECT_ID>/streamlit:0.1.0
+  - name: WORKING_DIR
+    description: The working directory for the job to run in.
+    isOptional: true
+    type: str
+  - name: SA_CRED_PATH
+    description: Path to credential file for GCP service account.
+    isOptional: true
+    type: str
+    value: /var/secret/cloud.goodle.com/gcp-service-account.json
+    toEnv: GOOGLE_APPLICATION_CREDENTIALS
+run:
+  kind: service
+  connections: [fstore-pvc]
+  environment:
+    imagePullSecrets: ["gcp-imagepullsecrets"]
+  volumes:
+    - name: gcp-service-account
+      secret: 
+        secretName: "gcp-sa-credentials"
+  ports:
+    - 8501
+  rewritePath: true
+  container:
+    image: "{{ DOCKER_NAME }}"
+    imagePullPolicy: IfNotPresent
+    workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
+    command: 
+      - /bin/bash
+      - ./scripts/dashboard/streamlit-entrypoint.sh
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "2.5"
+      limits:
+        memory: "2Gi"
+        cpu: "2.5"
+    volumeMounts:
+      - name: gcp-service-account
+        mountPath: /var/secret/cloud.google.com
