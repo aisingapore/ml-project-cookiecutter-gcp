@@ -6,8 +6,8 @@ site_description: >-
   "{{cookiecutter.description}}"
 
 # Repository
-repo_name: ""
-repo_url: ""
+repo_name: "aimakerspace/ml-project-cookiecutter-gcp"
+repo_url: "https://github.com/aimakerspace/ml-project-cookiecutter-gcp"
 edit_uri: ""
 
 # Copyright
