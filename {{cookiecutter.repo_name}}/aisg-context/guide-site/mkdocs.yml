@@ -44,21 +44,21 @@ theme:
 # Page Tree
 nav:
   - Home: index.md
-  - Guides:
-    - For Users:
-      - Prerequisites: guide-for-user/01-prerequisites.md
-      - Preface: guide-for-user/02-preface.md
-      - MLOps Components & PLatforms: guide-for-user/03-mlops-components-platform.md
-      - Development Environment: guide-for-user/04-dev-env.md
-      - Virtual Environment: guide-for-user/05-virtual-env.md
-      - Data Storage & Versioning: guide-for-user/06-data-storage-versioning.md
-      - Job Orchestration: guide-for-user/07-job-orchestration.md
-      - Deployment: guide-for-user/08-deployment.md
-      - Batch Inferencing: guide-for-user/09-batch-inferencing.md
-      - CI/CD: guide-for-user/10-cicd.md
-      - Documentation: guide-for-user/11-documentation.md
-    - For Administrators:
-      - Prerequisites: guide-for-admin/01-prerequisites.md
+  - User Guide:
+    - Prerequisites: guide-for-user/01-prerequisites.md
+    - Preface: guide-for-user/02-preface.md
+    - MLOps Components & Platform: guide-for-user/03-mlops-components-platform.md
+    - Development Environment: guide-for-user/04-dev-env.md
+    - Virtual Environment: guide-for-user/05-virtual-env.md
+    - Data Storage & Versioning: guide-for-user/06-data-storage-versioning.md
+    - Job Orchestration: guide-for-user/07-job-orchestration.md
+    - Deployment: guide-for-user/08-deployment.md
+    - Batch Inferencing: guide-for-user/09-batch-inferencing.md
+    - CI/CD: guide-for-user/10-cicd.md
+    - Documentation: guide-for-user/11-documentation.md
+    - Streamlit: guide-for-user/12-streamlit.md
+  - Admin Guide:
+    - Prerequisites: guide-for-admin/01-prerequisites.md
 
 # Plugins
 plugins:
