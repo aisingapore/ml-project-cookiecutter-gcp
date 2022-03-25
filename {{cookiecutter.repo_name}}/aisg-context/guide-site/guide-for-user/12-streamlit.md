@@ -1,25 +1,26 @@
+<!-- omit in toc -->
 # Streamlit
 
-There are 4 main ways we recommend when spinning up a Streamlit 
+There are 4 main ways we recommend when spinning up a Streamlit
 application for quick dashboarding:
 
 - [Local Execution](#local-execution)
 - [Docker Container](#docker-container)
 - [Integration with Polyaxon](#integration-with-polyaxon)
-- [Native Kubernetes deployment (GKE)](#native-kubernetes-deployment-gke)
+- [Native Kubernetes Deployment (GKE)](#native-kubernetes-deployment-gke)
 
-The Streamlit demo created in this guide will accept a string as an 
-input, and the dashboard will output the sentiment whether it is 
-"positive" or "negative", following the 
+The Streamlit demo created in this guide will accept a string as an
+input, and the dashboard will output the sentiment whether it is
+"positive" or "negative", following the
 [guide's problem statement](02-preface.md#guides-problem-statement).
 
-This guide will be similar to the [Deployment](08-deployment.md) and 
-[Batch Inferencing](09-batch-inferencing.md), with the difference 
-mainly being the use of Streamlit to get your inputs and show your 
+This guide will be similar to the [Deployment](08-deployment.md) and
+[Batch Inferencing](09-batch-inferencing.md), with the difference
+mainly being the use of Streamlit to get your inputs and show your
 outputs from.
 
 It is possible for Streamlit to interact with the FastAPI image as a
-frontend engine, we would only focus on interacting with the model 
+frontend engine, we would only focus on interacting with the model
 directly after downloading from GCS for simplicities' sake. For small
 scale infrastructure, this would be better in terms of simplicity and
 efficiency. Otherwise, if big scalability is a factor, then consider
@@ -30,7 +31,7 @@ This template provides:
 - a Python script (`src/streamlit.py`)
 - a Dockerfile for containerised executions
   (`docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile`)
-- a Polyaxon config file if Polyaxon is used 
+- a Polyaxon config file if Polyaxon is used
   (`aisg-context/polyaxon/polyaxonfiles/streamlit.yml`)
 
 ## Local Execution
@@ -71,13 +72,13 @@ $ docker run --rm \
   asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
 ```
 
-- `GOOGLE_APPLICATION_CREDENTIALS` allows the container's entrypoint to 
+- `GOOGLE_APPLICATION_CREDENTIALS` allows the container's entrypoint to
   download the predictive model specified during build time from GCS.
-- `-v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json` 
-  attaches the JSON file for the service account credentials to the 
+- `-v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json`
+  attaches the JSON file for the service account credentials to the
   Docker container.
-- `-v $PWD/models:/home/aisg/from-gcs` allows the models downloaded to 
-  the host machine to be used by the container after being mounted to 
+- `-v $PWD/models:/home/aisg/from-gcs` allows the models downloaded to
+  the host machine to be used by the container after being mounted to
   `/home/aisg/from-gcs`.
 
 ## Integration with Polyaxon
@@ -88,7 +89,7 @@ From the Docker build section, push the Docker image to GCR:
 $ docker push asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
 ```
 
-Then, push the configurations to the Polyaxon server to start up the 
+Then, push the configurations to the Polyaxon server to start up the
 Streamlit dashboard:
 
 ```bash
@@ -105,8 +106,8 @@ $ polyaxon run \
 
 ## Native Kubernetes Deployment (GKE)
 
-Similar to deploying [the FastAPI server](08-deployment.md#deploy-to-gke), 
-to deploy the Streamlit dashboard on GKE, you can make use of the 
+Similar to deploying [the FastAPI server](08-deployment.md#deploy-to-gke),
+to deploy the Streamlit dashboard on GKE, you can make use of the
 sample Kubernetes manifest files provided with this template:
 
 ```bash
@@ -126,4 +127,3 @@ $ kubectl port-forward service/streamlit-svc 8501:8501 --namespace=polyaxon-v1
 Forwarding from 127.0.0.1:8501 -> 8501
 Forwarding from [::1]:8501 -> 8501
 ```
-

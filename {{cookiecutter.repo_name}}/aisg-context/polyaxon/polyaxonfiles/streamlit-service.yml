@@ -25,7 +25,7 @@ run:
     imagePullSecrets: ["gcp-imagepullsecrets"]
   volumes:
     - name: gcp-service-account
-      secret: 
+      secret:
         secretName: "gcp-sa-credentials"
   ports:
     - 8501
@@ -34,7 +34,7 @@ run:
     image: "{{ DOCKER_NAME }}"
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
-    command: 
+    command:
       - /bin/bash
       - ./scripts/dashboard/streamlit-entrypoint.sh
     resources:
