@@ -101,6 +101,32 @@ __Reference(s):__
 - [Kubernetes Docs - Volumes](https://kubernetes.io/docs/concepts/storage/volumes/)
 - [NetApp - What are Kubernetes persistent volumes?](https://www.netapp.com/knowledge-center/what-is-kubernetes-persistent-volumes/)
 
+### Node Specifications
+
+Below lists the default specifications for the nodes that make up the
+GKE cluster (`tekong-exp-cluster`) of each GCP project:
+
+__CPU Node Pool (`cpu-np0`):__
+
+- Autoscales from a minimum of 1 node to a maximum of 3
+- Each machine is of type `e2-standard-16`
+    - 16 vCPU
+    - 64GB memory
+
+__GPU Node Pool (`cpu-np0`):__
+
+- Autoscales from a minimum of 0 node to a maximum of 1
+- Machine is of type `a2-highgpu-1g`
+    - 12 vCPU
+    - 85 GB memory
+    - 3 GPUs are made available with 10 vRAM each
+
+__Reference(s):__
+
+- [Kubernetes Docs - Nodes](https://kubernetes.io/docs/concepts/architecture/nodes/)
+- [GCP Compute Engine Guides - Machine Type Families](https://cloud.google.com/compute/docs/general-purpose-machines)
+- [GCP GKE Guides - Cluster Autoscaler Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler#overview)
+
 ## Polyaxon
 
 [Polyaxon](https://polyaxon.com) is an MLOps platform that provides a
