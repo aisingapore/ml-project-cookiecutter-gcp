@@ -10,17 +10,18 @@ application for quick dashboarding:
 - [Native Kubernetes Deployment (GKE)](#native-kubernetes-deployment-gke)
 
 The Streamlit demo created in this guide will accept a string as an
-input, and the dashboard will output the sentiment whether it is
-"positive" or "negative", following the
+input, and the dashboard will provide an output as to whether the
+sentiment is "positive" or "negative", following the
 [guide's problem statement](02-preface.md#guides-problem-statement).
 
-This guide will be similar to the [Deployment](08-deployment.md) and
-[Batch Inferencing](09-batch-inferencing.md), with the difference
-mainly being the use of Streamlit to get your inputs and show your
-outputs from.
+This guide will be similar to that of ["Deployment"](08-deployment.md)
+and ["Batch Inferencing"](09-batch-inferencing.md), with the difference
+mainly being the use of Streamlit as an interface
+to get your inputs and show your outputs from.
 
-It is possible for Streamlit to interact with the FastAPI image as a
-frontend engine, we would only focus on interacting with the model
+While it is possible for Streamlit to interact with the FastAPI
+deployment backend as a frontend engine/interface,
+we would only focus on interacting with the model
 directly after downloading from GCS for simplicities' sake. For small
 scale infrastructure, this would be better in terms of simplicity and
 efficiency. Otherwise, if big scalability is a factor, then consider
@@ -31,7 +32,7 @@ This template provides:
 - a Python script (`src/streamlit.py`)
 - a Dockerfile for containerised executions
   (`docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile`)
-- a Polyaxon config file if Polyaxon is used
+- a Polyaxon config file for spinning up a Streamlit service
   (`aisg-context/polyaxon/polyaxonfiles/streamlit.yml`)
 
 ## Local Execution
@@ -39,13 +40,13 @@ This template provides:
 To execute the script locally:
 
 ```bash
-$ streamlit run src/streamlit.py --\
-  inference.model_path=<PATH_TO_MODEL>
+$ streamlit run src/streamlit.py -- \
+    inference.model_path=<PATH_TO_MODEL>
 ```
 
-**References**
+__Reference(s):__
 
-- https://docs.streamlit.io/library/advanced-features/configuration#run-streamlit-apps
+- [Streamlit Docs - Run Streamlit apps](https://docs.streamlit.io/library/advanced-features/configuration#run-streamlit-apps)
 
 ## Docker Container
 
@@ -100,9 +101,9 @@ $ polyaxon run \
   -p {{cookiecutter.repo_name}}-<YOUR_NAME>
 ```
 
-**References**
+__Reference(s):__
 
-- https://polyaxon.com/integrations/streamlit/
+- [Polyaxon - Integrations](https://polyaxon.com/integrations/streamlit/)
 
 ## Native Kubernetes Deployment (GKE)
 
