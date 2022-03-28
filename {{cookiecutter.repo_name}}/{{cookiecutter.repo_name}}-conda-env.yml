@@ -7,6 +7,8 @@ dependencies:
   - pip=20.2.2
   - pip:
     - pandas==1.1.5
+    - matplotlib==3.5.1
+    - ipykernel==6.9.2
     - mlflow==1.22.0
     - pylint==2.6.0
     - pytest-cov==2.10.1
