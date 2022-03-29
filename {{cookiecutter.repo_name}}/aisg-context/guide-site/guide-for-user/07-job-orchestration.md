@@ -79,7 +79,7 @@ port-forwarding, submit a job to the server like such:
 
 === "Windows PowerShell"
 
-    ```bash
+    ```powershell
     $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml `
         -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0" `
         -P RAW_DATA_DIRS="['/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1']" `
@@ -238,7 +238,7 @@ we need to build the Docker image to be used for it:
 
 === "Windows PowerShell"
 
-    ```bash
+    ```powershell
     $ docker build `
         -t asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0 `
         -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile .
@@ -266,7 +266,7 @@ we can run a job using it:
 
 === "Windows PowerShell"
 
-    ```bash
+    ```powershell
     $ $MLFLOW_TRACKING_USERNAME='<MLFLOW_TRACKING_USERNAME>'
     $ $MLFLOW_TRACKING_PASSWORD='<MLFLOW_TRACKING_PASSWORD>'
     $ $CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
@@ -281,7 +281,7 @@ we can run a job using it:
     ```
 
     !!! caution
-        Do take note of the backtick (<code>`</code>) before the colon
+        Do take note of the backtick (\`) before the colon
         in the value for the parameter `MLFLOW_TRACKING_URI`.
         See
         [here](https://stackoverflow.com/questions/8386219/powershell-string-formatting-why-is-the-colon-character-causing-my-variables-v)
@@ -392,7 +392,7 @@ environment value `MLFLOW_HPTUNING_TAG`.
 
 === "Windows PowerShell"
 
-    ```bash
+    ```powershell
     $ $MLFLOW_TRACKING_USERNAME='<MLFLOW_TRACKING_USERNAME>'
     $ $MLFLOW_TRACKING_PASSWORD='<MLFLOW_TRACKING_PASSWORD>'
     $ $CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
@@ -408,7 +408,7 @@ environment value `MLFLOW_HPTUNING_TAG`.
     ```
 
     !!! caution
-        Do take note of the backtick (<code>`</code>) before the colon
+        Do take note of the backtick (\`) before the colon
         in the value for the parameter `MLFLOW_TRACKING_URI`.
         See
         [here](https://stackoverflow.com/questions/8386219/powershell-string-formatting-why-is-the-colon-character-causing-my-variables-v)
