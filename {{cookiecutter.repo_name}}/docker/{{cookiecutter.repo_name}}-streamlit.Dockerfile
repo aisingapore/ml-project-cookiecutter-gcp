@@ -8,7 +8,7 @@ ARG CONDA_ENV_NAME="{{cookiecutter.repo_name}}"
 ARG PROJECT_USER="aisg"
 ARG HOME_DIR="/home/$PROJECT_USER"
 
-ARG CONDA_HOME="$HOME_DIR/miniconda3"
+ARG CONDA_HOME="/miniconda3"
 ARG CONDA_BIN="$CONDA_HOME/bin/conda"
 ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
 
@@ -34,11 +34,7 @@ RUN apt-get update && \
     locale-gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8 && \
-    apt-get clean && \
-    curl -O https://repo.anaconda.com/miniconda/$MINI_CONDA_SH && \
-    chmod +x $MINI_CONDA_SH && \
-    ./$MINI_CONDA_SH -b -p $CONDA_HOME && \
-    rm $MINI_CONDA_SH
+    apt-get clean
 
 # From https://cloud.google.com/sdk/docs/install#installation_instructions
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
@@ -48,11 +44,7 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
 COPY $REPO_DIR {{cookiecutter.repo_name}}
 RUN mkdir $HOME_DIR/from-gcs
 
-RUN $CONDA_BIN env create -f {{cookiecutter.repo_name}}/$CONDA_ENV_FILE && \
-    $CONDA_BIN init bash && \
-    $CONDA_BIN clean -a -y && \
-    echo "source activate $CONDA_ENV_NAME" >> "$HOME_DIR/.bashrc"
-
+RUN mkdir $CONDA_HOME && chown -R 2222:2222 $CONDA_HOME
 RUN chown -R 2222:2222 $HOME_DIR && \
     rm /bin/sh && ln -s /bin/bash /bin/sh
 
@@ -65,6 +57,18 @@ ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 USER 2222
+
+# Install Miniconda
+RUN curl -O https://repo.anaconda.com/miniconda/$MINI_CONDA_SH && \
+    chmod +x $MINI_CONDA_SH && \
+    ./$MINI_CONDA_SH -u -b -p $CONDA_HOME && \
+    rm $MINI_CONDA_SH
+ENV PATH $CONDA_HOME/bin:$HOME_DIR/.local/bin:$PATH
+# Install conda environment
+RUN $CONDA_BIN env create -f {{cookiecutter.repo_name}}/$CONDA_ENV_FILE && \
+    $CONDA_BIN init bash && \
+    $CONDA_BIN clean -a -y && \
+    echo "source activate $CONDA_ENV_NAME" >> "$HOME_DIR/.bashrc"
 
 WORKDIR $HOME_DIR/{{cookiecutter.repo_name}}
 RUN chmod -R +x scripts

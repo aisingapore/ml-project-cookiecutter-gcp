@@ -5,11 +5,11 @@ ARG CONDA_ENV_FILE="{{cookiecutter.repo_name}}-conda-env.yml"
 ARG CONDA_ENV_NAME="{{cookiecutter.repo_name}}"
 ARG PROJECT_USER="aisg"
 ARG HOME_DIR="/home/$PROJECT_USER"
-
+# DVC arguments
 ARG DVC_VERSION="2.8.3"
 ARG DVC_BINARY_NAME="dvc_2.8.3_amd64.deb"
-
-ARG CONDA_HOME="$HOME_DIR/miniconda3"
+# Miniconda arguments
+ARG CONDA_HOME="/miniconda3"
 ARG CONDA_BIN="$CONDA_HOME/bin/conda"
 ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
 
@@ -25,11 +25,7 @@ RUN apt-get update && \
     locale-gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8 && \
-    apt-get clean && \
-    curl -O https://repo.anaconda.com/miniconda/$MINI_CONDA_SH && \
-    chmod +x $MINI_CONDA_SH && \
-    ./$MINI_CONDA_SH -b -p $CONDA_HOME && \
-    rm $MINI_CONDA_SH
+    apt-get clean
 
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64.tar.gz -O - |\
     tar xz && mv yq_linux_amd64 /usr/bin/yq
@@ -40,15 +36,10 @@ RUN wget "https://github.com/iterative/dvc/releases/download/$DVC_VERSION/$DVC_B
 
 COPY $REPO_DIR {{cookiecutter.repo_name}}
 
-RUN $CONDA_BIN env create -f {{cookiecutter.repo_name}}/$CONDA_ENV_FILE && \
-    $CONDA_BIN init bash && \
-    $CONDA_BIN clean -a -y && \
-    echo "source activate $CONDA_ENV_NAME" >> "$HOME_DIR/.bashrc"
-
+RUN mkdir $CONDA_HOME && chown -R 2222:2222 $CONDA_HOME
 RUN chown -R 2222:2222 $HOME_DIR && \
     rm /bin/sh && ln -s /bin/bash /bin/sh
 
-ENV PATH $CONDA_HOME/bin:$HOME_DIR/.local/bin:$PATH
 ENV PYTHONIOENCODING utf8
 ENV LANG "C.UTF-8"
 ENV LC_ALL "C.UTF-8"
@@ -57,3 +48,15 @@ ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 USER 2222
+
+# Install Miniconda
+RUN curl -O https://repo.anaconda.com/miniconda/$MINI_CONDA_SH && \
+    chmod +x $MINI_CONDA_SH && \
+    ./$MINI_CONDA_SH -u -b -p $CONDA_HOME && \
+    rm $MINI_CONDA_SH
+ENV PATH $CONDA_HOME/bin:$HOME_DIR/.local/bin:$PATH
+# Install conda environment
+RUN $CONDA_BIN env create -f {{cookiecutter.repo_name}}/$CONDA_ENV_FILE && \
+    $CONDA_BIN init bash && \
+    $CONDA_BIN clean -a -y && \
+    echo "source activate $CONDA_ENV_NAME" >> "$HOME_DIR/.bashrc"
