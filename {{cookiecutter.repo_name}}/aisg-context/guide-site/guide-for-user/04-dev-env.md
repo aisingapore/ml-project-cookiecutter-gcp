@@ -219,7 +219,7 @@ a JupyterLab service on Polyaxon:
 === "Windows PowerShell"
 
     ```powershell
-    $ $GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
     $ docker build `
         -t asia.gcr.io/$GCP_PROJECT_ID/jupyter-server:0.1.0 `
         -f docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile `
