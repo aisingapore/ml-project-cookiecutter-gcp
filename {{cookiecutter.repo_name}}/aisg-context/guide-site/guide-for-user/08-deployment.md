@@ -167,7 +167,7 @@ In another terminal, use the `curl` command to submit a request to the API:
 
     ```bash
     $ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
-      -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+        -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
       localhost:8080/api/v1/model/predict
     ```
 
@@ -175,9 +175,9 @@ In another terminal, use the `curl` command to submit a request to the API:
 
     ```powershell
     $ curl.exe '-H', 'Content-Type: application/json', '-H', 'accept: application/json', `
-      '-X', 'POST', '-d', `
-      '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
-      'localhost:8000/api/v1/model/predict'
+        '-X', 'POST', '-d', `
+        '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
+        'localhost:8000/api/v1/model/predict'
     ```
 
 With the returned JSON object, we have successfully submitted a request
@@ -236,9 +236,9 @@ Dockerfile is provided to containerise the FastAPI server:
     $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
     # Ensure that you are in the root of the repository
     $ docker build \
-      -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 \
-      --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
-      -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
+        -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 \
+        --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
     ```
 
 === "Windows PowerShell"
@@ -247,9 +247,9 @@ Dockerfile is provided to containerise the FastAPI server:
     $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
     # Ensure that you are in the root of the repository
     $ docker build `
-      -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 `
-      --build-arg PRED_MODEL_UUID="$Env:PRED_MODEL_UUID" `
-      -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
+        -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 `
+        --build-arg PRED_MODEL_UUID="$Env:PRED_MODEL_UUID" `
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
     ```
 
 The Docker build command above requires an argument to be passed and it
@@ -271,20 +271,20 @@ Let's try running the Docker container now:
     # First make the `models` folder accessible to user within Docker container
     $ sudo chgrp -R 2222 models
     $ docker run --rm -p 8080:8080 \
-      -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
-      -v $PWD/models:/home/aisg/from-gcs \
-      --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
-      asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
+        -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
+        -v $PWD/models:/home/aisg/from-gcs \
+        --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
+        asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
     ```
 
 === "Windows PowerShell"
 
     ```powershell
     $ docker run --rm -p 8080:8080 `
-      -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
-      -v "$(Get-Location)\models:/home/aisg/from-gcs" `
-      --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
-      asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
+        -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
+        -v "$(Get-Location)\models:/home/aisg/from-gcs" `
+        --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
+        asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
     ```
 
 Let's go through a couple of the flags used above:
@@ -306,17 +306,17 @@ Use the same `curl` command for the server spun up by the container:
 
     ```bash
     $ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
-      -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
-      localhost:8080/api/v1/model/predict
+        -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+        localhost:8080/api/v1/model/predict
     ```
 
 === "Windows PowerShell"
 
     ```powershell
     $ curl.exe '-H', 'Content-Type: application/json', '-H', 'accept: application/json', `
-      '-X', 'POST', '-d', `
-      '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
-      'localhost:8080/api/v1/model/predict'
+        '-X', 'POST', '-d', `
+        '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
+        'localhost:8080/api/v1/model/predict'
     ```
 
 Push the Docker image to the GCR:
@@ -357,17 +357,17 @@ make a request to the API like so:
 
     ```bash
     $ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
-      -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
-      localhost:8080/api/v1/model/predict
+        -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+        localhost:8080/api/v1/model/predict
     ```
 
 === "Windows PowerShell"
 
     ```powershell
     $ curl.exe '-H', 'Content-Type: application/json', '-H', 'accept: application/json', `
-      '-X', 'POST', '-d', `
-      '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
-      'localhost:8080/api/v1/model/predict'
+        '-X', 'POST', '-d', `
+        '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
+        'localhost:8080/api/v1/model/predict'
     ```
 
 __Reference(s):__
