@@ -5,7 +5,7 @@ import streamlit as st
 
 import {{cookiecutter.src_package_name}} as {{cookiecutter.src_package_name_short}}
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def load_model(model_path):
     return {{cookiecutter.src_package_name_short}}.modeling.utils.load_model(model_path)
 
@@ -14,7 +14,7 @@ def main(args):
     """This main function does the following:
     - load logging config
     - loads trained model on cache
-    - gets string from user to be loaded for inferencing
+    - gets string input from user to be loaded for inferencing
     - conducts inferencing on string
     - outputs prediction results on the dashboard
     """
@@ -32,17 +32,21 @@ def main(args):
     logger.info("Loading dashboard...")
     title = st.title('{{cookiecutter.project_name}}')
 
-    text_input = st.text_input("Review",
+    text_input = st.text_area("Review",
         placeholder="Insert your review here")
 
-    logger.info("Conducting inferencing on text input...")
-    curr_pred_result = float(pred_model.predict(text_input))
-    sentiment = ("positive" if curr_pred_result > 0.5
-                else "negative")
-
-    logger.info("Inferencing has completed. \nText input: {} \nSentiment: {}",
-                text_input, sentiment)
-    st.write("The sentiment of the review is", sentiment, ".")
+    if st.button("Get sentiment"):
+        logger.info("Conducting inferencing on text input...")
+        curr_pred_result = float(pred_model.predict([text_input])[0])
+        sentiment = ("positive" if curr_pred_result > 0.5
+                    else "negative")
+        logger.info(
+            "Inferencing has completed. Text input: {}. Sentiment: {}"
+            .format(text_input, sentiment))
+        st.write("The sentiment of the review is {}."
+            .format(sentiment))
+    else:
+        st.write("Awaiting a review...")
 
 if __name__ == "__main__":
     main()
