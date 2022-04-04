@@ -86,12 +86,12 @@ run:
     ]
     resources:
       requests:
-        memory: "8Gi"
-        cpu: "4"
+        memory: "25Gi"
+        cpu: "3"
         nvidia.com/gpu: 1
       limits:
-        memory: "8Gi"
-        cpu: "4"
+        memory: "25Gi"
+        cpu: "3"
         nvidia.com/gpu: 1
     volumeMounts:
       - name: gcp-service-account

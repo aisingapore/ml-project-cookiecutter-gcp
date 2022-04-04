@@ -26,8 +26,10 @@ for loading of parameters
 and configurations. The defined default values can be overridden through
 the CLI.
 
-It is recommended that you have a basic understanding of Hydra's
-concepts before you move on.
+!!! attention
+    It is recommended that you have a basic understanding of
+    [Hydra](https://hydra.cc/)'s
+    concepts before you move on.
 
 __Reference(s):__
 
@@ -41,41 +43,68 @@ This job will be using a Docker image that will be built from
 a Dockerfile (`docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile`)
 provided in this template:
 
-```bash
-$ docker build \
-  -t asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0 \
-  -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
-$ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0 \
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0 `
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
+    ```
 
 Assuming you're still connected to the Polyaxon server through
 port-forwarding, submit a job to the server like such:
 
-```bash
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0" -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
-  -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1"]' \
-  -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
-  -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}"
-```
+=== "Linux/macOS"
 
-If you were to inspect
-`aisg-context/polyaxon/polyaxonfiles/process-data.yml`,
-the second command with `yq` overwrites the list of directories
-specified in the config file `conf/base/pipelines.yml` for the key
-`.data_prep.raw_dirs_paths`. You may specify a list of directory paths
-with which you can process and combine the results into one single
-directory.
+    ```bash
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0" \
+        -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1"]' \
+        -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
 
-__Note:__ The `yq` utility is used to overwrite the values in the YAML
-config as
-[Hydra currently doesn't support modification of list in YAML files](https://github.com/facebookresearch/hydra/issues/1547).
+=== "Windows PowerShell"
+
+    ```powershell
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0" `
+        -P RAW_DATA_DIRS="['/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1']" `
+        -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+!!! info
+    If you were to inspect
+    `aisg-context/polyaxon/polyaxonfiles/process-data.yml`,
+    the second command with `yq` overwrites the list of directories
+    specified in the config file `conf/base/pipelines.yml` for the key
+    `.data_prep.raw_dirs_paths`. You may specify a list of directory paths
+    with which you can process and combine the results into one single
+    directory. The `yq` utility is used to overwrite the values in the YAML
+    config as
+    [Hydra currently doesn't support modification of list in YAML files](https://github.com/facebookresearch/hydra/issues/1547)
+    .
 
 After some time, the data processing job should conclude and we can
 proceed with training the predictive model.
-
 The processed data is exported to the directory
-`/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined`
-. We will be passing this path to the model training workflows.
+`/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined`.
+We will be passing this path to the model training workflows.
 
 ## Model Training
 
@@ -100,8 +129,9 @@ Artifacts logged through the MLflow API can be
 uploaded to GCS buckets, assuming the client is authorised for
 access to GCS.
 
-__Note:__ The username and password for the MLflow Tracking server
-can be retrieved from the MLOps team or your team lead.
+!!! note
+    The username and password for the MLflow Tracking server
+    can be retrieved from the MLOps team or your team lead.
 
 To log and upload artifacts to GCS buckets through MLflow, you need to
 do the following first:
@@ -118,68 +148,144 @@ Let's create a GCS bucket
 for storing all your model experiment artifacts (assuming the bucket
 has yet to be created):
 
-```bash
-$ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-artifacts
-Creating gs://{{cookiecutter.repo_name}}-artifacts/...
-```
+!!! important
+    For the purpose of this guide, we will create a bucket with the
+    following name: `gs://{{cookiecutter.repo_name}}-artifacts`.
+    The Docker images that we will be using to spin up inference
+    servers will download exported model artifacts from this bucket,
+    under a subdirectory `mlflow-tracking-server`. Hence, the full path
+    of the directory where all the model artifacts will be stored at
+    will be
+    `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
 
-Now, let's access the MLflow Tracking server's dashboard. Open a
+=== "Local Machine / Polyaxon VSCode Terminal"
+
+    ```bash
+    $ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-artifacts
+    Creating gs://{{cookiecutter.repo_name}}-artifacts/...
+    ```
+
+!!! note
+    Something to take note for the future is that
+    GCS buckets are to adhere to the naming guidelines set by GCP, one
+    of which is that bucket names must be globally unique.
+    See
+    [here](https://cloud.google.com/storage/docs/naming-buckets)
+    for more information on naming guidelines for GCS buckets.
+
+Now, let's access the MLflow Tracking server's dashboard
+to create an experiment for us to log runs to. Open a
 separate terminal and run the following:
 
-```bash
-$ kubectl port-forward service/mlflow-nginx-server-svc 5005:5005 --namespace=polyaxon-v1
-```
+=== "Local Machine"
+
+    ```bash
+    $ kubectl port-forward service/mlflow-nginx-server-svc 5005:5005 --namespace=polyaxon-v1
+    ```
 
 Head over to your web browser and access the following URL:
-`http://localhost:5005`. You should be presented with an interface
+`http://localhost:5005`.
+You would be prompted for a username and password and upon a
+successful entry
+you should be presented with an interface
 similar to the one below:
 
 ![MLflow - Dashboard Experiments View](../assets/screenshots/mlflow-dashboard-exps-view.png)
 
-We are to collate runs under experiments (see
+We are to collate runs under experiments. See
 [here](https://www.mlflow.org/docs/latest/tracking.html#organizing-runs-in-experiments)
-for the distinction between runs and experiments) and for each
-experiment, we can specify paths and URLs for which we will upload
+for the distinction between runs and experiments. For each
+experiment, we can specify paths and URLs for which we intend to upload
 artifacts to.
+
+To create an experiment, locate a `+` button on the top left hand
+corner of the interface.
 
 ![MLflow - Create Experiment (Button)](../assets/screenshots/mlflow-dashboard-create-exp-button.png)
 
+A pop-up box follows prompting a name for the experiment
+and a location for artifacts to be stored at.
+
+!!! warning
+    Here are some things to take note when creating an experiment:
+
+    - Specifying object storage paths for a new experiment
+    through MLflow's CLI does not work well currently so we would have
+    to make do with creation of experiments through the UI.
+    - It is highly recommended that experiment names are
+      __without whitespaces__. Words can be concatenated with hyphens.
+
 ![MLflow - Create Experiment (Input)](../assets/screenshots/mlflow-dashboard-create-exp-input.png)
 
-__Note:__ Here are some things to take note when creating an experiment:
+__Reference(s):__
 
-- Specifying of object storage paths for a new experiment
-through MLflow's CLI does not work well currently so we would have
-to make do with creation of experiments through the UI.
-- It is highly recommended that experiment names are
-  __without whitespaces__. Words can be concatenated with hyphens.
+- [MLflow Docs - Tracking](https://www.mlflow.org/docs/latest/tracking.html#)
+- [MLflow Docs - Tracking (Artifact Stores)](https://www.mlflow.org/docs/latest/tracking.html#artifact-stores)
 
 ### Container for Experiment Job
 
 Before we submit a job to Polyaxon to train our model,
 we need to build the Docker image to be used for it:
 
-```bash
-$ docker build \
-  -t asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0 \
-  -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile .
-$ docker push asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0 \
+        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0 `
+        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0
+    ```
 
 Now that we have the Docker image pushed to the registry,
 we can run a job using it:
 
-```bash
-$ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
-$ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
-$ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
-  -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
-  -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
-  -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
-  -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
-  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined"
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
+    $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
+    $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" \
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $MLFLOW_TRACKING_USERNAME='<MLFLOW_TRACKING_USERNAME>'
+    $ $MLFLOW_TRACKING_PASSWORD='<MLFLOW_TRACKING_PASSWORD>'
+    $ $CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" `
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD `
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true `
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE`:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+    !!! caution
+        Do take note of the backtick (\`) before the colon
+        in the value for the parameter `MLFLOW_TRACKING_URI`.
+        See
+        [here](https://stackoverflow.com/questions/8386219/powershell-string-formatting-why-is-the-colon-character-causing-my-variables-v)
+        for some explanation.
 
 ### Hyperparameter Tuning
 
@@ -195,13 +301,16 @@ script with different learning rate value each time. It is reasonable
 that one seeks for ways to automate this workflow.
 
 [Optuna](https://optuna.readthedocs.io/en/stable/) is an optimisation
-framework designed for ML use-cases. Its API allows for ease of
-modularity and it has many optimisation algorithms that ML engineers
-can make use of. It also allows for
-[paralellisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/004_distributed.html)
-resulting in faster sweeps. Also, Hydra has a plugin for utilising
-Optuna which further translates to ease of configuration.
+framework designed for ML use-cases.
+Its features includes:
 
+- ease of modularity,
+- optimisation algorithms for searching the best set of parameters,
+- and [paralellisation](https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/004_distributed.html)
+  capabilities for faster sweeps.
+
+In addition, Hydra has a plugin for utilising
+Optuna which further translates to ease of configuration.
 To use Hydra's plugin for Optuna, we have to provide further overrides
 within the YAML config, and this is observed in
 `conf/base/train-model-hptuning.yml`:
@@ -232,13 +341,14 @@ hydra:
         choices: ["adam", "rmsprop"]
 ```
 
-The fields defined are terminologies used by Optuna. Therefore, it is
-recommended that you understand the basics of the tool.
-[This overview video](https://www.youtube.com/watch?v=P6NwZVl8ttc)
-covers well on the concepts brought upon by Optuna.
+!!! attention
+    The fields defined are terminologies used by Optuna. Therefore, it is
+    recommended that you understand the basics of the tool.
+    [This overview video](https://www.youtube.com/watch?v=P6NwZVl8ttc)
+    covers well on the concepts brought upon by Optuna.
 
 The script with which hyperparameter tuning is conducted,
-`src/train_model_hptuning.py`, there's essentially 2 lines that are
+`src/train_model_hptuning.py`, has 2 essential lines that are
 different from `src/train_model.py`:
 
 ```python
@@ -258,22 +368,51 @@ different set of parameters, a new MLflow run has to be initialised.
 However, we need to somehow link all these different runs together so
 that we can compare all the runs within a single Optuna study (set of
 trials). How we do this is that we provide the script with a
-tag (`hptuning_tag`) which would essentially be the date epoch value of the moment
+tag (`hptuning_tag`) which would essentially be the date epoch value of
+the moment
 you submitted the job to Polyaxon. This tag is defined using the
 environment value `MLFLOW_HPTUNING_TAG`.
 
-```bash
-$ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
-$ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
-$ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
-$ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" -p {{cookiecutter.repo_name}}-<YOUR_NAME> \
-  -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
-  -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
-  -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
-  -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
-  -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
-  -P MLFLOW_HPTUNING_TAG="$(date +%s)"
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
+    $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
+    $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" \
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
+        -P MLFLOW_HPTUNING_TAG="$(date +%s)" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $MLFLOW_TRACKING_USERNAME='<MLFLOW_TRACKING_USERNAME>'
+    $ $MLFLOW_TRACKING_PASSWORD='<MLFLOW_TRACKING_PASSWORD>'
+    $ $CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" `
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD `
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true `
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
+        -P MLFLOW_HPTUNING_TAG=(Get-Date -UFormat %s -Millisecond 0) `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+    !!! caution
+        Do take note of the backtick (\`) before the colon
+        in the value for the parameter `MLFLOW_TRACKING_URI`.
+        See
+        [here](https://stackoverflow.com/questions/8386219/powershell-string-formatting-why-is-the-colon-character-causing-my-variables-v)
+        for some explanation.
 
 Say the tag is `1641159546`, you can then filter this within MLflow's
 dashboard for runs with the associated tag like such in the search bar:

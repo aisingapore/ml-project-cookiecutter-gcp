@@ -10,7 +10,7 @@ inputs:
   - name: DOCKER_IMAGE
     isOptional: true
     type: str
-    value: asia.gcr.io/<GCP_PROJECT_ID>/jupyter:0.1.0
+    value: asia.gcr.io/<GCP_PROJECT_ID>/jupyter-server:0.1.0
   - name: WORKING_DIR
     description: The working directory for the job to run in.
     isOptional: true

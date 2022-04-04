@@ -48,6 +48,7 @@ RUN mkdir $CONDA_HOME && chown -R 2222:2222 $CONDA_HOME
 RUN chown -R 2222:2222 $HOME_DIR && \
     rm /bin/sh && ln -s /bin/bash /bin/sh
 
+ENV PATH $CONDA_HOME/bin:$HOME_DIR/.local/bin:$PATH
 ENV PYTHONIOENCODING utf8
 ENV LANG "C.UTF-8"
 ENV LC_ALL "C.UTF-8"
@@ -72,4 +73,4 @@ RUN $CONDA_BIN env create -f {{cookiecutter.repo_name}}/$CONDA_ENV_FILE && \
 WORKDIR $HOME_DIR/{{cookiecutter.repo_name}}
 RUN chmod -R +x scripts
 
-ENTRYPOINT [ "/bin/bash", "./scripts/inferencing/batch-infer-entrypoint.sh" ]
+ENTRYPOINT [ "/bin/bash", "./scripts/dashboard/streamlit-entrypoint.sh" ]

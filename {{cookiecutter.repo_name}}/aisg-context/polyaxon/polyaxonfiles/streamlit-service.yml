@@ -1,13 +1,13 @@
 version: 1.1
 kind: component
-name: vscode-service
-description: VSCode as development environment for AI engineer.
-tags: [vscode]
+name: streamlit-dashboard
+description: Dashboard using Streamlit.
+tags: [streamlit, dashboard, keras, gpu]
 inputs:
   - name: DOCKER_IMAGE
     isOptional: true
     type: str
-    value: asia.gcr.io/<GCP_PROJECT_ID>/vscode-server:0.1.0
+    value: asia.gcr.io/<GCP_PROJECT_ID>/streamlit:0.1.0
   - name: WORKING_DIR
     description: The working directory for the job to run in.
     isOptional: true
@@ -16,7 +16,7 @@ inputs:
     description: Path to credential file for GCP service account.
     isOptional: true
     type: str
-    value: /var/secret/cloud.google.com/gcp-service-account.json
+    value: /var/secret/cloud.goodle.com/gcp-service-account.json
     toEnv: GOOGLE_APPLICATION_CREDENTIALS
 run:
   kind: service
@@ -28,22 +28,21 @@ run:
       secret:
         secretName: "gcp-sa-credentials"
   ports:
-    - 8080
+    - 8501
   rewritePath: true
   container:
-    image: "{{ DOCKER_IMAGE }}"
+    image: "{{ DOCKER_NAME }}"
     imagePullPolicy: IfNotPresent
     workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
-    args:
-      - '--auth'
-      - none
-      - '--disable-telemetry'
+    command:
+      - /bin/bash
+      - ./scripts/dashboard/streamlit-entrypoint.sh
     resources:
       requests:
-        memory: "4Gi"
+        memory: "2Gi"
         cpu: "2.5"
       limits:
-        memory: "4Gi"
+        memory: "2Gi"
         cpu: "2.5"
     volumeMounts:
       - name: gcp-service-account

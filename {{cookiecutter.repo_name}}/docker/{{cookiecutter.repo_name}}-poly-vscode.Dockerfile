@@ -1,11 +1,17 @@
 FROM debian:11
 
+ARG NON_ROOT_USER="coder"
+ARG HOME_DIR="/home/$NON_ROOT_USER"
 # DVC arguments
 ARG DVC_VERSION="2.8.3"
 ARG DVC_BINARY_NAME="dvc_2.8.3_amd64.deb"
 # VSCode Server arguments
 ARG CODE_SERVER_VERSION="4.0.1"
 ARG CODE_SERVER_BINARY_NAME="code-server_4.0.1_amd64.deb"
+# Miniconda arguments
+ARG CONDA_HOME="/miniconda3"
+ARG CONDA_BIN="$CONDA_HOME/bin/conda"
+ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
 
 RUN apt-get update \
     && apt-get install -y \
@@ -72,19 +78,7 @@ RUN wget "https://github.com/iterative/dvc/releases/download/$DVC_VERSION/$DVC_B
     apt install -y "./$DVC_BINARY_NAME" && \
     rm "./$DVC_BINARY_NAME"
 
-# Install Miniconda
-ARG NON_ROOT_USER="coder"
-ARG HOME_DIR="/home/$NON_ROOT_USER"
-ARG CONDA_HOME="$HOME_DIR/miniconda3"
-ARG CONDA_BIN="$CONDA_HOME/bin/conda"
-ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
-
-RUN curl -O "https://repo.anaconda.com/miniconda/$MINI_CONDA_SH" && \
-    chmod +x $MINI_CONDA_SH && \
-    ./$MINI_CONDA_SH -b -p $CONDA_HOME && \
-    rm $MINI_CONDA_SH
-ENV PATH $CONDA_HOME/bin:$HOME_DIR/.local/bin:$PATH
-
+RUN mkdir $CONDA_HOME && chown -R 2222:2222 $CONDA_HOME
 RUN chown -R 2222:2222 $HOME_DIR
 
 EXPOSE 8080
@@ -94,5 +88,12 @@ EXPOSE 8080
 USER 2222
 ENV USER=$NON_ROOT_USER
 WORKDIR $HOME_DIR
+
+# Install Miniconda
+RUN curl -O "https://repo.anaconda.com/miniconda/$MINI_CONDA_SH" && \
+    chmod +x $MINI_CONDA_SH && \
+    ./$MINI_CONDA_SH -u -b -p $CONDA_HOME && \
+    rm $MINI_CONDA_SH
+ENV PATH $CONDA_HOME/bin:$HOME_DIR/.local/bin:$PATH
 
 ENTRYPOINT ["/usr/bin/entrypoint.sh", "--bind-addr", "0.0.0.0:8080", "."]

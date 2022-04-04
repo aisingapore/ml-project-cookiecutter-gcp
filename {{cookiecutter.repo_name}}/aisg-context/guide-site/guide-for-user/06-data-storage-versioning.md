@@ -42,10 +42,12 @@ This means that we can use
 [`gsutil`](https://cloud.google.com/storage/docs/gsutil)
 to pull in data from a GCS bucket.
 
-```bash
-$ mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/ai-proj-aut0 && cd "$_"
-$ gsutil -m rsync -r gs://ai-proj-aut0 .
-```
+=== "Polyaxon VSCode Terminal"
+
+    ```bash
+    $ mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/ai-proj-aut0 && cd "$_"
+    $ gsutil -m rsync -r gs://ai-proj-aut0 .
+    ```
 
 The `-m` flag is to utilise parallel synchronisation which would speed
 things up and the `-r` concerns recursion through a bucket/directory.
@@ -66,10 +68,12 @@ will appear in the bucket. Say the tree now looks like the following:
 To retrieve that new set of raw data i.e. the folder `20211215_0952332`,
 just run the same command in the relevant folder again:
 
-```bash
-$ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/ai-proj-aut0
-$ gsutil -m rsync -r gs://ai-proj-aut0 .
-```
+=== "Polyaxon VSCode Terminal"
+
+    ```bash
+    $ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/ai-proj-aut0
+    $ gsutil -m rsync -r gs://ai-proj-aut0 .
+    ```
 
 The `gsutil` utility will synchronise the directory in the persistent
 storage with the remote object storage/bucket.
@@ -91,10 +95,12 @@ accessible to the public. Hence any team or individual can download
 it. It is highly likely that your data is not publicly accessible and
 neither should it be, especially if it is a 100E project.
 
-```bash
-$ mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg && cd "$_"
-$ gsutil -m rsync -r gs://acl-movie-review-data-aisg .
-```
+=== "Polyaxon VSCode Terminal"
+
+    ```bash
+    $ mkdir -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg && cd "$_"
+    $ gsutil -m rsync -r gs://acl-movie-review-data-aisg .
+    ```
 
 In the following section, we will work towards processing the raw data
 and eventually training a sentiment classifier model.

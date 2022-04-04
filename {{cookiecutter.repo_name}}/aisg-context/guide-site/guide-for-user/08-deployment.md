@@ -25,19 +25,22 @@ Seen in
 ["Model Training"](./07-job-orchestration.md#model-training)
 , we have the trained models
 uploaded to GCS through the MLflow Tracking server (done through
-autolog). By default, each experiment run is given a unique ID. When
-artifacts uploaded to GCS through MLflow, the artifacts are located
-within directories named after the unique IDs of the runs.
-This guide by default uploads your artifacts to the following
-directory on GCS:
-`gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
-Artifacts for specific runs will be uploaded to a directory with the
-following convention:
-`gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/<MLFLOW_EXPERIMENT_UUID>`.
-With this path/URI, we can use
-[`gsutil`](https://cloud.google.com/storage/docs/gsutil)
-to download the predictive model from GCS into a mounted volume when
-we run the Docker image for the REST APIs.
+autolog). With that, we have the following pointers to take note of:
+
+- By default, each MLflow experiment run is given a unique ID.
+- When artifacts are uploaded to GCS through MLflow,
+  the artifacts are located within directories named after the
+  unique IDs of the runs.
+- This guide by default uploads your artifacts to the following
+  directory on GCS:
+  `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
+- Artifacts for specific runs will be uploaded to a directory with the
+  following convention:
+  `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/<MLFLOW_EXPERIMENT_UUID>`.
+- With this path/URI, we can use
+  [`gsutil`](https://cloud.google.com/storage/docs/gsutil)
+  to download the predictive model from GCS into a mounted volume when
+  we run the Docker image for the REST APIs.
 
 Now that we have established on how we are to obtain the models for the
 API server, let's look into the servers themselves.
@@ -45,22 +48,28 @@ API server, let's look into the servers themselves.
 ## Model Serving (FastAPI)
 
 FastAPI is a web framework that has garnered much popularity in recent
-years due to ease of adoption due to its comprehensive tutorials, type
-and schema validation, async capable and automated docs, among other
-things. These factors have made it a popular framework within
-AI Singapore across many projects.
+years due to ease of adoption with its comprehensive tutorials, type
+and schema validation, being async capable and having automated docs,
+among other things. These factors have made it a popular framework
+within AI Singapore across many projects.
 
 If you were to inspect the `src` folder, you would notice that there
-exist more than one package: `{{cookiecutter.src_package_name}}` and
-`{{cookiecutter.src_package_name}}_fastapi`. The former contains the modules for
+exist more than one package:
+
+- `{{cookiecutter.src_package_name}}`
+- `{{cookiecutter.src_package_name}}_fastapi`
+
+The former contains the modules for
 executing pipelines like data preparation and model training while
 the latter is dedicated to modules meant for the REST API. Regardless,
 the packages can be imported by each other.
 
-__Note:__ It is recommended that you grasp some basics of the FastAPI
-framework, up till the
-[beginner tutorials](https://fastapi.tiangolo.com/tutorial/) for
-better understanding of this section.
+
+!!! note
+    It is recommended that you grasp some basics of the FastAPI
+    framework, up till the
+    [beginner tutorials](https://fastapi.tiangolo.com/tutorial/) for
+    better understanding of this section.
 
 Let's try running the boilerplate API server on a local machine.
 Before doing that, identify from the MLflow dashboard the unique ID
@@ -69,66 +78,139 @@ would like to serve.
 
 ![MLflow - Dashboard Run View](../assets/screenshots/mlflow-dashboard-run-view.png)
 
-Now that we have obtained the ID of the MLflow run,
+With reference to the example screenshot above, the UUID for
+the experiment run is `7251ac3655934299aad4cfebf5ffddbe`.
+Once the ID of the MLflow run has been obtained,
 let's download the model that we intend to serve.
-Assuming you're in the root of this template repository, execute the
+Assuming you're in the root of this template's repository, execute the
 following commands:
 
-```bash
-$ export PRED_MODEL_UUID="<MLFLOW_EXPERIMENT_UUID>"
-$ export PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$PRED_MODEL_UUID"
-$ gsutil cp -r $PRED_MODEL_GCS_URI ./models
-```
+=== "Linux/macOS"
 
-With the above, the model for the experiment
-`7251ac3655934299aad4cfebf5ffddbe` is downloaded to the subdirectory
-`./models`. However, the subdirectory that is relevant for TensorFlow
+    ```bash
+    $ export PRED_MODEL_UUID="<MLFLOW_EXPERIMENT_UUID>"
+    $ export PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$PRED_MODEL_UUID"
+    $ gsutil cp -r $PRED_MODEL_GCS_URI ./models
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $Env:PRED_MODEL_UUID='<MLFLOW_EXPERIMENT_UUID>'
+    $ $PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$Env:PRED_MODEL_UUID"
+    $ gsutil cp -r $PRED_MODEL_GCS_URI .\models
+    ```
+
+Executing the commands above will download the artifacts related to the
+experiment run `<MLFLOW_EXPERIMENT_UUID>` to this repository's
+subdirectory `models`.
+However, the specific subdirectory that is relevant for TensorFlow
 to load will be
-`./models/<MLFLOW_EXPERIMENT_UUID>/artifacts/model/data/model`. Let's
-export this path to an environment variable:
+`./models/<MLFLOW_EXPERIMENT_UUID>/artifacts/model/data/model`.
+Let's export this path to an environment variable:
 
-```bash
-$ export PRED_MODEL_PATH="$PWD/models/$PRED_MODEL_UUID/artifacts/model/data/model"
-```
+!!! note
+    See
+    [here](https://www.tensorflow.org/tutorials/keras/save_and_load#savedmodel_format)
+    for more information on the `SavedModel` format that TensorFlow
+    uses for exporting trained models through the function call
+    `model.save`.
 
+=== "Linux/macOS"
+
+    ```bash
+    $ export PRED_MODEL_PATH="$PWD/models/$PRED_MODEL_UUID/artifacts/model/data/model"
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $Env:PRED_MODEL_PATH="$(Get-Location)\models\$Env:PRED_MODEL_UUID\artifacts\model\data\model"
+    ```
 ### Local Server
 
-Run the FastAPI server using [Gunicorn](https://gunicorn.org):
+Run the FastAPI server using [Gunicorn](https://gunicorn.org)
+(for Linux/macOS) or [`uvicorn`](https://www.uvicorn.org/)
+(for Windows):
 
-```bash
-$ cd src
-$ gunicorn {{cookiecutter.src_package_name}}_fastapi.main:APP -b 0.0.0.0:8080 -w 4 -k uvicorn.workers.UvicornWorker
-```
+=== "Linux/macOS"
 
-__Note:__ See
-[here](https://fastapi.tiangolo.com/deployment/server-workers/) as to
-why Gunicorn is being used instead of just
-[Uvicorn](https://www.uvicorn.org/). TLDR: Gunicorn is needed to spin
-up multiple processes/workers to handle more requests i.e. better for
-the sake of production needs.
+    !!! attention
+        Gunicorn is only executable on UNIX-based or UNIX-like systems,
+        this method would not be possible/applicable for
+        Windows machine.
+
+    ```bash
+    $ conda activate {{cookiecutter.repo_name}}
+    $ cd src
+    $ gunicorn {{cookiecutter.src_package_name}}_fastapi.main:APP -b 0.0.0.0:8080 -w 4 -k uvicorn.workers.UvicornWorker
+    ```
+
+    See
+    [here](https://fastapi.tiangolo.com/deployment/server-workers/) as to
+    why Gunicorn is to be used instead of just
+    [Uvicorn](https://www.uvicorn.org/). TLDR: Gunicorn is needed to spin
+    up multiple processes/workers to handle more requests i.e. better for
+    the sake of production needs.
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ conda activate {{cookiecutter.repo_name}}
+    $ cd src
+    $ uvicorn {{cookiecutter.src_package_name}}_fastapi.main:APP
+    ```
 
 In another terminal, use the `curl` command to submit a request to the API:
 
-```bash
-$ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
-  -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
-  localhost:8080/api/v1/model/predict
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
+        -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+      localhost:8080/api/v1/model/predict
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ curl.exe '-H', 'Content-Type: application/json', '-H', 'accept: application/json', `
+        '-X', 'POST', '-d', `
+        '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
+        'localhost:8000/api/v1/model/predict'
+    ```
 
 With the returned JSON object, we have successfully submitted a request
 to the FastAPI server and it returned predictions as part of the
 response.
 
+### Pydantic Settings
+
 Now you might be wondering, how does the FastAPI server knows the path
 to the model for it to load? FastAPI utilises
 [Pydantic](https://pydantic-docs.helpmanual.io/), a library for data
-and schema validation as well as settings management. There's a class
+and schema validation, as well as
+[settings management](https://fastapi.tiangolo.com/advanced/settings/?h=env#pydantic-settings).
+There's a class
 called `Settings` under the module
 `src/{{cookiecutter.src_package_name}}_fastapi/config.py`. This class contains
 several fields: some are defined and some others not. The fields
 `PRED_MODEL_UUID` and `PRED_MODEL_PATH` inherit their values from
-the environment variables. This means that the export commands we
-executed above were for setting the values for the server to refer to.
+the environment variables.
+
+`src/{{cookiecutter.src_package_name}}_fastapi/config.py`:
+```python
+...
+class Settings(pydantic.BaseSettings):
+
+    API_NAME: str = "{{cookiecutter.src_package_name}}_fastapi"
+    API_V1_STR: str = "/api/v1"
+    LOGGER_CONFIG_PATH: str = "../conf/base/logging.yml"
+
+    PRED_MODEL_UUID: str
+    PRED_MODEL_PATH: str
+...
+```
 
 FastAPI automatically generates interactive API documentation for
 easy viewing of all the routers/endpoints you have made available for
@@ -141,38 +223,69 @@ such:
 
 ### Docker Container
 
-We now look into packaging the server within a Docker container. This
+We now look into packaging the server within a Docker image. This
 process of containerising the server isn't just for the sake of
 reproducibility but it makes it easier for the server to be deployed
-on any server that can run a Docker container. A boilerplate
+on any server/infrastructure that can run a Docker container.
+A boilerplate
 Dockerfile is provided to containerise the FastAPI server:
 
-```bash
-# Ensure that you are in the root of the repository
-$ docker build \
-  -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 \
-  --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
-  -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    # Ensure that you are in the root of the repository
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 \
+        --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
+    # Ensure that you are in the root of the repository
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 `
+        --build-arg PRED_MODEL_UUID="$Env:PRED_MODEL_UUID" `
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
+    ```
 
 The Docker build command above requires an argument to be passed and it
 is basically the same unique MLflow run ID that was used above.
 The ID would then be used to create environment variables that would
 persist beyond the build time. When the container is being run,
 these environment variables would be
-used by the entrypoint script to download the relevant predictive model
+used by the entrypoint script
+(`scripts/fastapi/api-entrypoint.sh`)
+to download the relevant predictive model
 into the mounted volumes and be referred to by the FastAPI Pydantic
-models. Let's try running the Docker container:
+models.
 
-```bash
-# First make the `models` folder accessible to user within Docker container
-$ sudo chgrp -R 2222 models
-$ docker run --rm -p 8080:8080 \
-  -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
-  -v $PWD/models:/home/aisg/from-gcs \
-  --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
-  asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
-```
+Let's try running the Docker container now:
+
+=== "Linux/macOS"
+
+    ```bash
+    # First make the `models` folder accessible to user within Docker container
+    $ sudo chgrp -R 2222 models
+    $ docker run --rm -p 8080:8080 \
+        -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
+        -v $PWD/models:/home/aisg/from-gcs \
+        --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
+        asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ docker run --rm -p 8080:8080 `
+        -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
+        -v "$(Get-Location)\models:/home/aisg/from-gcs" `
+        --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
+        asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
+    ```
 
 Let's go through a couple of the flags used above:
 
@@ -189,11 +302,22 @@ Let's go through a couple of the flags used above:
 
 Use the same `curl` command for the server spun up by the container:
 
-```bash
-$ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
-  -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
-  localhost:8080/api/v1/model/predict
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
+        -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+        localhost:8080/api/v1/model/predict
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ curl.exe '-H', 'Content-Type: application/json', '-H', 'accept: application/json', `
+        '-X', 'POST', '-d', `
+        '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
+        'localhost:8080/api/v1/model/predict'
+    ```
 
 Push the Docker image to the GCR:
 
@@ -229,11 +353,22 @@ You can view the documentation for the API at
 [`http://localhost:8080/docs`](http://localhost:8080/docs). You can also
 make a request to the API like so:
 
-```bash
-$ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
-  -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
-  localhost:8080/api/v1/model/predict
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ curl -H 'Content-Type: application/json' -H 'accept: application/json' \
+        -X POST -d '{"reviews": [{"id": 9176, "text": "This movie is quite boring."}, {"id": 71, "text": "This movie is awesome."}]}' \
+        localhost:8080/api/v1/model/predict
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ curl.exe '-H', 'Content-Type: application/json', '-H', 'accept: application/json', `
+        '-X', 'POST', '-d', `
+        '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
+        'localhost:8080/api/v1/model/predict'
+    ```
 
 __Reference(s):__
 
