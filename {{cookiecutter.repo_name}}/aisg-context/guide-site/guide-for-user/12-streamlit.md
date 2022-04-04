@@ -37,12 +37,47 @@ This template provides:
 
 ## Local Execution
 
-To execute the script locally:
+To run the Streamlit app locally, one of course has to download a
+predictive model into the local machine:
 
-```bash
-$ streamlit run src/streamlit.py -- \
-    inference.model_path=<PATH_TO_MODEL>
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ export PRED_MODEL_UUID="<MLFLOW_EXPERIMENT_UUID>"
+    $ export PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$PRED_MODEL_UUID"
+    $ gsutil cp -r $PRED_MODEL_GCS_URI ./models
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $Env:PRED_MODEL_UUID='<MLFLOW_EXPERIMENT_UUID>'
+    $ $PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$Env:PRED_MODEL_UUID"
+    $ gsutil cp -r $PRED_MODEL_GCS_URI .\models
+    ```
+
+`PRED_MODEL_UUID` is the unique ID associated with the MLFLow run
+that generated the predictive model to be used for dashboarding.
+
+Spin up the Streamlit application locally:
+
+=== "Linux/macOS"
+
+    ```bash
+    $ export PRED_MODEL_PATH="$PWD/models/$PRED_MODEL_UUID/artifacts/model/data/model"
+    $ streamlit run src/streamlit.py -- \
+        hydra.run.dir=. hydra.output_subdir=null hydra/job_logging=disabled \
+        inference.model_path=$PRED_MODEL_PATH
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $Env:PRED_MODEL_PATH="$(Get-Location)\models\$Env:PRED_MODEL_UUID\artifacts\model\data\model"
+    $ streamlit run src/streamlit.py -- `
+        hydra.run.dir=. hydra.output_subdir=null hydra/job_logging=disabled `
+        inference.model_path=$Env:PRED_MODEL_PATH
+    ```
 
 __Reference(s):__
 
@@ -52,26 +87,46 @@ __Reference(s):__
 
 To use the Docker image, first build it:
 
-```bash
-$ docker build \
-  -t asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0 \
-  --build-arg PRED_MODEL_UUID="abf043e8a8504eddb1f95bdbc634d2bd" \
-  -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile .
-```
+=== "Linux/macOS"
 
-where `PRED_MODEL_UUID` is the unique ID associated with the MLFLow run
-that generated the predictive model to be used for dashboarding.
+    ```bash
+    $ docker build \
+        -t asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0 \
+        --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
+        -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile .
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ docker build `
+        -t asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0 `
+        --build-arg PRED_MODEL_UUID="$Env:PRED_MODEL_UUID" `
+        -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile .
+    ```
 
 After building the image, you can run the container like so:
 
-```bash
-$ chgrp -R 2222 outputs
-$ docker run --rm \
-  --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
-  -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
-  -v $PWD/models:/home/aisg/from-gcs \
-  asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
-```
+=== "Linux/macOS"
+
+    ```bash
+    $ chgrp -R 2222 outputs
+    $ docker run --rm -p 8501:8501 \
+        --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
+        -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
+        -v $PWD/models:/home/aisg/from-gcs \
+        asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ docker run --rm -p 8501:8501 `
+        --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json `
+        -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
+        -v "$(Get-Location)\models:/home/aisg/from-gcs" `
+        asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
+    ```
 
 - `GOOGLE_APPLICATION_CREDENTIALS` allows the container's entrypoint to
   download the predictive model specified during build time from GCS.
