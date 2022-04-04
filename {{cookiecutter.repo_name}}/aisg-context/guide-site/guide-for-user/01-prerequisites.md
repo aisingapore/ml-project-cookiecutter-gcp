@@ -53,6 +53,15 @@ follow through with the guide:
         $ Get-ChildItem . -Force
         ```
 
+    !!! caution
+        If you are on Windows OS, you would need to ensure that the
+        files you've cloned or written on your machine be with
+        `LF` line endings. Otherwise, issues would arise when Docker
+        containers are being built or run. See
+        [here](https://stackoverflow.com/questions/48692741/how-can-i-make-all-line-endings-eols-in-all-files-in-visual-studio-code-unix)
+        on how to configure consistent line endings for a whole folder
+        or workspace using VSCode.
+
 ## NUS VPN
 
 Your credentials for your NUS Staff/Student account is needed to

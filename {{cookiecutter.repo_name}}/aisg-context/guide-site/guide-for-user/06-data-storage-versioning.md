@@ -82,7 +82,25 @@ this same directory containing all the raw data__ lest you'd lose
 the processed data upon sychronisation. Let the directory for raw data
 contain just raw data.
 
-### Sample Data
+## Processed/Intermediary Data
+
+As mentioned, raw data for 100E projects are located in a default
+GCS bucket within each GCP project,
+usually with the convention `gs://<GCP_PROJECT_ID>-aut0`.
+However, that default bucket __should only contain raw data__.
+Each project should create a separate GCS bucket for processed or any
+other form of data.
+
+Say one would like to create a GCS bucket with the name
+`{{cookiecutter.repo_name}}-proc-data`, the following command can
+be used:
+
+```bash
+$ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-proc-data
+Creating gs://{{cookiecutter.repo_name}}-proc-data/...
+```
+
+## Sample Data
 
 While you may have your own project data to work with, for the purpose
 of following through with this template guide, let's download
@@ -90,10 +108,12 @@ the sample data for the
 [problem statement](./02-preface.md#guides-problem-statement)
 at hand.
 
-__Note:__ The sample data for this guide's problem statement is made
-accessible to the public. Hence any team or individual can download
-it. It is highly likely that your data is not publicly accessible and
-neither should it be, especially if it is a 100E project.
+!!! info
+    The sample data for this guide's problem statement is made
+    accessible to the public. Hence any team or individual can download
+    it. It is highly likely that your project's data is not
+    publicly accessible
+    and neither should it be, especially if it is a 100E project.
 
 === "Polyaxon VSCode Terminal"
 
