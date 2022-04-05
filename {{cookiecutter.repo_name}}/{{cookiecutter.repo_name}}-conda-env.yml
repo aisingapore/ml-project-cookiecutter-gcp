@@ -28,3 +28,4 @@ dependencies:
     - jsonlines==3.0.0
     - streamlit==1.7.0
     - click==8
+    - cruft==2.9.0
