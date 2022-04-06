@@ -69,7 +69,7 @@ build:jupyter-image:
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile"
-      --destination "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_SHORT_SHA}"
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/jupyter-server:${CI_COMMIT_SHORT_SHA}"
   rules:
     - if: $CI_MERGE_REQUEST_IID
       changes:
@@ -173,6 +173,31 @@ build:batch-inference-image:
         - scripts/**/*
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+build:streamlit-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+  script:
+    - mkdir -p /kaniko/.docker
+    - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile"
+      --build-arg PRED_MODEL_UUID=${PRED_MODEL_UUID}
+      --destination "asia.gcr.io/${GCP_PROJECT_ID}/streamlit:${CI_COMMIT_SHORT_SHA}"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+      changes:
+        - docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile
+        - src/**/*
+        - conf/**/*
+        - scripts/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 build:retag-images:
   stage: build
   image:
@@ -183,11 +208,12 @@ build:retag-images:
     - cat $GCP_SERVICE_ACCOUNT_KEY > /gcp-sa.json
     - gcloud auth activate-service-account --key-file=/gcp-sa.json
     - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/vscode-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/vscode-server:${CI_COMMIT_TAG}"
-    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/jupyter:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/jupyter-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/jupyter-server:${CI_COMMIT_TAG}"
     - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/data-prep:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/data-prep:${CI_COMMIT_TAG}"
     - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/model-train:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/model-train:${CI_COMMIT_TAG}"
     - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/fastapi-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/fastapi-server:${CI_COMMIT_TAG}"
     - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/batch-inference:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/batch-inference:${CI_COMMIT_TAG}"
+    - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/streamlit:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/streamlit:${CI_COMMIT_TAG}"
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
