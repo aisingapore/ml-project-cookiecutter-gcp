@@ -93,7 +93,8 @@ To use the Docker image, first build it:
     $ docker build \
         -t asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0 \
         --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
-        -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile \
+        --platform linux/amd64.
     ```
 
 === "Windows PowerShell"
