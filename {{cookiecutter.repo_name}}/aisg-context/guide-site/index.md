@@ -41,7 +41,7 @@ There are __two separate guides__:
   the administrators and provisioners of the infrastructure required
   for setting up the components of the MLOps platforms and toolings.
 
-## Overview For Guide (User)
+## Overview For User Guide
 
 1. [Prerequisites](./guide-for-user/01-prerequisites.md)
 2. [Preface](./guide-for-user/02-preface.md)
@@ -81,8 +81,9 @@ There are __two separate guides__:
 10. [Continuous Integration & Deployment](./guide-for-user/10-cicd.md)
 11. [Documentation](./guide-for-user/11-documentation.md)
     - [GitLab Pages](./guide-for-user/11-documentation.md#gitlab-pages)
+12. [Streamlit](./guide-for-user/12-streamlit.md)
 
-## Overview for Guide (Administrator)
+## Overview for Admin Guide
 
 > Coming soon...
 
