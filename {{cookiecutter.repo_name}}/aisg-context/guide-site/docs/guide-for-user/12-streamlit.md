@@ -169,10 +169,10 @@ sample Kubernetes manifest files provided with this template:
 
 ```bash
 $ kubectl apply \
-  -f aisg-context/k8s/dashboarding/streamlit-deployment.yml \
+  -f aisg-context/k8s/dashboard/streamlit-deployment.yml \
   --namespace=polyaxon-v1
 $ kubectl apply \
-  -f aisg-context/k8s/dashboarding/streamlit-service.yml \
+  -f aisg-context/k8s/dashboard/streamlit-service.yml \
   --namespace=polyaxon-v1
 ```
 
