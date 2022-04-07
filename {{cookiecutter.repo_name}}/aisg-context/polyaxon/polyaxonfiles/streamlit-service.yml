@@ -7,7 +7,7 @@ inputs:
   - name: DOCKER_IMAGE
     isOptional: true
     type: str
-    value: asia.gcr.io/<GCP_PROJECT_ID>/streamlit:0.1.0
+    value: asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
   - name: SA_CRED_PATH
     description: Path to credential file for GCP service account.
     isOptional: true
@@ -16,7 +16,6 @@ inputs:
     toEnv: GOOGLE_APPLICATION_CREDENTIALS
 run:
   kind: service
-  connections: [fstore-pvc]
   environment:
     imagePullSecrets: ["gcp-imagepullsecrets"]
   volumes:
@@ -27,7 +26,7 @@ run:
     - 8501
   rewritePath: true
   container:
-    image: "{{ DOCKER_NAME }}"
+    image: "{{ DOCKER_IMAGE }}"
     imagePullPolicy: IfNotPresent
     command:
       - /bin/bash
