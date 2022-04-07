@@ -18,6 +18,11 @@ run:
   kind: service
   environment:
     imagePullSecrets: ["gcp-imagepullsecrets"]
+    tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "present"
+        effect: "NoSchedule"
   volumes:
     - name: gcp-service-account
       secret:
@@ -35,9 +40,11 @@ run:
       requests:
         memory: "2Gi"
         cpu: "2.5"
+        nvidia.com/gpu: 1
       limits:
         memory: "2Gi"
         cpu: "2.5"
+        nvidia.com/gpu: 1
     volumeMounts:
       - name: gcp-service-account
         mountPath: /var/secret/cloud.google.com
