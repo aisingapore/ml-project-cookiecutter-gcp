@@ -8,15 +8,11 @@ inputs:
     isOptional: true
     type: str
     value: asia.gcr.io/<GCP_PROJECT_ID>/streamlit:0.1.0
-  - name: WORKING_DIR
-    description: The working directory for the job to run in.
-    isOptional: true
-    type: str
   - name: SA_CRED_PATH
     description: Path to credential file for GCP service account.
     isOptional: true
     type: str
-    value: /var/secret/cloud.goodle.com/gcp-service-account.json
+    value: /var/secret/cloud.google.com/gcp-service-account.json
     toEnv: GOOGLE_APPLICATION_CREDENTIALS
 run:
   kind: service
@@ -33,7 +29,6 @@ run:
   container:
     image: "{{ DOCKER_NAME }}"
     imagePullPolicy: IfNotPresent
-    workingDir: "{{ WORKING_DIR or globals.run_outputs_path }}"
     command:
       - /bin/bash
       - ./scripts/dashboard/streamlit-entrypoint.sh
