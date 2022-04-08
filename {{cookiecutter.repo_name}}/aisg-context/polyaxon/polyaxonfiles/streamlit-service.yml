@@ -18,11 +18,6 @@ run:
   kind: service
   environment:
     imagePullSecrets: ["gcp-imagepullsecrets"]
-    tolerations:
-      - key: "nvidia.com/gpu"
-        operator: "Equal"
-        value: "present"
-        effect: "NoSchedule"
   volumes:
     - name: gcp-service-account
       secret:
@@ -38,13 +33,11 @@ run:
       - ./scripts/dashboard/streamlit-entrypoint.sh
     resources:
       requests:
-        memory: "2Gi"
-        cpu: "2.5"
-        nvidia.com/gpu: 1
+        memory: "4Gi"
+        cpu: "4"
       limits:
-        memory: "2Gi"
-        cpu: "2.5"
-        nvidia.com/gpu: 1
+        memory: "8Gi"
+        cpu: "8"
     volumeMounts:
       - name: gcp-service-account
         mountPath: /var/secret/cloud.google.com
