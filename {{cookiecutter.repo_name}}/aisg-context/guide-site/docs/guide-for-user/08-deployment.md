@@ -238,7 +238,8 @@ Dockerfile is provided to containerise the FastAPI server:
     $ docker build \
         -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 \
         --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
-        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile \
+        --platform linux/amd64 .
     ```
 
 === "Windows PowerShell"

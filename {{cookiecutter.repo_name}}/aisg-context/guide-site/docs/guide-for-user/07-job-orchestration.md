@@ -49,7 +49,8 @@ provided in this template:
     $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
     $ docker build \
         -t asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0 \
-        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile \
+        --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
     ```
 
@@ -232,7 +233,8 @@ we need to build the Docker image to be used for it:
     ```bash
     $ docker build \
         -t asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0 \
-        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile \
+        --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0
     ```
 

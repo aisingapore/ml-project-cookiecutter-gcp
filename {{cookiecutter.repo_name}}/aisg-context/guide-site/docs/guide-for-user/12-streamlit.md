@@ -93,7 +93,8 @@ To use the Docker image, first build it:
     $ docker build \
         -t asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0 \
         --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
-        -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-streamlit.Dockerfile \
+        --platform linux/amd64.
     ```
 
 === "Windows PowerShell"
@@ -168,10 +169,10 @@ sample Kubernetes manifest files provided with this template:
 
 ```bash
 $ kubectl apply \
-  -f aisg-context/k8s/dashboarding/streamlit-deployment.yml \
+  -f aisg-context/k8s/dashboard/streamlit-deployment.yml \
   --namespace=polyaxon-v1
 $ kubectl apply \
-  -f aisg-context/k8s/dashboarding/streamlit-service.yml \
+  -f aisg-context/k8s/dashboard/streamlit-service.yml \
   --namespace=polyaxon-v1
 ```
 

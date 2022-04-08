@@ -14,7 +14,7 @@ edit_uri: ""
 copyright: Copyright &copy; 2022 - AI Singapore
 
 # Configuration
-docs_dir: "{{cookiecutter.repo_name}}/aisg-context/guide-site"
+docs_dir: "{{cookiecutter.repo_name}}/aisg-context/guide-site/docs"
 theme:
   name: material
   logo: assets/aisg-logo.png
