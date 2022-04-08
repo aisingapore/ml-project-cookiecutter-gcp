@@ -7,7 +7,7 @@ inputs:
   - name: DOCKER_IMAGE
     isOptional: true
     type: str
-    value: asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
+    value: asia.gcr.io/<GCP_PROJECT_ID>/streamlit:0.1.0
   - name: SA_CRED_PATH
     description: Path to credential file for GCP service account.
     isOptional: true
