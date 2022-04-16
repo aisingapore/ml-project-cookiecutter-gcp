@@ -21,7 +21,8 @@ COOKIE_INPUTS = {
         "user_input": "{{cookiecutter.gcp_project_id}}",
         "regex": r"^[a-z0-9](?:-?[a-z0-9]+)*$"},
     "author_name": {
-        "user_input": "{{cookiecutter.author_name}}"},
+        "user_input": "{{cookiecutter.author_name}}",
+        "regex": r"^[a-z](?:_?[a-z0-9]+)*$"},
     "open_source_license": {
         "user_input": "{{cookiecutter.open_source_license}}"}
 }
@@ -56,6 +57,11 @@ def check_input_regex(cookie_input_key, cookie_input_val):
         if cookie_input_key == "gcp_project_id":
             ERROR_MSG_LIST.append("ERROR: %s - '%s' is not a valid GCP project ID."
                 % (cookie_input_key, cookie_input_val["user_input"]))
+
+        if cookie_input_key == "author_name":
+            if "{{cookiecutter.gcr_personal_subdir}}" == "Yes":
+                ERROR_MSG_LIST.append("ERROR: %s - '%s' is not a valid GCR subdirectory name."
+                    % (cookie_input_key, cookie_input_val["user_input"]))
 
 
 def check_cookiecutter_inputs():

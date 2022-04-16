@@ -2,8 +2,8 @@
 
 ## Components Flowchart
 
-The images below showcases the different components that this guide
-will touch upon as well as how each of them relate to each other.
+The images below showcase the different components that this guide
+will cover as well as how each of them relate to each other.
 
 !!! info
     The diagrams follow the
@@ -59,13 +59,13 @@ be found
 
 If you would like to view or create Kubernetes (GKE) resources within
 development environments (or even on your own local machine), you can
-run the following command to connect to the
-`tekong-exp-cluster` cluster which by default
+run the following command to connect to the GKE
+cluster which by default
 your user or service account
 should have access to:
 
 ```bash
-$ gcloud container clusters get-credentials tekong-exp-cluster --zone asia-southeast1-c --project {{cookiecutter.gcp_project_id}}
+$ gcloud container clusters get-credentials <NAME_OF_CLUSTER> --zone asia-southeast1-c --project {{cookiecutter.gcp_project_id}}
 ```
 
 After obtaining the credentials and configurations for the GKE cluster,
@@ -101,38 +101,12 @@ __Reference(s):__
 - [Kubernetes Docs - Volumes](https://kubernetes.io/docs/concepts/storage/volumes/)
 - [NetApp - What are Kubernetes persistent volumes?](https://www.netapp.com/knowledge-center/what-is-kubernetes-persistent-volumes/)
 
-### Node Specifications
-
-Below lists the default specifications for the nodes that make up the
-GKE cluster (`tekong-exp-cluster`) of each GCP project:
-
-__CPU Node Pool (`cpu-np0`):__
-
-- Autoscales from a minimum of 1 node to a maximum of 3
-- Each machine is of type `e2-standard-16`
-    - 16 vCPU
-    - 64GB memory
-
-__GPU Node Pool (`cpu-np0`):__
-
-- Autoscales from a minimum of 0 node to a maximum of 1
-- Machine is of type `a2-highgpu-1g`
-    - 12 vCPU
-    - 85 GB memory
-    - 3 GPUs are made available with 10 vRAM each
-
-__Reference(s):__
-
-- [Kubernetes Docs - Nodes](https://kubernetes.io/docs/concepts/architecture/nodes/)
-- [GCP Compute Engine Guides - Machine Type Families](https://cloud.google.com/compute/docs/general-purpose-machines)
-- [GCP GKE Guides - Cluster Autoscaler Overview](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-autoscaler#overview)
-
 ## Polyaxon
 
 [Polyaxon](https://polyaxon.com) is an MLOps platform that provides a
 suite of features for AI engineers to facilitate their end-to-end
 machine learning workflows. The platform is to be deployed on a GKE
-cluster; the Platforms and MLOps team would have set the platform up for
+cluster; the Platforms team would have set the platform up for
 your team upon creation of the GCP project. AI engineers need not worry
 about having to administer the platform as end-consumers of the
 platform.
@@ -231,6 +205,8 @@ specification to the server for the kind of request you are making.
 Polyaxonfiles can be written and defined in several formats
 (YAML, JSON, Python, and some other languages) but in
 AI Singapore's context, we will be sticking with YAML.
+Polyaxonfile boilerplates can be found under
+`aisg-context/polyaxon/polyaxonfiles`.
 
 Head over [here](https://polyaxon.com/docs/core/specification/) for the
 official documentation on Polyaxonfiles.
@@ -273,7 +249,7 @@ __Jobs:__
 
 One example of such components is "jobs". You can run jobs for training
 models, data preprocessing or any generic tasks that are executable
-within Docker images. Whenever you need to execute a pipeline or a
+within Docker containers. Whenever you need to execute a pipeline or a
 one-off task, "jobs" is the right runtime to go for.
 
 __Reference(s):__
@@ -290,7 +266,7 @@ be accessible via a browser, a Jupyter Lab server or a REST API server.
 
 __Reference(s):__
 
-- [Polyaxon Docs - Services Introduction](https://polyaxon.com/docs/experimentation/)
+- [Polyaxon Docs - Services Introduction](https://polyaxon.com/docs/experimentation/services/)
 
 We will dive deeper into these concepts and the usage of each one of
 them in later sections.
@@ -304,18 +280,34 @@ access to these credentials, you need to carry out the following:
 1. Download a service account key to your local machine (or obtain it
    from the lead engineer/MLOps team) and rename it to
    `gcp-service-account.json`. Take note of the client email detailed
-   in the JSON file. The client email should be of the following
-   convention: `aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com`.
-2. Create a Kubernetes secret on your Kubernetes (GKE) cluster,
+   in the JSON file. The client email should look something like
+   the following:
+   `<SA_CLIENT_EMAIL_FROM_SA_KEY>@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com`.
+1. Create a Kubernetes secret on your Kubernetes (GKE) cluster,
    within the same namespace where Polyaxon is deployed: `polyaxon-v1`.
-3. Configure Polyaxonfiles to refer to these secrets.
+2. Configure Polyaxonfiles to refer to these secrets.
+
+Before creating the secrets, do check if they already exist:
+
+=== "Linux/macOS"
+
+    ```bash
+    $ kubectl get secret --namespace=polyaxon-v1 | grep -E 'gcp-imagepullsecrets|gcp-sa-credentials'
+    ```
+
+=== "Windows PowerShell"
+
+    ```bash
+    $ kubectl get secret --namespace=polyaxon-v1 | Select-String "gcp-imagepullsecrets"
+    $ kubectl get secret --namespace=polyaxon-v1 | Select-String "gcp-sa-credentials"
+    ```
 
 Here are the commands to be executed for creating the secrets:
 
 === "Linux/macOS"
 
     ```bash
-    $ export SA_CLIENT_EMAIL="aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com"
+    $ export SA_CLIENT_EMAIL=<SA_CLIENT_EMAIL_FROM_SA_KEY>
     $ export PATH_TO_SA_JSON_FILE=<PATH_TO_SA_JSON_FILE>
     $ kubectl create secret docker-registry gcp-imagepullsecrets \
       --docker-server=https://asia.gcr.io \
@@ -331,7 +323,7 @@ Here are the commands to be executed for creating the secrets:
 === "Windows PowerShell"
 
     ```powershell
-    $ $SA_CLIENT_EMAIL="aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com"
+    $ $SA_CLIENT_EMAIL=<SA_CLIENT_EMAIL_FROM_SA_KEY>
     $ $PATH_TO_SA_JSON_FILE=<PATH_TO_SA_JSON_FILE>
     $ kubectl create secret docker-registry gcp-imagepullsecrets `
       --docker-server=https://asia.gcr.io `
@@ -388,11 +380,15 @@ Within the context of GCP, the
 will be used to store and version our Docker images.
 Following authorisation to `gcloud`, you can view the image repositories
 of your project's registry like so:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 ```bash
 $ gcloud container images list --repository=asia.gcr.io/{{cookiecutter.gcp_project_id}}
 ```
-
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+```bash
+$ gcloud container images list --repository=asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}
+```
+{% endif %}
 You will be pushing the Docker images to the aforementioned repository.
 
 __Reference(s):__

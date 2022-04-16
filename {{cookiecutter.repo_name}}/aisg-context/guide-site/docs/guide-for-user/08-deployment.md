@@ -9,11 +9,8 @@ our REST API. Popular examples include
 [Flask](https://flask.palletsprojects.com/en/2.0.x/),
 [Django](https://www.djangoproject.com/) and
 [Starlette](https://www.starlette.io/). For this guide however, we will
-resort to the following options:
-the well-known [FastAPI](https://fastapi.tiangolo.com/) (which is based
-on Starlette itself) and an in-house implementation of
-[Seldon Core](https://www.seldon.io/tech/products/core/), Kapitan
-Scout.
+resort to the well-known [FastAPI](https://fastapi.tiangolo.com/)
+(which is based on Starlette itself).
 
 __Reference(s):__
 
@@ -34,8 +31,8 @@ autolog). With that, we have the following pointers to take note of:
 - This guide by default uploads your artifacts to the following
   directory on GCS:
   `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
-- Artifacts for specific runs will be uploaded to a directory with the
-  following convention:
+- Artifacts for specific runs will be uploaded to a directory with a
+  convention similar to the following:
   `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/<MLFLOW_EXPERIMENT_UUID>`.
 - With this path/URI, we can use
   [`gsutil`](https://cloud.google.com/storage/docs/gsutil)
@@ -84,7 +81,7 @@ Once the ID of the MLflow run has been obtained,
 let's download the model that we intend to serve.
 Assuming you're in the root of this template's repository, execute the
 following commands:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -100,7 +97,23 @@ following commands:
     $ $PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/$Env:PRED_MODEL_UUID"
     $ gsutil cp -r $PRED_MODEL_GCS_URI .\models
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ export PRED_MODEL_UUID="<MLFLOW_EXPERIMENT_UUID>"
+    $ export PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/{{cookiecutter.author_name}}/$PRED_MODEL_UUID"
+    $ gsutil cp -r $PRED_MODEL_GCS_URI ./models
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $Env:PRED_MODEL_UUID='<MLFLOW_EXPERIMENT_UUID>'
+    $ $PRED_MODEL_GCS_URI="gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/{{cookiecutter.author_name}}/$Env:PRED_MODEL_UUID"
+    $ gsutil cp -r $PRED_MODEL_GCS_URI .\models
+    ```
+{% endif %}
 Executing the commands above will download the artifacts related to the
 experiment run `<MLFLOW_EXPERIMENT_UUID>` to this repository's
 subdirectory `models`.
@@ -133,12 +146,12 @@ Run the FastAPI server using [Gunicorn](https://gunicorn.org)
 (for Linux/macOS) or [`uvicorn`](https://www.uvicorn.org/)
 (for Windows):
 
-=== "Linux/macOS"
+!!! attention
+    Gunicorn is only executable on UNIX-based or UNIX-like systems,
+    this method would not be possible/applicable for
+    Windows machine.
 
-    !!! attention
-        Gunicorn is only executable on UNIX-based or UNIX-like systems,
-        this method would not be possible/applicable for
-        Windows machine.
+=== "Linux/macOS"
 
     ```bash
     $ conda activate {{cookiecutter.repo_name}}
@@ -229,7 +242,7 @@ reproducibility but it makes it easier for the server to be deployed
 on any server/infrastructure that can run a Docker container.
 A boilerplate
 Dockerfile is provided to containerise the FastAPI server:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -250,9 +263,34 @@ Dockerfile is provided to containerise the FastAPI server:
     $ docker build `
         -t asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0 `
         --build-arg PRED_MODEL_UUID="$Env:PRED_MODEL_UUID" `
-        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile `
+        --platform linux/amd64 .
+    ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
+
+    ```bash
+    $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    # Ensure that you are in the root of the repository
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/fastapi-server:0.1.0 \
+        --build-arg PRED_MODEL_UUID="$PRED_MODEL_UUID" \
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile \
+        --platform linux/amd64 .
     ```
 
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
+    # Ensure that you are in the root of the repository
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/fastapi-server:0.1.0 `
+        --build-arg PRED_MODEL_UUID="$Env:PRED_MODEL_UUID" `
+        -f docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile `
+        --platform linux/amd64 .
+    ```
+{% endif %}
 The Docker build command above requires an argument to be passed and it
 is basically the same unique MLflow run ID that was used above.
 The ID would then be used to create environment variables that would
@@ -265,7 +303,7 @@ into the mounted volumes and be referred to by the FastAPI Pydantic
 models.
 
 Let's try running the Docker container now:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -287,7 +325,29 @@ Let's try running the Docker container now:
         --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
         asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    # First make the `models` folder accessible to user within Docker container
+    $ sudo chgrp -R 2222 models
+    $ docker run --rm -p 8080:8080 \
+        -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
+        -v $PWD/models:/home/aisg/from-gcs \
+        --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
+        asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/fastapi-server:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ docker run --rm -p 8080:8080 `
+        -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
+        -v "$(Get-Location)\models:/home/aisg/from-gcs" `
+        --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
+        asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/fastapi-server:0.1.0
+    ```
+{% endif %}
 Let's go through a couple of the flags used above:
 
 - `--rm`: Automatically stops the container when it exits or when you
@@ -321,11 +381,15 @@ Use the same `curl` command for the server spun up by the container:
     ```
 
 Push the Docker image to the GCR:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 ```bash
 $ docker push asia.gcr.io/$GCP_PROJECT_ID/fastapi-server:0.1.0
 ```
-
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+```bash
+$ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/fastapi-server:0.1.0
+```
+{% endif %}
 With this Docker image, you can spin up a VM (Compute Engine instance)
 that has Docker installed and run the container on it for deployment.
 You can also deploy the image within a Kubernetes cluster for ease of
@@ -378,7 +442,3 @@ __Reference(s):__
 - [TensorFlow Docs - `tf.keras.models.load_model`](https://www.tensorflow.org/api_docs/python/tf/keras/models/load_model)
 - [`curl` tutorial](https://curl.se/docs/manual.html)
 - [`docker run` Reference](https://docs.docker.com/engine/reference/commandline/run/)
-
-## Model Serving (Kapitan Scout)
-
-> Coming soon...

@@ -3,24 +3,24 @@
 ## Repository Setup
 
 This repository provides an end-to-end template for AI
-Singapore's AI engineers to onboard their AI projects. This repository
-was created using AI Singapore's
+Singapore's AI engineers to onboard their AI projects and
+was created using a
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/)
 template located
 [here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp).
 Instructions for generating this template is detailed in that
-repository's
+template's repository's
 [`README.md`](https://github.com/aimakerspace/ml-project-cookiecutter-gcp/blob/master/README.md)
 .
 
 While this repository provides users with a set of boilerplates,
-you are presented with a linear guide on
-how to use these boilerplates that are rendered and customised
+here you are also presented with a linear guide on
+how to use them. The boilerplates are rendered and customised
 when you generated this
 repository using [`cruft`](https://cruft.github.io/cruft/).
 
 !!! info
-    You can start by following along the guide as it brings you through
+    You can begin by following along the guide as it brings you through
     a simple problem statement and
     once you've grasp what this template has to offer,
     you can deviate from it as much as you wish
@@ -28,7 +28,7 @@ repository using [`cruft`](https://cruft.github.io/cruft/).
 
 Since we will be making use of this repository in multiple
 environments, __ensure that this repository is pushed to a
-remote repository__.
+remote__.
 Most probably you will be resorting to
 [AI Singapore's GitLab instance](https://gitlab.aisingapore.net/) as
 the remote.
@@ -52,8 +52,7 @@ For this guide, we will work towards building a predictive model that is
 able to conduct sentiment classification for movie reviews.
 The model is then to be deployed through a REST API and used for batch
 inferencing as well.
-The raw dataset to be used is obtainable through a GCS bucket
-;
+The raw dataset to be used is obtainable through a GCS bucket;
 instructions for downloading the data into your development environment
 are detailed under
 ["Data Storage & Versioning"](./06-data-storage-versioning.md),
@@ -70,7 +69,7 @@ into your AI Singapore Google account.
 
 !!! info
     Projects are managed and
-    provisioned by AI Singapore's MLOps team.
+    provisioned by AI Singapore's Platforms team.
     If you'd like to request for a
     project to be created (or for any other enquiries as well), please
     contact `mlops@aisingapore.org`.

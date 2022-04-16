@@ -42,7 +42,7 @@ we will be spinning up a job on Polyaxon.
 This job will be using a Docker image that will be built from
 a Dockerfile (`docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile`)
 provided in this template:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -63,10 +63,31 @@ provided in this template:
         -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0 \
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile \
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0 `
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0
+    ```
+{% endif %}
 Assuming you're still connected to the Polyaxon server through
 port-forwarding, submit a job to the server like such:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -88,7 +109,29 @@ port-forwarding, submit a job to the server like such:
         -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0" \
+        -P RAW_DATA_DIRS='["/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1"]' \
+        -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/process-data.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0" `
+        -P RAW_DATA_DIRS="['/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/acl-movie-review-data-aisg/aclImdb-aisg-set1']" `
+        -P PROCESSED_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+{% endif %}
 !!! info
     If you were to inspect
     `aisg-context/polyaxon/polyaxonfiles/process-data.yml`,
@@ -154,7 +197,8 @@ has yet to be created):
     following name: `gs://{{cookiecutter.repo_name}}-artifacts`.
     The Docker images that we will be using to spin up inference
     servers will download exported model artifacts from this bucket,
-    under a subdirectory `mlflow-tracking-server`. Hence, the full path
+    under a subdirectory `mlflow-tracking-server`. Hence, the longer
+    path
     of the directory where all the model artifacts will be stored at
     will be
     `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
@@ -206,7 +250,17 @@ corner of the interface.
 
 A pop-up box follows prompting a name for the experiment
 and a location for artifacts to be stored at.
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
+For the current use case, let's make use of the following path
+for location of artifacts:
+`gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+For the current use case, let's make use of the path we have specified
+for MLflow artifacts, with your name appended:
+`gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/{{cookiecutter.author_name}}`.
+For name of experiment, you can specify a name like so:
+`ml-experiment-{{cookiecutter.author_name}}`.
+{% endif %}
 !!! warning
     Here are some things to take note when creating an experiment:
 
@@ -227,7 +281,7 @@ __Reference(s):__
 
 Before we submit a job to Polyaxon to train our model,
 we need to build the Docker image to be used for it:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -243,13 +297,34 @@ we need to build the Docker image to be used for it:
     ```powershell
     $ docker build `
         -t asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0 `
-        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile `
+        --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0 \
+        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile \
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0 `
+        -f docker/{{cookiecutter.repo_name}}-model-training-gpu.Dockerfile `
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0
+    ```
+{% endif %}
 Now that we have the Docker image pushed to the registry,
 we can run a job using it:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -281,7 +356,39 @@ we can run a job using it:
         -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
+    $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
+    $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0" \
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $MLFLOW_TRACKING_USERNAME='<MLFLOW_TRACKING_USERNAME>'
+    $ $MLFLOW_TRACKING_PASSWORD='<MLFLOW_TRACKING_PASSWORD>'
+    $ $CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0" `
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD `
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true `
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE`:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+{% endif %}
     !!! caution
         Do take note of the backtick (\`) before the colon
         in the value for the parameter `MLFLOW_TRACKING_URI`.
@@ -374,7 +481,7 @@ tag (`hptuning_tag`) which would essentially be the date epoch value of
 the moment
 you submitted the job to Polyaxon. This tag is defined using the
 environment value `MLFLOW_HPTUNING_TAG`.
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -402,13 +509,47 @@ environment value `MLFLOW_HPTUNING_TAG`.
         -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/model-train:0.1.0" `
         -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD `
         -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true `
-        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE`:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
         -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
         -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
         -P MLFLOW_HPTUNING_TAG=(Get-Date -UFormat %s -Millisecond 0) `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ export MLFLOW_TRACKING_USERNAME=<MLFLOW_TRACKING_USERNAME>
+    $ export MLFLOW_TRACKING_PASSWORD=<MLFLOW_TRACKING_PASSWORD>
+    $ export CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0" \
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD \
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true \
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> \
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" \
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" \
+        -P MLFLOW_HPTUNING_TAG="$(date +%s)" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $MLFLOW_TRACKING_USERNAME='<MLFLOW_TRACKING_USERNAME>'
+    $ $MLFLOW_TRACKING_PASSWORD='<MLFLOW_TRACKING_PASSWORD>'
+    $ $CLUSTER_IP_OF_MLFLOW_SERVICE=$(kubectl get service/mlflow-nginx-server-svc -o jsonpath='{.spec.clusterIP}' --namespace=polyaxon-v1)
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/train-model-gpu-hptuning.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/model-train:0.1.0" `
+        -P MLFLOW_TRACKING_USERNAME=$MLFLOW_TRACKING_USERNAME -P MLFLOW_TRACKING_PASSWORD=$MLFLOW_TRACKING_PASSWORD `
+        -P SETUP_MLFLOW=true -P MLFLOW_AUTOLOG=true `
+        -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE`:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
+        -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
+        -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
+        -P MLFLOW_HPTUNING_TAG=(Get-Date -UFormat %s -Millisecond 0) `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+{% endif %}
     !!! caution
         Do take note of the backtick (\`) before the colon
         in the value for the parameter `MLFLOW_TRACKING_URI`.
