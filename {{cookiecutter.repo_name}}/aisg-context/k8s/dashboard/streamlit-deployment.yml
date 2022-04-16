@@ -1,8 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
   name: streamlit-deployment
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+  name: streamlit-{{cookiecutter.author_name.replace('_', '-')}}-deployment
+{% endif %}
 spec:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
   selector:
     matchLabels:
       app: streamlit
@@ -10,9 +15,22 @@ spec:
     metadata:
       labels:
         app: streamlit
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+  selector:
+    matchLabels:
+      app: streamlit-{{cookiecutter.author_name.replace('_', '-')}}
+  template:
+    metadata:
+      labels:
+        app: streamlit-{{cookiecutter.author_name.replace('_', '-')}}
+{% endif %}
     spec:
       containers:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
         - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit-server:0.1.0
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/streamlit-server:0.1.0
+{% endif %}
           imagePullPolicy: Always
           name: streamlit
           resources:

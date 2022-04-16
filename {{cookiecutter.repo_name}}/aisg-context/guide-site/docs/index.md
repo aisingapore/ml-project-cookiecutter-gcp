@@ -24,20 +24,21 @@ following instructions detailed
 Inputs provided to `cookiecutter`/`cruft` for the generation of this
 template:
 
-- __`cookiecutter.project_name`:__ {{cookiecutter.project_name}}
-- __`cookiecutter.description`:__ {{cookiecutter.description}}
-- __`cookiecutter.repo_name`:__ {{cookiecutter.repo_name}}
-- __`cookiecutter.src_package_name`:__ {{cookiecutter.src_package_name}}
-- __`cookiecutter.src_package_name_short`:__ {{cookiecutter.src_package_name_short}}
-- __`cookiecutter.gcp_project_id`:__ {{cookiecutter.gcp_project_id}}
-- __`cookiecutter.author_name`:__ {{cookiecutter.author_name}}
-- __`cookiecutter.open_source_license`:__ {{cookiecutter.open_source_license}}
+- __`project_name`:__ {{cookiecutter.project_name}}
+- __`description`:__ {{cookiecutter.description}}
+- __`repo_name`:__ {{cookiecutter.repo_name}}
+- __`src_package_name`:__ {{cookiecutter.src_package_name}}
+- __`src_package_name_short`:__ {{cookiecutter.src_package_name_short}}
+- __`gcp_project_id`:__ {{cookiecutter.gcp_project_id}}
+- __`gcr_personal_subdir`:__ {{cookiecutter.gcr_personal_subdir}}
+- __`author_name`:__ {{cookiecutter.author_name}}
+- __`open_source_license`:__ {{cookiecutter.open_source_license}}
 
 There are __two separate guides__:
 
-- __[Guide (User)](./guide-for-user/01-prerequisites):__ This guide is for the users of
+- __[User Guide](./guide-for-user/01-prerequisites):__ This guide is for the users of
   the MLOps platforms and toolings.
-- __[Guide (Administrator)](./guide-for-admin/01-prerequisites):__ This guide is for
+- __[Admin Guide](./guide-for-admin/01-prerequisites):__ This guide is for
   the administrators and provisioners of the infrastructure required
   for setting up the components of the MLOps platforms and toolings.
 
@@ -57,7 +58,7 @@ There are __two separate guides__:
 4. [Development Environment](./guide-for-user/04-dev-env.md)
     - [Recommended Setup](./guide-for-user/04-dev-env.md#recommended-setup)
     - [VSCode](./guide-for-user/04-dev-env.md#vscode)
-    - [JupyterLab](./guide-for-user/04-dev-env.md#jupyter-lab)
+    - [JupyterLab](./guide-for-user/04-dev-env.md#jupyterlab)
     - [Using Docker within Polyaxon Services](./guide-for-user/04-dev-env.md#using-docker-within-polyaxon-services)
     - [Cloud SDK for Development Environment](./guide-for-user/04-dev-env.md#cloud-sdk-for-development-environment)
 5. [Virtual Environment](./guide-for-user/05-virtual-env.md)
@@ -76,7 +77,6 @@ There are __two separate guides__:
         - [Local Server](./guide-for-user/08-deployment.md#local-server)
         - [Docker Container](./guide-for-user/08-deployment.md#docker-container)
         - [Deploy to GKE](./guide-for-user/08-deployment.md#deploy-to-gke)
-    - [Model Serving (Kapitan Scout)](./guide-for-user/08-deployment.md#model-serving-kapitan-scout)
 9. [Batch Inferencing](./guide-for-user/09-batch-inferencing.md)
 10. [Continuous Integration & Deployment](./guide-for-user/10-cicd.md)
 11. [Documentation](./guide-for-user/11-documentation.md)

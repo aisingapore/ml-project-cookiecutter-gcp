@@ -7,7 +7,7 @@ instead of your own resources. We can make use of
 to spin up VSCode or JupyterLab servers with which cluster resources
 can be dedicated (except for GPUs);
 all you need on your end is a machine with WebSockets,
-a browser and a terminal.
+a browser, and a terminal.
 
 ## Recommended Setup
 
@@ -33,7 +33,7 @@ can use the Dockerfile that is provided out-of-the-box
 Docker image to be pushed to your project's container registry (GCR) or
 you can customise that same Dockerfile to your liking. Either way, you
 are to specify the image to be used for the service.
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -55,10 +55,32 @@ are to specify the image to be used for the service.
         --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/vscode-server:0.1.0
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/vscode-server:0.1.0 \
+        -f docker/{{cookiecutter.repo_name}}-poly-vscode.Dockerfile \
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/vscode-server:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/vscode-server:0.1.0 `
+        -f docker/{{cookiecutter.repo_name}}-poly-vscode.Dockerfile `
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/vscode-server:0.1.0
+    ```
+{% endif %}
 Push the configurations to the Polyaxon server to start up the VSCode
 service:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -76,7 +98,25 @@ service:
         -P WORKING_DIR="/polyaxon-v1-data" `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/vscode-service.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/vscode-server:0.1.0" \
+        -P WORKING_DIR="/polyaxon-v1-data" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```bash
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/vscode-service.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/vscode-server:0.1.0" `
+        -P WORKING_DIR="/polyaxon-v1-data" `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+{% endif %}
 - `-P` is used to pass an input for a parameter defined in the
 Polyaxonfile that is in question. In this case, we are specifying to the
 Polyaxon service that we intend to use the Docker image
@@ -131,7 +171,7 @@ Do a quick check if the directory `/polyaxon-v1-data/workspaces` exists:
 
 !!! Attention
 
-    === "If `workspaces` exists"
+    === "If `workspaces` does not exist"
 
         === "Polyaxon VSCode Terminal"
 
@@ -141,7 +181,7 @@ Do a quick check if the directory `/polyaxon-v1-data/workspaces` exists:
             $ cd /polyaxon-v1-data/workspaces/<YOUR_NAME>
             ```
 
-    === "If `workspaces` does not exist"
+    === "If `workspaces` does exist"
 
         === "Polyaxon VSCode Terminal"
 
@@ -170,8 +210,10 @@ should only use the `HTTPS` protocol to clone the repository__
 as opposed to using an `SSH` key.
 
 The path to persistent storage on Polyaxon is located at
-`/polyaxon-v1-data`. You can create your own workspace folder under
-`/polyaxon-v1-data/workspaces/<YOUR_NAME>`:
+`/polyaxon-v1-data` and you can create your own workspace folder under
+`/polyaxon-v1-data/workspaces/<YOUR_NAME>`.
+
+Now, let's clone your repository from the remote:
 
 === "Polyaxon VSCode Terminal"
 
@@ -204,7 +246,7 @@ While Jupyter Notebooks are viewable, editable and executable within
 a VSCode environment, most are still more familiar with Jupyter's
 interface for interacting with or editing notebooks. We can spin up
 a JupyterLab service on Polyaxon:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -226,10 +268,32 @@ a JupyterLab service on Polyaxon:
         --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/jupyter-server:0.1.0
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ export GCP_PROJECT_ID={{cookiecutter.gcp_project_id}}
+    $ docker build \
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/jupyter-server:0.1.0 \
+        -f docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile \
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/jupyter-server:0.1.0
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
+    $ docker build `
+        -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/jupyter-server:0.1.0 `
+        -f docker/{{cookiecutter.repo_name}}-poly-jupyter.Dockerfile `
+        --platform linux/amd64 .
+    $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/jupyter-server:0.1.0
+    ```
+{% endif %}
 Push the configurations to the Polyaxon server to start up the Jupyter
 service:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
     ```bash
@@ -247,7 +311,25 @@ service:
         -P WORKING_DIR="/polyaxon-v1-data" `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Linux/macOS"
 
+    ```bash
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml \
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/jupyter-server:0.1.0" \
+        -P WORKING_DIR="/polyaxon-v1-data" \
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+
+=== "Windows PowerShell"
+
+    ```powershell
+    $ polyaxon run -f aisg-context/polyaxon/polyaxonfiles/jupyter-service.yml `
+        -P DOCKER_IMAGE="asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/jupyter-server:0.1.0" `
+        -P WORKING_DIR="/polyaxon-v1-data" `
+        -p {{cookiecutter.repo_name}}-<YOUR_NAME>
+    ```
+{% endif %}
 Now head over to the services dashboard under your project.
 The service should be accompanied with the tags `jupyter`,
 `notebook` and `lab`.
@@ -288,7 +370,7 @@ which its path is set to the environment variable
 `GOOGLE_APPLICATION_CREDENTIALS`:
 
 ```bash
-$ gcloud auth activate-service-account aisg-100e-sa@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+$ gcloud auth activate-service-account <SA_CLIENT_EMAIL_FROM_SA_KEY>@{{cookiecutter.gcp_project_id}}.iam.gserviceaccount.com --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 ```
 
 Once the service account has been configured, examples of actions you

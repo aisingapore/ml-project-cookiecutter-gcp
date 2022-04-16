@@ -8,17 +8,37 @@ it be persisted. The following set of commands allows you to create the
 `conda` environment and store the packages within your own workspace
 directory:
 
-=== "Polyaxon VSCode Terminal"
+1. First, have VSCode open the repository that you have cloned
+   previously by heading over to the top left hand corner, selecting
+   `File > Open Folder`, and entering the path to the repository.
+   In this case, you should be navigating to the folder
+   `/polyaxon-v1-data/workspaces/<YOUR_NAME/{{cookiecutter.repo_name}}`.
 
-    ```bash
-    $ /miniconda3/bin/conda init bash
-    $ source ~/.bashrc
-    (base) $ conda env create -f {{cookiecutter.repo_name}}-conda-env.yml \
-               -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}-conda-env
-    (base) $ alias {{cookiecutter.repo_name}}-conda-env="conda activate /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}      -conda-env"
-    (base) $ {{cookiecutter.repo_name}}-conda-env
-    ({{cookiecutter.repo_name}}-conda-env) $ # conda environment has been activated
-    ```
+2. Now, let's initialise `conda` for the bash shell, and create
+   the virtual environment specified in
+   `{{cookiecutter.repo_name}}-conda-env.yml`.
+
+   === "Polyaxon VSCode Terminal"
+
+       ```bash
+       $ /miniconda3/bin/conda init bash
+       $ source ~/.bashrc
+       (base) $ cd {{cookiecutter.repo_name}}
+       (base) $ conda env create -f {{cookiecutter.repo_name}}-conda-env.yml \
+                  -p /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}-conda-env
+       ```
+
+3. After creating the `conda` environment, let's create a permanent
+   alias for easy activation.
+
+   === "Polyaxon VSCode Terminal"
+
+       ```bash
+       (base) $ echo 'alias {{cookiecutter.repo_name}}-conda-env="conda activate /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}-conda-env"' >> ~/.bashrc
+       (base) $ source ~/.bashrc
+       (base) $ {{cookiecutter.repo_name}}-conda-env
+       ({{cookiecutter.repo_name}}-conda-env) $ # conda environment has been activated
+       ```
 
 !!! tip
     If you encounter issues in trying to install Python libraries,
@@ -47,6 +67,7 @@ __Reference(s):__
 
 - [`conda` Docs - Managing environments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file)
 - [StackOverflow - "Pip install killed - out of memory - how to get around it?"](https://stackoverflow.com/questions/57058641/pip-install-killed-out-of-memory-how-to-get-around-it)
+- [phoenixNAP - Linux alias Command: How to Use It With Examples](https://phoenixnap.com/kb/linux-alias-command#:~:text=In%20Linux%2C%20an%20alias%20is,and%20avoiding%20potential%20spelling%20errors.)
 
 ## Jupyter Kernel for VSCode
 
@@ -55,26 +76,45 @@ environments, some other additional steps are required for Polyaxon
 VSCode service to detect the `conda` environments that you would have
 created.
 
-1. Install the VSCode extensions
+1. Ensure that you are in a project folder which you intend to work
+   on. You can open a folder through `File > Open Folder`.
+   In this case, you should be navigating to the folder
+   `/polyaxon-v1-data/workspaces/<YOUR_NAME/{{cookiecutter.repo_name}}`.
+
+2. Install the VSCode extensions
    [`ms-python.python`](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
    and
    [`ms-toolsai.jupyter`](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
    . After installation of these extensions, restart VSCode by using
-   the shortcut `Ctrl + P`, entering `Developer: Reload Window` in the
+   the shortcut `Ctrl + Shift + P`, entering `Developer: Reload Window` in the
    prompt and pressing `Enter` following that.
-2. Ensure that you have
+
+3. Ensure that you have
    [`ipykernel`](https://ipython.readthedocs.io/en/stable/install/kernel_install.html)
    installed in the `conda` environment that you intend to use.
    This template by default lists the library as a dependency under
-   `{{cookiecutter.repo_name}}-conda-env.yml`.
-3. Now enter `Ctrl + P` again and execute `Python: Select Interpreter`.
+   `{{cookiecutter.repo_name}}-conda-env.yml`. You can check for the
+   library like so:
+
+   === "Polyaxon VSCode Terminal"
+
+       ```bash
+       $ conda list | grep "ipykernel"
+       ipykernel  6.9.2  pypi_0  pypi
+       ```
+
+4. Now enter `Ctrl + Shift + P` again and execute `Python: Select Interpreter`.
    Provide the path to the Python executable within the `conda`
    environment that you intend to use, something like so:
    `path/to/conda_env/bin/python`.
-4. Open up any Jupyter notebook and click on the button that says
+
+5. Open up any Jupyter notebook and click on the button that says
    `Select Kernel` on the top right hand corner. You will be presented
    with a selection of Python interpreters. Select the one that
    corresponds to the environment you intend to use.
+
+6. Test out the kernel by running the cells in the sample notebook
+   provided under `notebooks/sample-tf-classification.ipynb`.
 
 ## Jupyter Kernel for JupyterLab
 
@@ -83,22 +123,47 @@ would not by default detect `conda` environments. You would have to
 specify to the JupyterLab installation the `ipython` kernel existing
 within your `conda` environment.
 
-1. Ensure that you have
+1. Open up a
+   [terminal within JupyterLab](https://jupyterlab.readthedocs.io/en/stable/user/terminal.html)
+   .
+
+2. Activate the `conda` environment in question and ensure that you have
    [`ipykernel`](https://ipython.readthedocs.io/en/stable/install/kernel_install.html)
    installed in the `conda` environment that you intend to use.
    This template by default lists the library as a dependency under
-   `{{cookiecutter.repo_name}}-conda-env.yml`.
-2. Open up a
-   [terminal within JupyterLab](https://jupyterlab.readthedocs.io/en/stable/user/terminal.html)
-   .
-3. Activate the `conda` environment in question and run the following
-   ```bash
-   $ ipython kernel install --name "name_of_environment" --user
-   ```
+   `{{cookiecutter.repo_name}}-conda-env.yml`. You can check for the
+   library like so:
+
+   === "JupyterLab Terminal"
+
+       ```bash
+       $ conda activate /polyaxon-v1-data/workspaces/<YOUR_NAME>/conda_envs/{{cookiecutter.repo_name}}-conda-env
+       $ conda list | grep "ipykernel"
+       ipykernel  6.9.2  pypi_0  pypi
+       ```
+
+3. Within the `conda` environment, execute the following:
+
+   === "JupyterLab Terminal"
+
+       ```bash
+       $ ipython kernel install --name "{{cookiecutter.repo_name}}-conda-env" --user
+       ```
+
 4. Refresh the JupyterLab instance.
+
    ![Polyaxon v1- JupyterLab Service Interface Refresh](../assets/screenshots/polyaxon-v1-jupyter-service-refresh.png)
+
 5. Within each Jupyter notebook, you can select the kernel of
    specific `conda` environments that you intend to use by heading to
    the toolbar under
    `Kernel` -> `Change Kernel...`.
-  ![Polyaxon v1- JupyterLab Service Interface Change Kernel](../assets/screenshots/polyaxon-v1-jupyter-service-change-kernel.png)
+
+   ![Polyaxon v1- JupyterLab Service Interface Change Kernel](../assets/screenshots/polyaxon-v1-jupyter-service-change-kernel.png)
+
+6. Test out the kernel by running the cells in the sample notebook
+   provided under `notebooks/sample-tf-classification.ipynb`.
+
+__Reference(s):__
+
+- [Jupyter Docs - Kernels (Programming Languages)](https://docs.jupyter.org/en/latest/projects/kernels.html)

@@ -183,7 +183,7 @@ __Reference(s):__
 
 The template has thus far introduced a couple of Docker images relevant
 for the team. The tags for all the Docker images are listed below:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 - `asia.gcr.io/{{cookiecutter.gcp_project_id}}/vscode-server`
 - `asia.gcr.io/{{cookiecutter.gcp_project_id}}/jupyter-server`
 - `asia.gcr.io/{{cookiecutter.gcp_project_id}}/data-prep`
@@ -191,11 +191,19 @@ for the team. The tags for all the Docker images are listed below:
 - `asia.gcr.io/{{cookiecutter.gcp_project_id}}/fastapi-server`
 - `asia.gcr.io/{{cookiecutter.gcp_project_id}}/batch-inference`
 - `asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit`
-
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/vscode-server`
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/jupyter-server`
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/data-prep`
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/model-train`
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/fastapi-server`
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/batch-inference`
+- `asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/streamlit`
+{% endif %}
 The `build` stage aims at automating the building of these Docker
 images in a parallel manner. Let's look at a snippet for a single job
 that builds a Docker image:
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "`.gitlab-ci.yml`"
 
     ```yaml
@@ -226,7 +234,38 @@ that builds a Docker image:
         - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     ...
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "`.gitlab-ci.yml`"
 
+    ```yaml
+    ...
+    build:fastapi-server-image:
+      stage: build
+      image:
+        name: gcr.io/kaniko-project/executor:debug
+        entrypoint: [""]
+      variables:
+        GOOGLE_APPLICATION_CREDENTIALS: /kaniko/gcp-sa.json
+      script:
+        - mkdir -p /kaniko/.docker
+        - cat $GCP_SERVICE_ACCOUNT_KEY > /kaniko/gcp-sa.json
+        - >-
+          /kaniko/executor
+          --context "${CI_PROJECT_DIR}"
+          --dockerfile "${CI_PROJECT_DIR}/docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile"
+          --build-arg PRED_MODEL_UUID=${PRED_MODEL_UUID}
+          --destination "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/fastapi-server:${CI_COMMIT_SHORT_SHA}"
+      rules:
+        - if: $CI_MERGE_REQUEST_IID
+          changes:
+            - docker/{{cookiecutter.repo_name}}-fastapi.Dockerfile
+            - src/**/*
+            - conf/**/*
+            - scripts/**/*
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    ...
+    ```
+{% endif %}
 !!! note
     You would have noticed that the jobs for building images utilise the
     command `/kaniko/executor` as opposed to `docker build` which most
@@ -280,7 +319,7 @@ __retag__ the Docker image that exists on GCR with the tag that is being
 pushed. The relevant images to be retagged are originally tagged with
 the short commit hash obtained from the commit that was pushed
 to the default branch before this.
-
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "`.gitlab-ci.yml`"
 
     ```yaml
@@ -305,7 +344,32 @@ to the default branch before this.
         - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     ...
     ```
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "`.gitlab-ci.yml`"
 
+    ```yaml
+    ...
+    build:retag-images:
+      stage: build
+      image:
+        name: google/cloud-sdk:debian_component_based
+      variables:
+        GOOGLE_APPLICATION_CREDENTIALS: /gcp-sa.json
+      script:
+        - cat $GCP_SERVICE_ACCOUNT_KEY > /gcp-sa.json
+        - gcloud auth activate-service-account --key-file=/gcp-sa.json
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/vscode-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/vscode-server:${CI_COMMIT_TAG}"
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/jupyter-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/jupyter-server:${CI_COMMIT_TAG}"
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/data-prep:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/data-prep:${CI_COMMIT_TAG}"
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/model-train:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/model-train:${CI_COMMIT_TAG}"
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/fastapi-server:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/fastapi-server:${CI_COMMIT_TAG}"
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/batch-inference:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/batch-inference:${CI_COMMIT_TAG}"
+        - gcloud container images add-tag --quiet "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/streamlit:${CI_COMMIT_SHORT_SHA}" "asia.gcr.io/${GCP_PROJECT_ID}/{{cookiecutter.author_name}}/streamlit:${CI_COMMIT_TAG}"
+      rules:
+        - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    ...
+    ```
+{% endif %}
 __Reference(S):__
 
 - [GitHub Docs - GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow)

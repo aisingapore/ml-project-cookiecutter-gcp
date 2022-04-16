@@ -1,9 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
   name: fastapi-server-svc
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+  name: fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-svc
+{% endif %}
 spec:
   ports:
   - port: 8080
   selector:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
     app: fastapi-server
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+    app: fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}
+{% endif %}

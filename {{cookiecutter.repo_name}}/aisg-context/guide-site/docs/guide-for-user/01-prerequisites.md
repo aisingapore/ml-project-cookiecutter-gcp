@@ -15,6 +15,7 @@ follow through with the guide:
           for installation guides.
     - __Web browser__
     - __Terminal__
+    - __[Git](https://git-scm.com/downloads)__
     - __[Docker Engine](https://docs.docker.com/engine/install):__
       Client-server application for containerising applications as well
       as interacting with the Docker daemon.
@@ -35,7 +36,7 @@ follow through with the guide:
 
 !!! info
     Wherever relevant, you can toggle between the different commands
-    that needs to be executed
+    that need to be executed
     for either Linux/macOS or the Windows environment (PowerShell).
     See below for an example:
 
