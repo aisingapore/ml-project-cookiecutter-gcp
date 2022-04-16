@@ -23,14 +23,15 @@ following instructions detailed
 Inputs provided to `cookiecutter`/`cruft` for the generation of this
 template:
 
-- __`cookiecutter.project_name`:__ {{cookiecutter.project_name}}
-- __`cookiecutter.description`:__ {{cookiecutter.description}}
-- __`cookiecutter.repo_name`:__ {{cookiecutter.repo_name}}
-- __`cookiecutter.src_package_name`:__ {{cookiecutter.src_package_name}}
-- __`cookiecutter.src_package_name_short`:__ {{cookiecutter.src_package_name_short}}
-- __`cookiecutter.gcp_project_id`:__ {{cookiecutter.gcp_project_id}}
-- __`cookiecutter.author_name`:__ {{cookiecutter.author_name}}
-- __`cookiecutter.open_source_license`:__ {{cookiecutter.open_source_license}}
+- __`project_name`:__ {{cookiecutter.project_name}}
+- __`description`:__ {{cookiecutter.description}}
+- __`repo_name`:__ {{cookiecutter.repo_name}}
+- __`src_package_name`:__ {{cookiecutter.src_package_name}}
+- __`src_package_name_short`:__ {{cookiecutter.src_package_name_short}}
+- __`gcp_project_id`:__ {{cookiecutter.gcp_project_id}}
+- __`gcr_personal_subdir`:__ {{cookiecutter.gcr_personal_subdir}}
+- __`author_name`:__ {{cookiecutter.author_name}}
+- __`open_source_license`:__ {{cookiecutter.open_source_license}}
 
 ## End-to-end Guide
 
@@ -53,7 +54,8 @@ To spin up the site on your local machine, you can create a virtual
 environment to install the dependencies first:
 
 ```bash
-$ conda create -n aisg-eptg-gcp-guide python=3.7.9
+$ conda create -n aisg-eptg-gcp-guide python=3.8.13
+$ conda activate aisg-eptg-gcp-guide
 $ pip install -r aisg-context/guide-site/mkdocs-requirements.txt
 ```
 
@@ -64,6 +66,5 @@ dependencies, serve it like so:
 $ mkdocs serve --config-file aisg-context/guide-site/mkdocs.yml
 ```
 
-The site will then be viewable on
-[`http://localhost:8000`](http://localhost:8000)
-.
+The site for the guide will then be viewable on
+[`http://localhost:8000`](http://localhost:8000).
