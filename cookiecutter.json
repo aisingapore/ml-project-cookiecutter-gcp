@@ -2,7 +2,7 @@
     "project_name": "Name of project (not name of repository). Use whitespace instead of underscores or hyphens.",
     "description": "A short description of the project.",
     "repo_name": "{{ cookiecutter.project_name.lower().replace(' ', '-').replace('_', '-') }}",
-    "src_package_name": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "src_package_name": "{{ cookiecutter.repo_name.replace('-', '_') }}",
     "src_package_name_short": "{{ cookiecutter.src_package_name }}",
     "gcp_project_id": "ID of your GCP project.",
     "gcr_personal_subdir": ["Yes", "No"],
