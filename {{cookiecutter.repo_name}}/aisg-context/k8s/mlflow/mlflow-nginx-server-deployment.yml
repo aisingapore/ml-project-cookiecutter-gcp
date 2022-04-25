@@ -28,6 +28,9 @@ spec:
           volumeMounts:
             - name: mlflow-persistent-storage
               mountPath: /polyaxon-v1-data
+            - name: gcp-service-account
+              mountPath: "/var/secret/cloud.google.com"
+              readOnly: true
           env:
             - name: MLFLOW_TRACKING_USERNAME
               valueFrom:
@@ -44,9 +47,14 @@ spec:
                 secretKeyRef:
                   name: mlflow-nginx-server-secrets
                   key: databaseUri
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/var/secret/cloud.google.com/gcp-service-account.json"
       imagePullSecrets:
         - name: gcp-imagepullsecrets
       volumes:
         - name: mlflow-persistent-storage
           persistentVolumeClaim:
             claimName: fstore-rwx-pvc
+        - name: gcp-service-account
+          secret:
+            secretName: "gcp-sa-credentials"
