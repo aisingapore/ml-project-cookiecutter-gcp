@@ -1,5 +1,10 @@
 # Job Orchestration
 
+Even though we can set up development workspaces to execute jobs and
+workflows, these environments often have limited access to resources.
+To carry out heavier workloads, we encourage the usage of job
+orchestration features that the Polyaxon platform has.
+
 Jobs are submitted to the Polyaxon server and executed within Docker
 containers. These images are either pulled from a registry or built upon
 a job's submission. The names and definitions of images are specified in
@@ -15,7 +20,7 @@ on how to access the dashboard for Polyaxon and create a project.
 ## Pipeline Configuration
 
 In this template, Hydra is the configuration framework of choice for the
-data preparation and model training pipelines script (or any
+data preparation and model training pipelines (or any
 pipelines that doesn't belong to the model serving aspects).
 
 The configurations for logging, pipelines and hyperparameter tuning
@@ -60,7 +65,8 @@ provided in this template:
     $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
     $ docker build `
         -t asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0 `
-        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile `
+        --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/data-prep:0.1.0
     ```
 {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
@@ -81,7 +87,8 @@ provided in this template:
     $ $GCP_PROJECT_ID='{{cookiecutter.gcp_project_id}}'
     $ docker build `
         -t asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0 `
-        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile .
+        -f docker/{{cookiecutter.repo_name}}-data-prep.Dockerfile `
+        --platform linux/amd64 .
     $ docker push asia.gcr.io/$GCP_PROJECT_ID/{{cookiecutter.author_name}}/data-prep:0.1.0
     ```
 {% endif %}
@@ -210,14 +217,6 @@ has yet to be created):
     Creating gs://{{cookiecutter.repo_name}}-artifacts/...
     ```
 
-!!! note
-    Something to take note for the future is that
-    GCS buckets are to adhere to the naming guidelines set by GCP, one
-    of which is that bucket names must be globally unique.
-    See
-    [here](https://cloud.google.com/storage/docs/naming-buckets)
-    for more information on naming guidelines for GCS buckets.
-
 Now, let's access the MLflow Tracking server's dashboard
 to create an experiment for us to log runs to. Open a
 separate terminal and run the following:
@@ -324,6 +323,26 @@ we need to build the Docker image to be used for it:
 {% endif %}
 Now that we have the Docker image pushed to the registry,
 we can run a job using it:
+
+!!! attention
+
+    If the GKE cluster is without GPU nodes, the __Polyaxonfiles would
+    have to be edited__ to remove any request for GPUs (otherwise
+    the job cannot be scheduled).
+
+    __Delete the following lines:__
+    ```yaml
+    ...
+        tolerations:
+          - key: "nvidia.com/gpu"
+            operator: "Equal"
+            value: "present"
+            effect: "NoSchedule"
+    ...
+            nvidia.com/gpu: 1
+    ...
+    ```
+
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
@@ -400,13 +419,14 @@ we can run a job using it:
 
 For many ML problems, we would
 be bothered with finding the optimal parameters to train our models
-with. While we are able to override and set the values for the
-parameters for our model training workflows, imagine having to sweep
-through a distribution of values with steps within a set range. For
-example, if you were seek for the optimal learning rate for training
-our model within a log space, we would have to execute
-`polyaxon run` multiple times manually just to provide the training
-script with different learning rate value each time. It is reasonable
+with. While we are able to override the parameters
+for our model training workflows, imagine having to sweep
+through a distribution of values. For
+example, if you were to seek for the optimal learning rate
+within a log space, we would have to execute
+`polyaxon run` a myriad of times manually, just to provide
+the training
+script with a different learning rate value each time. It is reasonable
 that one seeks for ways to automate this workflow.
 
 [Optuna](https://optuna.readthedocs.io/en/stable/) is an optimisation

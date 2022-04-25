@@ -1,5 +1,7 @@
 # Prerequisites
 
+## Software & Tooling Prerequisites
+
 Aside from an internet connection, you would need the following to
 follow through with the guide:
 

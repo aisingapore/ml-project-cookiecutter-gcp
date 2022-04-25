@@ -6,7 +6,7 @@ __Customised for `{{cookiecutter.project_name}}`__.
 
 __Project Description:__ {{cookiecutter.description}}
 
-This template that also serves as a guide was generated using the
+This template (which also serves as a guide) was generated using the
 following
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/stable/)
 template:

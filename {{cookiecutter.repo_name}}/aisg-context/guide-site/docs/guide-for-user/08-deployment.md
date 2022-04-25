@@ -1,8 +1,8 @@
 # Deployment
 
 Assuming we have a predictive model that we are satisfied with, we can
-serve the model within a REST API with which requests can be made to
-and we will be provided with predictions.
+serve it within a REST API service with which requests can be made to
+and predictions are returned.
 
 Python has plenty of web frameworks that we can leverage on to build
 our REST API. Popular examples include
@@ -28,12 +28,21 @@ autolog). With that, we have the following pointers to take note of:
 - When artifacts are uploaded to GCS through MLflow,
   the artifacts are located within directories named after the
   unique IDs of the runs.
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
 - This guide by default uploads your artifacts to the following
   directory on GCS:
   `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server`.
 - Artifacts for specific runs will be uploaded to a directory with a
   convention similar to the following:
   `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/<MLFLOW_EXPERIMENT_UUID>`.
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+- This guide by default uploads your artifacts to the following
+  directory on GCS:
+  `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/{{cookiecutter.author_name}}`.
+- Artifacts for specific runs will be uploaded to a directory with a
+  convention similar to the following:
+  `gs://{{cookiecutter.repo_name}}-artifacts/mlflow-tracking-server/{{cookiecutter.author_name}}/<MLFLOW_EXPERIMENT_UUID>`.
+{% endif %}
 - With this path/URI, we can use
   [`gsutil`](https://cloud.google.com/storage/docs/gsutil)
   to download the predictive model from GCS into a mounted volume when
@@ -310,6 +319,7 @@ Let's try running the Docker container now:
     # First make the `models` folder accessible to user within Docker container
     $ sudo chgrp -R 2222 models
     $ docker run --rm -p 8080:8080 \
+        --name fastapi-server \
         -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
         -v $PWD/models:/home/aisg/from-gcs \
         --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
@@ -320,6 +330,7 @@ Let's try running the Docker container now:
 
     ```powershell
     $ docker run --rm -p 8080:8080 `
+        --name fastapi-server `
         -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
         -v "$(Get-Location)\models:/home/aisg/from-gcs" `
         --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
@@ -332,6 +343,7 @@ Let's try running the Docker container now:
     # First make the `models` folder accessible to user within Docker container
     $ sudo chgrp -R 2222 models
     $ docker run --rm -p 8080:8080 \
+        --name fastapi-server \
         -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
         -v $PWD/models:/home/aisg/from-gcs \
         --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
@@ -342,6 +354,7 @@ Let's try running the Docker container now:
 
     ```powershell
     $ docker run --rm -p 8080:8080 `
+        --name fastapi-server `
         -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
         -v "$(Get-Location)\models:/home/aisg/from-gcs" `
         --env GOOGLE_APPLICATION_CREDENTIALS="/var/secret/cloud.google.com/gcp-service-account.json" `
@@ -380,6 +393,12 @@ Use the same `curl` command for the server spun up by the container:
         'localhost:8080/api/v1/model/predict'
     ```
 
+To stop the container:
+
+```bash
+$ docker container stop fastapi-server
+```
+
 Push the Docker image to the GCR:
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
 ```bash
@@ -397,23 +416,43 @@ scaling.
 
 ### Deploy to GKE
 
+!!! warning
+
+    As this mode of deployment would take up resources in a
+    long-running manner, please tear it down once you've
+    gone through this part of the guide. If you do not have the right
+    permissions, please request assistance from your team lead or the
+    administrators.
+
 To deploy the FastAPI server on GKE, you can make use of the sample
 Kubernetes manifest files provided with this template:
 
-```bash
-$ kubectl apply -f aisg-context/k8s/model-serving-api/fastapi-server-deployment.yml --namespace=polyaxon-v1
-$ kubectl apply -f aisg-context/k8s/model-serving-api/fastapi-server-service.yml --namespace=polyaxon-v1
-```
+=== "Local Machine"
+
+    ```bash
+    $ kubectl apply -f aisg-context/k8s/model-serving-api/fastapi-server-deployment.yml --namespace=polyaxon-v1
+    $ kubectl apply -f aisg-context/k8s/model-serving-api/fastapi-server-service.yml --namespace=polyaxon-v1
+    ```
 
 To access the server, you can port-forward the service to a local port
 like such:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
+=== "Local Machine"
 
-```bash
-$ kubectl port-forward service/fastapi-server-svc 8080:8080 --namespace=polyaxon-v1
-Forwarding from 127.0.0.1:8080 -> 8080
-Forwarding from [::1]:8080 -> 8080
-```
+    ```bash
+    $ kubectl port-forward service/fastapi-server-svc 8080:8080 --namespace=polyaxon-v1
+    Forwarding from 127.0.0.1:8080 -> 8080
+    Forwarding from [::1]:8080 -> 8080
+    ```
+{% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Local Machine"
 
+    ```bash
+    $ kubectl port-forward service/fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-svc 8080:8080 --namespace=polyaxon-v1
+    Forwarding from 127.0.0.1:8080 -> 8080
+    Forwarding from [::1]:8080 -> 8080
+    ```
+{% endif %}
 You can view the documentation for the API at
 [`http://localhost:8080/docs`](http://localhost:8080/docs). You can also
 make a request to the API like so:
@@ -434,6 +473,27 @@ make a request to the API like so:
         '{\"reviews\": [{\"id\": 9176, \"text\": \"This movie is quite boring.\"}, {\"id\": 71, \"text\": \"This movie is awesome.\"}]}', `
         'localhost:8080/api/v1/model/predict'
     ```
+
+!!! attention
+
+    Please tear down the deployment and service objects once they are
+    not required.
+
+    {% if cookiecutter.gcr_personal_subdir == 'No' %}
+    === "Local Machine"
+
+        ```bash
+        $ kubectl delete fastapi-server-deployment --namespace=polyaxon-v1
+        $ kubectl delete fastapi-server-svc --namespace=polyaxon-v1
+        ```
+    {% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+    === "Local Machine"
+
+        ```bash
+        $ kubectl delete fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-deployment --namespace=polyaxon-v1
+        $ kubectl delete fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
+        ```
+    {% endif %}
 
 __Reference(s):__
 

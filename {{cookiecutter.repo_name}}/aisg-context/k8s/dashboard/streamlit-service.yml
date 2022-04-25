@@ -3,15 +3,15 @@ kind: Service
 metadata:
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
   name: streamlit-svc
-{%- elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
   name: streamlit-{{cookiecutter.author_name.replace('_', '-')}}-svc
-{%- endif %}
+{% endif %}
 spec:
   ports:
   - port: 8501
   selector:
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
     app: streamlit
-{%- elif cookiecutter.gcr_personal_subdir == 'Yes' %}
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
     app: streamlit-{{cookiecutter.author_name.replace('_', '-')}}
-{%- endif %}
+{% endif %}

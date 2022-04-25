@@ -3,13 +3,9 @@
 ## Repository Setup
 
 This repository provides an end-to-end template for AI
-Singapore's AI engineers to onboard their AI projects and
-was created using a
-[`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/)
-template located
-[here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp).
-Instructions for generating this template is detailed in that
-template's repository's
+Singapore's AI engineers to onboard their AI projects.
+Instructions for generating this template is detailed in the
+`cookiecutter` template's repository's
 [`README.md`](https://github.com/aimakerspace/ml-project-cookiecutter-gcp/blob/master/README.md)
 .
 
@@ -42,6 +38,8 @@ the local repository to remote:
 $ git init
 $ git remote add origin <REMOTE_URL>
 $ git add .
+$ git config user.email "<YOUR_AISG_EMAIL>"
+$ git config user.name "<YOUR_NAME>"
 $ git commit -m "Initial commit."
 $ git push -u origin master
 ```

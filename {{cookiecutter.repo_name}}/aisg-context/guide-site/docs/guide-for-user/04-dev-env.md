@@ -31,8 +31,8 @@ The VSCode service to be created will be using a Docker image. You
 can use the Dockerfile that is provided out-of-the-box
 `docker/{{cookiecutter.repo_name}}-poly-vscode.Dockerfile` to build a
 Docker image to be pushed to your project's container registry (GCR) or
-you can customise that same Dockerfile to your liking. Either way, you
-are to specify the image to be used for the service.
+you can customise that same Dockerfile to your liking.
+Let's build the image:
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
 === "Linux/macOS"
 
@@ -129,8 +129,8 @@ dedicating the service or job to.
 
 Now head over to the services dashboard under your project. The link to
 your services would be as such -
-`http://localhost:8888/ui/default/{{cookiecutter.repo_name}}-<YOUR_NAME>/services`
-. The interface should look something like the following:
+`http://localhost:8888/ui/default/{{cookiecutter.repo_name}}-<YOUR_NAME>/services`.
+The interface should look something like the following:
 
 ![Polyaxon v1 - Services Dashboard](../assets/screenshots/polyaxon-v1-services-dashboard.png)
 

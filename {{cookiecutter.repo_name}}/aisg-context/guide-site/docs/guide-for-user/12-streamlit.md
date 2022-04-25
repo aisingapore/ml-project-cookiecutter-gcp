@@ -1,8 +1,8 @@
 <!-- omit in toc -->
 # Streamlit
 
-There are 4 main ways we recommend when spinning up a Streamlit
-application for quick dashboarding:
+There are 4 main ways we recommend to spin up Streamlit
+applications for quick dashboarding:
 
 - [Local Execution](#local-execution)
 - [Docker Container](#docker-container)
@@ -21,11 +21,11 @@ to get your inputs and show your outputs from.
 
 While it is possible for Streamlit to interact with the FastAPI
 deployment backend as a frontend engine/interface,
-we would only focus on interacting with the model
-directly after downloading from GCS for simplicities' sake. For small
-scale infrastructure, this would be better in terms of simplicity and
-efficiency. Otherwise, if big scalability is a factor, then consider
-the other method.
+for simplicities' sake,
+we will only dealing with the use case where
+Streamlit application directly loads the predictive model downloaded
+from GCS. For small scale infrastructure or prototyping,
+this would be sufficient in terms of simplicity and efficiency.
 
 This template provides:
 
@@ -148,8 +148,9 @@ After building the image, you can run the container like so:
 === "Linux/macOS"
 
     ```bash
-    $ chgrp -R 2222 outputs
+    $ sudo chgrp -R 2222 outputs
     $ docker run --rm -p 8501:8501 \
+        --name streamlit-app \
         --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
         -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
         -v $PWD/models:/home/aisg/from-gcs \
@@ -160,6 +161,7 @@ After building the image, you can run the container like so:
 
     ```powershell
     $ docker run --rm -p 8501:8501 `
+        --name streamlit-app `
         --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json `
         -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
         -v "$(Get-Location)\models:/home/aisg/from-gcs" `
@@ -169,8 +171,9 @@ After building the image, you can run the container like so:
 === "Linux/macOS"
 
     ```bash
-    $ chgrp -R 2222 outputs
+    $ sudo chgrp -R 2222 outputs
     $ docker run --rm -p 8501:8501 \
+        --name streamlit-app \
         --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json \
         -v <PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json \
         -v $PWD/models:/home/aisg/from-gcs \
@@ -181,6 +184,7 @@ After building the image, you can run the container like so:
 
     ```powershell
     $ docker run --rm -p 8501:8501 `
+        --name streamlit-app `
         --env GOOGLE_APPLICATION_CREDENTIALS=/var/secret/cloud.google.com/gcp-service-account.json `
         -v "<PATH_TO_SA_JSON_FILE>:/var/secret/cloud.google.com/gcp-service-account.json" `
         -v "$(Get-Location)\models:/home/aisg/from-gcs" `
@@ -196,7 +200,19 @@ After building the image, you can run the container like so:
   the host machine to be used by the container after being mounted to
   `/home/aisg/from-gcs`.
 
+To stop the container:
+
+```bash
+$ docker container stop streamlit-app
+```
+
 ## Integration with Polyaxon
+
+!!! attention
+
+    As this mode of deployment would take up resources in a
+    long-running manner, please tear the service down through
+    the dashboard once you've gone through this part of the guide.
 
 From the Docker build section, push the Docker image to GCR:
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
@@ -217,7 +233,6 @@ Streamlit dashboard:
     $ polyaxon run \
       -f aisg-context/polyaxon/polyaxonfiles/streamlit-service.yml \
       -P DOCKER_IMAGE="asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0" \
-      -P WORKING_DIR="/polyaxon-v1-data" \
       -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 
@@ -227,7 +242,6 @@ Streamlit dashboard:
     $ polyaxon run `
       -f aisg-context/polyaxon/polyaxonfiles/streamlit-service.yml `
       -P DOCKER_IMAGE="asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0" `
-      -P WORKING_DIR="/polyaxon-v1-data" `
       -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
@@ -237,7 +251,6 @@ Streamlit dashboard:
     $ polyaxon run \
       -f aisg-context/polyaxon/polyaxonfiles/streamlit-service.yml \
       -P DOCKER_IMAGE="asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/streamlit:0.1.0" \
-      -P WORKING_DIR="/polyaxon-v1-data" \
       -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 
@@ -247,7 +260,6 @@ Streamlit dashboard:
     $ polyaxon run `
       -f aisg-context/polyaxon/polyaxonfiles/streamlit-service.yml `
       -P DOCKER_IMAGE="asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/streamlit:0.1.0" `
-      -P WORKING_DIR="/polyaxon-v1-data" `
       -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% endif %}
@@ -256,6 +268,14 @@ __Reference(s):__
 - [Polyaxon - Integrations](https://polyaxon.com/integrations/streamlit/)
 
 ## Native Kubernetes Deployment (GKE)
+
+!!! attention
+
+    As this mode of deployment would take up resources in a
+    long-running manner, please tear it down once you've
+    gone through this part of the guide. If you do not have the right
+    permissions, please request assistance from your team lead or the
+    administrators.
 
 Similar to deploying [the FastAPI server](08-deployment.md#deploy-to-gke),
 to deploy the Streamlit dashboard on GKE, you can make use of the
@@ -268,9 +288,40 @@ $ kubectl apply -f aisg-context/k8s/dashboard/streamlit-service.yml --namespace=
 
 To access the server, you can port-forward the service to a local port
 like such:
+{% if cookiecutter.gcr_personal_subdir == 'No' %}
+=== "Local Machine"
 
-```bash
-$ kubectl port-forward service/streamlit-svc 8501:8501 --namespace=polyaxon-v1
-Forwarding from 127.0.0.1:8501 -> 8501
-Forwarding from [::1]:8501 -> 8501
-```
+    ```bash
+    $ kubectl port-forward service/streamlit-svc 8501:8501 --namespace=polyaxon-v1
+    Forwarding from 127.0.0.1:8501 -> 8501
+    Forwarding from [::1]:8501 -> 8501
+    ```
+{% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+=== "Local Machine"
+
+    ```bash
+    $ kubectl port-forward service/streamlit-{{cookiecutter.author_name.replace('_', '-')}}-svc 8501:8501 --namespace=polyaxon-v1
+    Forwarding from 127.0.0.1:8501 -> 8501
+    Forwarding from [::1]:8501 -> 8501
+    ```
+{% endif %}
+!!! attention
+
+    Please tear down the deployment and service objects once they are
+    not required.
+
+    {% if cookiecutter.gcr_personal_subdir == 'No' %}
+    === "Local Machine"
+
+        ```bash
+        $ kubectl delete streamlit-deployment --namespace=polyaxon-v1
+        $ kubectl delete streamlit-svc --namespace=polyaxon-v1
+        ```
+    {% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+    === "Local Machine"
+
+        ```bash
+        $ kubectl delete streamlit-{{cookiecutter.author_name.replace('_', '-')}}-deployment --namespace=polyaxon-v1
+        $ kubectl delete fastapi-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
+        ```
+    {% endif %}

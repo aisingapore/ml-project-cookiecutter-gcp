@@ -14,9 +14,9 @@ in-house tool for uploading data: UDP. When data is uploaded to GCS
 through UDP, a GCS bucket is populated with timestamped directories
 containing whatever raw that was uploaded.
 
-For example, assuming your project ID is `ai-proj-aut0`,
-a GCS bucket with the same name `ai-proj-aut0` exists. The tree in the
-bucket can look something like this:
+__For example__, assuming your GCP project ID is `ai-proj-aut0`,
+a GCS bucket with a similar name like `ai-proj-aut0` should exist.
+The tree in the bucket can look something like this:
 
 ```bash
 .
@@ -95,17 +95,27 @@ Say one would like to create a GCS bucket with the name
 `{{cookiecutter.repo_name}}-proc-data`, the following command can
 be used:
 
-```bash
-$ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-proc-data
-Creating gs://{{cookiecutter.repo_name}}-proc-data/...
-```
+=== "Local Machine / Polyaxon VSCode Terminal"
+
+    ```bash
+    $ gsutil mb -p {{cookiecutter.gcp_project_id}} -c STANDARD -l ASIA-SOUTHEAST1 -b on gs://{{cookiecutter.repo_name}}-proc-data
+    Creating gs://{{cookiecutter.repo_name}}-proc-data/...
+    ```
+
+!!! note
+    Something to take note for the future is that
+    GCS buckets are to adhere to the naming guidelines set by GCP, one
+    of which is that bucket names must be globally unique.
+    See
+    [here](https://cloud.google.com/storage/docs/naming-buckets)
+    for more information on naming guidelines for GCS buckets.
 
 ## Sample Data
 
 While you may have your own project data to work with, for the purpose
 of following through with this template guide, let's download
 the sample data for the
-[problem statement](./02-preface.md#guides-problem-statement)
+[sample problem statement](./02-preface.md#guides-problem-statement)
 at hand.
 
 !!! info

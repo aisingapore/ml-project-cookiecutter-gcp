@@ -287,7 +287,7 @@ access to these credentials, you need to carry out the following:
    within the same namespace where Polyaxon is deployed: `polyaxon-v1`.
 2. Configure Polyaxonfiles to refer to these secrets.
 
-Before creating the secrets, do check if they already exist:
+Before creating the secrets, do check if they already exist first:
 
 === "Linux/macOS"
 
@@ -337,7 +337,9 @@ Here are the commands to be executed for creating the secrets:
     ```
 
 Make sure that the Polyaxonfiles for the jobs and services that requires
-your service account credentials have the following configurations:
+your service account credentials have the following configurations
+(these snippets are included in the rendered Polyaxonfiles
+by default):
 
 ```yaml
 ...
@@ -362,6 +364,16 @@ run:
         mountPath: /var/secret/cloud.google.com
 ...
 ```
+
+By configuring and specifying the secrets in your Polyaxonfiles like
+the above, you would be able to utilise the `gcloud` or `gsutil`
+commands within your containerised jobs/services. Here are some
+examples:
+
+- use private Docker images from GCR to spin up jobs/services on
+  Polyaxon
+- uploading model artifacts to GCS buckets within model training jobs
+- interact with GKE cluster(s) within Polyaxon jobs/services
 
 __Reference(s):__
 
