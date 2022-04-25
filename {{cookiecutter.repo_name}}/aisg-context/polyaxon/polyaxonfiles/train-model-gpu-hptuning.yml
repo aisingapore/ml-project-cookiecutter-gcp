@@ -8,6 +8,12 @@ inputs:
     isOptional: true
     type: str
     value: asia.gcr.io/<GCP_PROJECT_ID>/model-train:0.1.0
+  - name: POLYAXON_RUN_UUID
+    description: UUID for Polyaxon job.
+    isOptional: true
+    type: str
+    value: "{{ globals.uuid }}"
+    toEnv: POLYAXON_RUN_UUID
   - name: MLFLOW_TRACKING_USERNAME
     description: Username for MLflow Tracking server.
     isOptional: false
@@ -86,11 +92,11 @@ run:
     ]
     resources:
       requests:
-        memory: "25Gi"
+        memory: "8Gi"
         cpu: "3"
         nvidia.com/gpu: 1
       limits:
-        memory: "25Gi"
+        memory: "8Gi"
         cpu: "3"
         nvidia.com/gpu: 1
     volumeMounts:
