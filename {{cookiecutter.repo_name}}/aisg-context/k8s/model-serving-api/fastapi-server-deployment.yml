@@ -38,8 +38,8 @@ spec:
               memory: "4Gi"
               cpu: "4"
             limits:
-              memory: "8Gi"
-              cpu: "8"
+              memory: "4Gi"
+              cpu: "4"
           ports:
             - containerPort: 8080
               name: fastapi-server
