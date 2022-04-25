@@ -27,9 +27,9 @@ spec:
     spec:
       containers:
 {% if cookiecutter.gcr_personal_subdir == 'No' %}
-        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit-server:0.1.0
+        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/streamlit:0.1.0
 {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
-        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/streamlit-server:0.1.0
+        - image: asia.gcr.io/{{cookiecutter.gcp_project_id}}/{{cookiecutter.author_name}}/streamlit:0.1.0
 {% endif %}
           imagePullPolicy: Always
           name: streamlit
@@ -38,8 +38,8 @@ spec:
               memory: "4Gi"
               cpu: "4"
             limits:
-              memory: "8Gi"
-              cpu: "8"
+              memory: "4Gi"
+              cpu: "4"
           ports:
             - containerPort: 8501
               name: streamlit
