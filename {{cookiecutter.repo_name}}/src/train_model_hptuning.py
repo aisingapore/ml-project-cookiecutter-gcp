@@ -33,6 +33,13 @@ def main(args):
             mlflow_init_status, "log_params",
             params=args["train"])
 
+    if "POLYAXON_RUN_UUID" in os.environ:
+        {{cookiecutter.src_package_name_short}}.general_utils.\
+            mlflow_log(
+                mlflow_init_status, "log_param",
+                key="polyaxon_run_uuid",
+                value=os.environ["POLYAXON_RUN_UUID"])
+
     datasets = {{cookiecutter.src_package_name_short}}.modeling.data_loaders.\
         load_datasets(hydra.utils.get_original_cwd(), args)
 
