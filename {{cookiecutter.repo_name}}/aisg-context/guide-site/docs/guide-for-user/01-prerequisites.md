@@ -11,7 +11,9 @@ follow through with the guide:
 - PC with the following installed:
     - If your machine is with a Windows OS, use
       [__PowerShell__](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2)
-      instead of the default Command (`cmd.exe`) shell
+      instead of the default Command (`cmd.exe`) shell. Best if you
+      resort to
+      [Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/).
     - __Pulse Secure__
         - Refer to [NUS IT eGuides](https://nusit.nus.edu.sg/eguides/)
           for installation guides.
@@ -29,7 +31,7 @@ follow through with the guide:
       CLI for interacting with GCP resources.
     - __[`kubectl`](https://kubernetes.io/docs/tasks/tools/):__
       CLI for Kubernetes.
-    - __[`helm`](https://helm.sh/docs/intro/install/):__
+    - *(Optional)* __[`helm`](https://helm.sh/docs/intro/install/):__
       CLI for Kubernetes' package manager.
 - Access to a project on
   [Google Cloud Platform](https://console.cloud.google.com).

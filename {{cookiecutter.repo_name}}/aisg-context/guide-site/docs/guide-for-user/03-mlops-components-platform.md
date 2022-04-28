@@ -111,8 +111,8 @@ your team upon creation of the GCP project. AI engineers need not worry
 about having to administer the platform as end-consumers of the
 platform.
 
-To verify if Polyaxon has been deployed on your GKE cluster, run the
-following command:
+To verify if Polyaxon has been deployed on your GKE cluster,
+you can run the following command:
 
 ```bash
 $ helm list --namespace polyaxon-v1
@@ -152,7 +152,7 @@ $ polyaxon port-forward --port=8888 --namespace=polyaxon-v1
     === "Linux/macOS"
 
         ```bash
-        $ polyaxon port-forward --port=8888 --namespace=polyaxon-v1 &
+        $ polyaxon port-forward --port=8888 --namespace=polyaxon-v1 & > /dev/null 2>&1 &
         ```
 
     === "Windows PowerShell"

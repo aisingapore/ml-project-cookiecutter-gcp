@@ -242,6 +242,11 @@ if you intend to use Jupyter notebooks within the VSCode environment.
 
 ## JupyterLab
 
+!!! attention
+    Setting up of a JupyterLab server is optional and not needed
+    as a VSCode service is sufficient as a developer workspace.
+    Resources are limited so use only what you need.
+
 While Jupyter Notebooks are viewable, editable and executable within
 a VSCode environment, most are still more familiar with Jupyter's
 interface for interacting with or editing notebooks. We can spin up

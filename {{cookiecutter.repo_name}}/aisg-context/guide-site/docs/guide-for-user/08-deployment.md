@@ -444,7 +444,7 @@ like such:
     Forwarding from 127.0.0.1:8080 -> 8080
     Forwarding from [::1]:8080 -> 8080
     ```
-{% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
 === "Local Machine"
 
     ```bash
@@ -478,7 +478,6 @@ make a request to the API like so:
 
     Please tear down the deployment and service objects once they are
     not required.
-
     {% if cookiecutter.gcr_personal_subdir == 'No' %}
     === "Local Machine"
 
@@ -486,7 +485,7 @@ make a request to the API like so:
         $ kubectl delete fastapi-server-deployment --namespace=polyaxon-v1
         $ kubectl delete fastapi-server-svc --namespace=polyaxon-v1
         ```
-    {% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+    {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
     === "Local Machine"
 
         ```bash

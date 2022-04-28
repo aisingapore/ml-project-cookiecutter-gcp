@@ -296,7 +296,7 @@ like such:
     Forwarding from 127.0.0.1:8501 -> 8501
     Forwarding from [::1]:8501 -> 8501
     ```
-{% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+{% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
 === "Local Machine"
 
     ```bash
@@ -309,7 +309,6 @@ like such:
 
     Please tear down the deployment and service objects once they are
     not required.
-
     {% if cookiecutter.gcr_personal_subdir == 'No' %}
     === "Local Machine"
 
@@ -317,7 +316,7 @@ like such:
         $ kubectl delete streamlit-deployment --namespace=polyaxon-v1
         $ kubectl delete streamlit-svc --namespace=polyaxon-v1
         ```
-    {% if cookiecutter.gcr_personal_subdir == 'Yes' %}
+    {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
     === "Local Machine"
 
         ```bash

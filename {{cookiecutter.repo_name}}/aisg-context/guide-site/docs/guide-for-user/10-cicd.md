@@ -165,7 +165,7 @@ the job will only execute for the following cases:
 The job defined above fails
 under any of the following conditions:
 
-- The source code does not meet a linting score of at least 7.0.
+- The source code does not meet a linting score of at least 6.5.
 - The source code fails whatever tests have been defined under
   `src/tests`.
 
