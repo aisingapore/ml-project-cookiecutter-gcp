@@ -95,6 +95,10 @@ Spin up the Streamlit application locally:
         inference.model_path=$Env:PRED_MODEL_PATH
     ```
 
+The application would look like the screenshot below:
+
+![Streamlit App - Local Execution](../assets/screenshots/streamlit-app-local-exec.png)
+
 __Reference(s):__
 
 - [Streamlit Docs - Run Streamlit apps](https://docs.streamlit.io/library/advanced-features/configuration#run-streamlit-apps)
@@ -263,6 +267,12 @@ Streamlit dashboard:
       -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% endif %}
+Just like with the VSCode or JupyterLab services, you can access
+the Streamlit service you've just spun up through the Polyaxon
+dashboard:
+
+![Streamlit App - Polyaxon Service](../assets/screenshots/streamlit-app-poly-service.png)
+
 __Reference(s):__
 
 - [Polyaxon - Integrations](https://polyaxon.com/integrations/streamlit/)
@@ -321,6 +331,9 @@ like such:
 
         ```bash
         $ kubectl delete streamlit-{{cookiecutter.author_name.replace('_', '-')}}-deployment --namespace=polyaxon-v1
-        $ kubectl delete fastapi-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
+        $ kubectl delete streamlit-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
         ```
     {% endif %}
+    If you do not have the right
+    permissions, please request assistance from your team lead or the
+    administrators.

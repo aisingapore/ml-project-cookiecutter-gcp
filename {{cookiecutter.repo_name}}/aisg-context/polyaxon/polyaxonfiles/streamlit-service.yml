@@ -2,7 +2,7 @@ version: 1.1
 kind: component
 name: streamlit-dashboard
 description: Dashboard using Streamlit.
-tags: [streamlit, dashboard, keras, gpu]
+tags: [streamlit, dashboard, keras]
 inputs:
   - name: DOCKER_IMAGE
     isOptional: true
