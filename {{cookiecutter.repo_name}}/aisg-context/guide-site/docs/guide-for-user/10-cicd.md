@@ -53,15 +53,15 @@ pipeline.
 Before we can make use of the GitLab CI pipeline, we would have to
 define the following variables for the pipeline beforehand:
 
-- `GCP_PROJECT_ID`: The ID for the project's GCP project.
-- `GCP_SERVICE_ACCOUNT_KEY`: Contents of the service account's
-  JSON file that is to be used for pushing the images to the
-  project's GCR.
+- `GCP_PROJECT_ID`: The ID of the GCP project for which container images
+  are to be pushed to or where apps are to be deployed to.
+- `GCP_SERVICE_ACCOUNT_KEY`: A service account's
+  JSON key that is to be used for communicating with GCP services.
 - `PRED_MODEL_UUID`: Unique ID of the MLflow run associated with a
-  default model to be used for the images of the following services:
-  batch inferencing, FastAPI server and Streamlit app.
-  Technically, this can be UUID for any baseline model as it can be
-  overridden when the containers are being run.
+  default model to be used for building the images of the following
+  services: batch inferencing, FastAPI server and Streamlit app.
+  Technically, this can be UUID for any baseline model or an arbitrary
+  string as it can be overridden when the containers are being run.
 
 To define CI/CD variables for a project (repository), follow the steps
 listed

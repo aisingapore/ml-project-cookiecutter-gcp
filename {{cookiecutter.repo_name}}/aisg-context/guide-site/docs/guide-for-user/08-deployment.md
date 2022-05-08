@@ -493,6 +493,9 @@ make a request to the API like so:
         $ kubectl delete fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
         ```
     {% endif %}
+    If you do not have the right
+    permissions, please request assistance from your team lead or the
+    administrators.
 
 __Reference(s):__
 
