@@ -22,7 +22,7 @@ COOKIE_INPUTS = {
         "regex": r"^[a-z0-9](?:-?[a-z0-9]+)*$"},
     "author_name": {
         "user_input": "{{cookiecutter.author_name}}",
-        "regex": r"^[a-z](?:_?[a-z0-9]+)*$"},
+        "regex": r"^[a-zA-Z](?:_?[a-zA-Z0-9]+)*$"},
     "open_source_license": {
         "user_input": "{{cookiecutter.open_source_license}}"}
 }

@@ -108,7 +108,10 @@ be used:
     of which is that bucket names must be globally unique.
     See
     [here](https://cloud.google.com/storage/docs/naming-buckets)
-    for more information on naming guidelines for GCS buckets.
+    for more information on naming guidelines for GCS buckets. DO look
+    into the naming conventions for GCS objects
+    [here](https://cloud.google.com/storage/docs/naming-objects)
+    as well.
 
 ## Sample Data
 
