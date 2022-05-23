@@ -532,7 +532,7 @@ environment value `MLFLOW_HPTUNING_TAG`.
         -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE`:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
         -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
         -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
-        -P MLFLOW_HPTUNING_TAG=(Get-Date -UFormat %s -Millisecond 0) `
+        -P MLFLOW_HPTUNING_TAG=$(Get-Date -UFormat %s -Millisecond 0) `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
@@ -566,7 +566,7 @@ environment value `MLFLOW_HPTUNING_TAG`.
         -P MLFLOW_TRACKING_URI="http://$CLUSTER_IP_OF_MLFLOW_SERVICE`:5005" -P MLFLOW_EXP_NAME=<MLFLOW_EXPERIMENT_NAME> `
         -P WORKING_DIR="/home/aisg/{{cookiecutter.repo_name}}" `
         -P INPUT_DATA_DIR="/polyaxon-v1-data/workspaces/<YOUR_NAME>/data/processed/aclImdb-aisg-combined" `
-        -P MLFLOW_HPTUNING_TAG=(Get-Date -UFormat %s -Millisecond 0) `
+        -P MLFLOW_HPTUNING_TAG=$(Get-Date -UFormat %s -Millisecond 0) `
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% endif %}

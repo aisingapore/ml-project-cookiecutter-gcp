@@ -129,7 +129,7 @@ dedicating the service or job to.
 
 Now head over to the services dashboard under your project. The link to
 your services would be as such -
-`http://localhost:8888/ui/default/{{cookiecutter.repo_name}}-<YOUR_NAME>/services`.
+`http://localhost:8117/ui/default/{{cookiecutter.repo_name}}-<YOUR_NAME>/services`.
 The interface should look something like the following:
 
 ![Polyaxon v1 - Services Dashboard](../assets/screenshots/polyaxon-v1-services-dashboard.png)

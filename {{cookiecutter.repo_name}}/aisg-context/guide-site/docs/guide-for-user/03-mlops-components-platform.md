@@ -138,10 +138,10 @@ At any point of time you would like __to interact with the Polyaxon
 server, you would need port forwarding of the Polyaxon Kubernetes
 service to your localhost__.
 You can do port forwarding to a port on the localhost with
-the Polyaxon CLI (we'll go ahead with the port `8888`):
+the Polyaxon CLI (we'll go ahead with the port `8117`):
 
 ```bash
-$ polyaxon port-forward --port=8888 --namespace=polyaxon-v1
+$ polyaxon port-forward --port=8117 --namespace=polyaxon-v1
 ```
 
 !!! tip
@@ -152,13 +152,13 @@ $ polyaxon port-forward --port=8888 --namespace=polyaxon-v1
     === "Linux/macOS"
 
         ```bash
-        $ polyaxon port-forward --port=8888 --namespace=polyaxon-v1 & > /dev/null 2>&1 &
+        $ polyaxon port-forward --port=8117 --namespace=polyaxon-v1 & > /dev/null 2>&1 &
         ```
 
     === "Windows PowerShell"
 
         ```powershell
-        $ Start-Process polyaxon -ArgumentList "port-forward --port=8888 --namespace=polyaxon-v1"
+        $ Start-Process polyaxon -ArgumentList "port-forward --port=8117 --namespace=polyaxon-v1"
         ```
 
     However, for Linux/macOS, to end these processes that are running in
@@ -168,7 +168,7 @@ $ polyaxon port-forward --port=8888 --namespace=polyaxon-v1
     [this resource](https://itsfoss.com/how-to-find-the-process-id-of-a-program-and-kill-it-quick-tip/)
     on how to kill running (background) processes.
 
-Open up a browser and head over to `localhost:8888`. You should see an
+Open up a browser and head over to `localhost:8117`. You should see an
 interface as such:
 
 ![Polyaxon v1 - Projects Dashboard](../assets/screenshots/polyaxon-v1-projects-dashboard.png)
@@ -178,13 +178,13 @@ to configure the host for the CLI and create a project within the
 platform:
 
 ```bash
-$ polyaxon config set --host=http://localhost:8888
+$ polyaxon config set --host=http://localhost:8117
 $ polyaxon project create --name {{cookiecutter.repo_name}}-<YOUR_NAME>
 ```
 
 After the command above, you should see a project with the name you've
 specified above in the
-[projects dashboard](http://localhost:8888/ui/orgs/default/projects).
+[projects dashboard](http://localhost:8117/ui/orgs/default/projects).
 
 __Reference(s):__
 
