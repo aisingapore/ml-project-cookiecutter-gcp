@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mlflow-sqlitedb-backup-job
+spec:
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 60 # after 1 minute the job and the pods will be deleted by k8s
+      template:
+        spec:
+          containers:
+            - name: google-cloud-sdk
+              image: google/cloud-sdk:slim
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/bash","-c"]
+              args:
+                - gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS;
+                  gsutil cp /polyaxon-v1-data/mlflow.db gs://{{cookiecutter.repo_name}}-artifacts/mlflow-db-files/$(date +"%d%m%Y_%H%M%S")_utc_mlflow.db
+              volumeMounts:
+                - name: mlflow-persistent-storage
+                  mountPath: /polyaxon-v1-data
+                - name: gcp-service-account
+                  mountPath: "/var/secret/cloud.google.com"
+                  readOnly: true
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: "/var/secret/cloud.google.com/gcp-service-account.json"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: gcp-imagepullsecrets
+          volumes:
+            - name: mlflow-persistent-storage
+              persistentVolumeClaim:
+                claimName: fstore-rwx-pvc
+            - name: gcp-service-account
+              secret:
+                secretName: "gcp-sa-credentials"
