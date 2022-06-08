@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: mlflow-sqlitedb-backup-job
 spec:
-  schedule: "*/30 * * * *"
+  schedule: "30 03 * * 0,2,4,6"
   jobTemplate:
     spec:
       ttlSecondsAfterFinished: 60 # after 1 minute the job and the pods will be deleted by k8s
