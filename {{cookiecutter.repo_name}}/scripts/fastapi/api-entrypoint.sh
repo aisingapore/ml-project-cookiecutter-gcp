@@ -10,4 +10,4 @@ if [ ! -d "$PRED_MODEL_PATH" ]; then
 fi
 
 cd src
-gunicorn {{cookiecutter.src_package_name}}_fastapi.main:APP -b 0.0.0.0:8080 -w 4 -k uvicorn.workers.UvicornWorker
+gunicorn {{cookiecutter.src_package_name}}_fastapi.main:APP -b 0.0.0.0:8080 -w 4 -k uvicorn.workers.UvicornWorker --timeout 90
