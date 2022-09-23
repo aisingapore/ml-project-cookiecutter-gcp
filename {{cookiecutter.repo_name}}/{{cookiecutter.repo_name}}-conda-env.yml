@@ -29,3 +29,4 @@ dependencies:
     - streamlit==1.7.0
     - click==7.1.2
     - cruft==2.9.0
+    - protobuf==3.20.*
