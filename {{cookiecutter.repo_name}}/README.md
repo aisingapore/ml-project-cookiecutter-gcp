@@ -11,13 +11,13 @@ generated and customised using the
 following
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/stable/)
 template:
-https://github.com/aimakerspace/ml-project-cookiecutter-gcp
+https://github.com/aisingapore/ml-project-cookiecutter-gcp
 
 The contents of the guide have been customised
 according to the inputs provided upon generation of this repository
 through the usage of [`cruft`](https://cruft.github.io/cruft/),
 following instructions detailed
-[here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp/blob/master/README.md)
+[here](https://github.com/aisingapore/ml-project-cookiecutter-gcp/blob/master/README.md)
 .
 
 Inputs provided to `cookiecutter`/`cruft` for the generation of this
@@ -47,7 +47,7 @@ the contents are optimised for viewing through
 specifically)
 .
 A demo of the site for the guide can be viewed
-[here](https://aimakerspace.github.io/ml-project-cookiecutter-gcp)
+[here](https://aisingapore.github.io/ml-project-cookiecutter-gcp)
 .
 
 To spin up the site on your local machine, you can create a virtual

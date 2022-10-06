@@ -27,7 +27,7 @@ an argument, like such:
 
 ```bash
 $ pip install cruft
-$ cruft create https://github.com/aimakerspace/ml-project-cookiecutter-gcp
+$ cruft create https://github.com/aisingapore/ml-project-cookiecutter-gcp
 ```
 
 __Note:__ `cruft` can quickly validate whether or not a project is using

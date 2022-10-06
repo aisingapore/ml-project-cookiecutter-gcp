@@ -10,7 +10,7 @@ This template (which also serves as a guide) was generated using the
 following
 [`cookiecutter`](https://cookiecutter.readthedocs.io/en/stable/)
 template:
-https://github.com/aimakerspace/ml-project-cookiecutter-gcp
+https://github.com/aisingapore/ml-project-cookiecutter-gcp
 
 This `mkdocs` site is for serving the contents of the end-to-end
 guide in a more readable manner, as opposed to plain
@@ -18,7 +18,7 @@ Markdown views. The contents of this guide have been customised
 according to the inputs provided upon generation of this repository
 through the usage of [`cruft`](https://cruft.github.io/cruft/),
 following instructions detailed
-[here](https://github.com/aimakerspace/ml-project-cookiecutter-gcp/blob/master/README.md)
+[here](https://github.com/aisingapore/ml-project-cookiecutter-gcp/blob/master/README.md)
 .
 
 Inputs provided to `cookiecutter`/`cruft` for the generation of this
