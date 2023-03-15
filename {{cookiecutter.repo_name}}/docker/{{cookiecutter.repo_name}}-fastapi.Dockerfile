@@ -10,7 +10,7 @@ ARG HOME_DIR="/home/$PROJECT_USER"
 
 ARG CONDA_HOME="/miniconda3"
 ARG CONDA_BIN="$CONDA_HOME/bin/conda"
-ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
+ARG MINI_CONDA_SH="Miniconda3-py39_4.12.0-Linux-x86_64.sh"
 
 ARG PRED_MODEL_UUID
 RUN test -n "$PRED_MODEL_UUID"

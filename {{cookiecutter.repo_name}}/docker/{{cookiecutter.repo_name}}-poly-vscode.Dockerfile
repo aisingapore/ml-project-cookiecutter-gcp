@@ -11,7 +11,7 @@ ARG CODE_SERVER_BINARY_NAME="code-server_4.0.1_amd64.deb"
 # Miniconda arguments
 ARG CONDA_HOME="/miniconda3"
 ARG CONDA_BIN="$CONDA_HOME/bin/conda"
-ARG MINI_CONDA_SH="Miniconda3-latest-Linux-x86_64.sh"
+ARG MINI_CONDA_SH="Miniconda3-py39_4.12.0-Linux-x86_64.sh"
 
 RUN apt-get update \
     && apt-get install -y \
