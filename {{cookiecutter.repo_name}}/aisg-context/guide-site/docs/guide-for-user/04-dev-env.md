@@ -117,6 +117,13 @@ service:
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% endif %}
+
+!!! attention
+    For Windows users, do not use Git Bash while running `polyaxon run`.
+    Git Bash unnecessarily adds extra path locationg after
+    `/polyaxon-v1-data` for some reason, so use a different shell
+    instead.
+
 - `-P` is used to pass an input for a parameter defined in the
 Polyaxonfile that is in question. In this case, we are specifying to the
 Polyaxon service that we intend to use the Docker image
@@ -335,6 +342,13 @@ service:
         -p {{cookiecutter.repo_name}}-<YOUR_NAME>
     ```
 {% endif %}
+
+!!! attention
+    For Windows users, do not use Git Bash while running `polyaxon run`.
+    Git Bash unnecessarily adds extra path locationg after
+    `/polyaxon-v1-data` for some reason, so use a different shell
+    instead.
+
 Now head over to the services dashboard under your project.
 The service should be accompanied with the tags `jupyter`,
 `notebook` and `lab`.

@@ -1,20 +1,23 @@
-name: {{cookiecutter.repo_name}}
+name: {{cookiecutter.repo_name}}-m1
 channels:
   - defaults
   - conda-forge
+  - apple
 dependencies:
   - python=3.8.13
+  - tensorflow-deps==2.7.0
   - pip=22.0.4
   - pip:
     - sqlalchemy==1.4.39
-    - pandas==1.1.5
-    - numpy==1.20.0
+    - pandas==1.5.3
+    - numpy==1.21.6
     - matplotlib==3.5.1
     - ipykernel==6.9.2
     - mlflow==1.22.0
     - pylint==2.6.0
     - pytest-cov==2.10.1
-    - tensorflow==2.8.0
+    - tensorflow-macos==2.8.0
+    - tensorflow-metal==0.4.0
     - tensorflow_hub==0.10.0
     - pyyaml==5.4.1
     - python-json-logger==2.0.2

@@ -1,8 +1,8 @@
 version: 1.1
 kind: component
-name: train-model-gpu-hptuning
-description: Job for training a predictive model using GPU.
-tags: [model_training, keras, gpu, hptuning]
+name: train-model-cpu
+description: Job for training a predictive model using CPU.
+tags: [model_training, keras, cpu]
 inputs:
   - name: DOCKER_IMAGE
     isOptional: true
@@ -56,21 +56,11 @@ inputs:
     description: The directory where input data is located at.
     type: str
     isOptional: false
-  - name: MLFLOW_HPTUNING_TAG
-    description: Tag for all experiments within a single Optuna study.
-    isOptional: false
-    type: str
-    toEnv: MLFLOW_HPTUNING_TAG
 run:
   kind: job
   connections: [fstore-pvc]
   environment:
     imagePullSecrets: ["gcp-imagepullsecrets"]
-    tolerations:
-      - key: "nvidia.com/gpu"
-        operator: "Equal"
-        value: "present"
-        effect: "NoSchedule"
   volumes:
     - name: gcp-service-account
       secret:
@@ -82,8 +72,7 @@ run:
     command: ["/bin/bash","-c"]
     args: [
       "source ~/.bashrc &&
-      python src/train_model_hptuning.py
-      --multirun
+      python src/train_model.py
       train.setup_mlflow={{ SETUP_MLFLOW }}
       train.mlflow_autolog={{ MLFLOW_AUTOLOG }}
       train.mlflow_tracking_uri={{ MLFLOW_TRACKING_URI }}
@@ -94,11 +83,9 @@ run:
       requests:
         memory: "8Gi"
         cpu: "3"
-        nvidia.com/gpu: 1
       limits:
         memory: "8Gi"
         cpu: "3"
-        nvidia.com/gpu: 1
     volumeMounts:
       - name: gcp-service-account
         mountPath: /var/secret/cloud.google.com
