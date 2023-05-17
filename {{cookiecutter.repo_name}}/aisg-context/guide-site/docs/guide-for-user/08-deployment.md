@@ -482,15 +482,15 @@ make a request to the API like so:
     === "Local Machine"
 
         ```bash
-        $ kubectl delete fastapi-server-deployment --namespace=polyaxon-v1
-        $ kubectl delete fastapi-server-svc --namespace=polyaxon-v1
+        $ kubectl delete deploy/fastapi-server-deployment --namespace=polyaxon-v1
+        $ kubectl delete svc/fastapi-server-svc --namespace=polyaxon-v1
         ```
     {% elif cookiecutter.gcr_personal_subdir == 'Yes' %}
     === "Local Machine"
 
         ```bash
-        $ kubectl delete fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-deployment --namespace=polyaxon-v1
-        $ kubectl delete fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
+        $ kubectl delete deploy/fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-deployment --namespace=polyaxon-v1
+        $ kubectl delete svc/fastapi-server-{{cookiecutter.author_name.replace('_', '-')}}-svc --namespace=polyaxon-v1
         ```
     {% endif %}
     If you do not have the right
