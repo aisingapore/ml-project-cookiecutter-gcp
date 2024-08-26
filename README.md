@@ -1,3 +1,6 @@
+# NOTICE: This cookiecutter template has been ***DEPRECATED***.
+# There are no plans in the near future to add Polyaxon functionality in https://github.com/aisingapore/kapitan-hull.
+
 # AISG's Cookiecutter Template for End-to-end ML Projects (GCP)
 
 ## Table of Contents
